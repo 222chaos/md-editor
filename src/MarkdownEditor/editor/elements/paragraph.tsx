@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { observer } from 'mobx-react-lite';
 import React, { useMemo } from 'react';
 import { Node } from 'slate';
 import { ElementProps, ParagraphNode } from '../../el';
@@ -7,19 +6,19 @@ import { useSelStatus } from '../../hooks/editor';
 import { useEditorStore } from '../store';
 import { DragHandle } from '../tools/DragHandle';
 
-export const Paragraph = observer((props: ElementProps<ParagraphNode>) => {
+export const Paragraph = (props: ElementProps<ParagraphNode>) => {
   const store = useEditorStore();
   const [selected, path] = useSelStatus(props.element);
 
   const isLatest = useMemo(() => {
-    if (store.editor.children.length === 0) return false;
-    if (!store.editorProps.typewriter) return false;
+    if (store?.editor?.children.length === 0) return false;
+    if (!store?.editorProps?.typewriter) return false;
 
     return store.isLatestNode(props.element);
   }, [
-    store.editor.children.at?.(path.at(0)!),
-    store.editor.children.at?.(path.at(0)! + 1),
-    store.editorProps.typewriter,
+    store?.editor?.children.at?.(path.at(0)!),
+    store?.editor?.children.at?.(path.at(0)! + 1),
+    store?.editorProps?.typewriter,
   ]);
 
   return React.useMemo(() => {
@@ -30,7 +29,7 @@ export const Paragraph = observer((props: ElementProps<ParagraphNode>) => {
         data-be={'paragraph'}
         className={classNames('ant-md-editor-drag-el', {
           empty: !str,
-          typewriter: isLatest && store.editorProps.typewriter,
+          typewriter: isLatest && store?.editorProps?.typewriter,
         })}
         onDragStart={store.dragStart}
         data-empty={!str && selected ? 'true' : undefined}
@@ -41,9 +40,8 @@ export const Paragraph = observer((props: ElementProps<ParagraphNode>) => {
     );
   }, [
     props.element.children,
-    store.refreshHighlight,
     selected,
     isLatest,
-    store.editorProps.typewriter,
+    store?.editorProps?.typewriter,
   ]);
-});
+};

@@ -2,7 +2,6 @@ import { CheckOutlined, CopyOutlined, RightOutlined } from '@ant-design/icons';
 import { ConfigProvider, Select } from 'antd';
 import classNames from 'classnames';
 import { runInAction } from 'mobx';
-import { observer } from 'mobx-react-lite';
 import React, {
   createContext,
   useCallback,
@@ -86,7 +85,7 @@ const langOptions = [
   'solidity',
 ].map((l) => ({ label: l, value: l.toLowerCase() }));
 
-export const CodeElement = observer((props: ElementProps<CodeNode>) => {
+export const CodeElement = (props: ElementProps<CodeNode>) => {
   const store = useEditorStore();
   const [editor, update] = useMEditor(props.element);
   const [state, setState] = useGetSetState({
@@ -300,16 +299,16 @@ export const CodeElement = observer((props: ElementProps<CodeNode>) => {
       )}
     </CodeCtx.Provider>,
   );
-});
+};
 
-export const CodeLine = observer((props: ElementProps<CodeLineNode>) => {
+export const CodeLine = (props: ElementProps<CodeLineNode>) => {
   const ctx = useContext(CodeCtx);
   const store = useEditorStore();
   const isLatest = useMemo(() => {
-    if (store.editor.children.length === 0) return false;
-    if (!store.editorProps.typewriter) return false;
+    if (store?.editor?.children.length === 0) return false;
+    if (!store?.editorProps?.typewriter) return false;
     return store.isLatestNode(props.element);
-  }, [store.editor.children, store.editorProps.typewriter]);
+  }, [store?.editor?.children, store?.editorProps?.typewriter]);
   const context = useContext(ConfigProvider.ConfigContext);
   const baseCls = context.getPrefixCls('md-editor-code');
 
@@ -317,7 +316,7 @@ export const CodeLine = observer((props: ElementProps<CodeLineNode>) => {
     return (
       <div
         className={classNames(`${baseCls}-content-code-line`, {
-          typewriter: isLatest && store.editorProps.typewriter,
+          typewriter: isLatest && store?.editorProps?.typewriter,
         })}
         data-be={'code-line'}
         {...props.attributes}
@@ -332,4 +331,4 @@ export const CodeLine = observer((props: ElementProps<CodeLineNode>) => {
     ctx.lang,
     store.refreshHighlight,
   ]);
-});
+};
