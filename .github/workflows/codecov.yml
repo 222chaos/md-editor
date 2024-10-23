@@ -10,22 +10,24 @@ on:
 
 jobs:
   test:
+    name: Run tests and collect coverage
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests with coverage
-        run: npm run test -- --coverage
+      - name: Run tests
+        run: npx vitest run --coverage
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/*.json
-          flags: unittests
-          name: code-coverage-report
