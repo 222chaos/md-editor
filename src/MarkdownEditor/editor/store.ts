@@ -28,10 +28,16 @@ import { schemaToMarkdown } from './utils';
 import { getOffsetLeft, getOffsetTop } from './utils/dom';
 import { EditorUtils } from './utils/editorUtils';
 
-export const EditorStoreContext = createContext<EditorStore | null>(null);
+export const EditorStoreContext = createContext<{
+  store: EditorStore;
+  typewriter: boolean;
+  readonly: boolean;
+} | null>(null);
+
 export const useEditorStore = () => {
   return (
     useContext(EditorStoreContext)! || {
+      store: {} as Record<string, any>,
       readonly: true,
     }
   );
@@ -90,7 +96,7 @@ const SUPPORT_TYPING_TAG = ['table-cell', 'code-line', 'paragraph', 'head'];
  * @method dragStart - 拖动开始处理。
  */
 export class EditorStore {
-  editor = withMarkdown(withReact(withHistory(createEditor())), this);
+  editor = withMarkdown(withReact(withHistory(createEditor())));
   manual = false;
   initializing = false;
   sel: BaseSelection | undefined;
@@ -106,7 +112,6 @@ export class EditorStore {
     'media',
     'attach',
   ]);
-  typewriter: boolean = false;
   draggedElement: null | HTMLElement = null;
   openInsertCompletion = false;
   insertCompletionText$ = new Subject<string>();

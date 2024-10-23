@@ -24,12 +24,7 @@ const voidNode = new Set(['hr', 'break']);
  *
  * 该插件还根据 `store.manual` 的值决定是否手动处理某些操作。
  */
-export const withMarkdown = (
-  editor: Editor,
-  props: {
-    manual: boolean;
-  },
-) => {
+export const withMarkdown = (editor: Editor) => {
   const { isInline, isVoid, apply } = editor;
 
   editor.isInline = (element) => {
@@ -140,36 +135,35 @@ export const withMarkdown = (
       }
     }
 
-    if (!props.manual) {
-      if (operation.type === 'move_node') {
-        const node = Node.get(editor, operation.path);
-        if (node?.type === 'table-cell') return;
-      }
-      if (operation.type === 'remove_node') {
-        const { node } = operation;
-        if (['table-row', 'table-cell'].includes(node.type)) {
-          if (node.type === 'table-cell') {
+    if (operation.type === 'move_node') {
+      const node = Node.get(editor, operation.path);
+      if (node?.type === 'table-cell') return;
+    }
+    if (operation.type === 'remove_node') {
+      const { node } = operation;
+      if (['table-row', 'table-cell'].includes(node.type)) {
+        if (node.type === 'table-cell') {
+          Transforms.insertFragment(editor, [{ text: '' }], {
+            at: {
+              anchor: Editor.start(editor, operation.path),
+              focus: Editor.end(editor, operation.path),
+            },
+          });
+        }
+        if (node.type === 'table-row') {
+          for (let i = 0; i < node.children?.length; i++) {
             Transforms.insertFragment(editor, [{ text: '' }], {
               at: {
-                anchor: Editor.start(editor, operation.path),
-                focus: Editor.end(editor, operation.path),
+                anchor: Editor.start(editor, [...operation.path, i]),
+                focus: Editor.end(editor, [...operation.path, i]),
               },
             });
           }
-          if (node.type === 'table-row') {
-            for (let i = 0; i < node.children?.length; i++) {
-              Transforms.insertFragment(editor, [{ text: '' }], {
-                at: {
-                  anchor: Editor.start(editor, [...operation.path, i]),
-                  focus: Editor.end(editor, [...operation.path, i]),
-                },
-              });
-            }
-          }
-          return;
         }
+        return;
       }
     }
+
     apply(operation);
   };
 

@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "typeRoots": [
+      "./src/utils" 
+    ],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -20,5 +23,10 @@
       "@ant-design/md-editor/*": ["src/*", "*"]
     }
   },
-  "include": [".dumirc.ts", "src/**/**/*", "src/MarkDown/demos/.tsx"]
+  "include": [
+    ".dumirc.ts",
+    "src/**/**/*",
+    "src/MarkDown/demos/.tsx",
+    "tests/**/*"
+  ]
 }

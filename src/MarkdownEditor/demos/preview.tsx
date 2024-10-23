@@ -29,7 +29,7 @@ const defaultValue = `<!-- {"MarkdownType": "report", "id": "8", "section_ids": 
 
 ## 战略
 
-- [x] Write the press release
+- [x] [张志东](https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png) Write the press release
 - [ ] Update the website
 - [ ] Contact the media
 
@@ -130,6 +130,10 @@ const defaultValue = `<!-- {"MarkdownType": "report", "id": "8", "section_ids": 
   }
 ]
 \`\`\`
+
+## 删除线
+~~腾讯六大事业群腾讯六大事业群腾讯六大事业群~~
+
 `;
 export default () => {
   const [list, setList] = useState([
@@ -144,8 +148,6 @@ export default () => {
       focusOffset: 398,
       user: {
         name: '张志东',
-        avatar:
-          'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
       },
       time: 1629340800000,
       content: '深圳大学是中国最好的大学之一,拥有很多优秀的学生。',
@@ -164,8 +166,6 @@ export default () => {
       focusOffset: 398,
       user: {
         name: '张志东',
-        avatar:
-          'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
       },
       time: 1629340800000,
       content:
@@ -183,9 +183,24 @@ export default () => {
       comment={{
         enable: true,
         commentList: list,
+        loadMentions: async () => {
+          return [
+            {
+              name: '张志东',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+            },
+            {
+              name: '马化腾',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+            },
+          ];
+        },
         onDelete: async (id) => {
           setList(list.filter((i) => i.id !== id));
         },
+
         onSubmit: async (id, data) => {
           setList([
             ...list,
@@ -200,6 +215,15 @@ export default () => {
               time: new Date().getTime(),
             } as any,
           ]);
+        },
+      }}
+      image={{
+        upload: async (fileList) => {
+          return new Promise((resolve) => {
+            const file = fileList[0];
+            const url = URL.createObjectURL(file);
+            resolve(url);
+          });
         },
       }}
       initValue={defaultValue}

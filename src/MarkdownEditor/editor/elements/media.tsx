@@ -7,6 +7,7 @@ import { Transforms } from 'slate';
 import { ElementProps, MediaNode } from '../../el';
 import { useSelStatus } from '../../hooks/editor';
 import { AvatarList } from '../components/ContributorAvatar';
+import { useEditorStore } from '../store';
 import { DragHandle } from '../tools/DragHandle';
 import { getMediaType } from '../utils/dom';
 import { EditorUtils } from '../utils/editorUtils';
@@ -50,27 +51,31 @@ export function useStyle(prefixCls?: string) {
  * @param props
  * @returns
  */
-export const ResizeImage = (
-  props: React.ImgHTMLAttributes<HTMLImageElement> & {
-    onResizeStart?: (e: React.SyntheticEvent) => void;
-    onResizeStop?: (
-      e: React.SyntheticEvent,
-      size: {
-        width: number | string;
-        height: number | string;
-      },
-    ) => void;
-    supportResize?: boolean;
-    defaultSize?: {
-      width?: number;
-      height?: number;
-    };
-  },
-) => {
+export const ResizeImage = ({
+  onResizeStart,
+  onResizeStop,
+  supportResize,
+  defaultSize,
+  ...props
+}: React.ImgHTMLAttributes<HTMLImageElement> & {
+  onResizeStart?: (e: React.SyntheticEvent) => void;
+  onResizeStop?: (
+    e: React.SyntheticEvent,
+    size: {
+      width: number | string;
+      height: number | string;
+    },
+  ) => void;
+  supportResize?: boolean;
+  defaultSize?: {
+    width?: number;
+    height?: number;
+  };
+}) => {
   const radio = useRef<number>(1);
   const [size, setSize] = React.useState({
-    width: props.defaultSize?.width || '100%',
-    height: props.defaultSize?.height || 'auto',
+    width: defaultSize?.width || 400,
+    height: defaultSize?.height || 0,
   } as {
     width: number | string;
     height: number | string;
@@ -78,12 +83,12 @@ export const ResizeImage = (
   const { wrapSSR, hashId } = useStyle('react-resizable');
   return wrapSSR(
     <ResizableBox
-      onResizeStart={props.onResizeStart}
+      onResizeStart={onResizeStart}
       onResizeStop={(e) => {
-        props.onResizeStop?.(e, size);
+        onResizeStop?.(e, size);
       }}
       className={hashId}
-      handle={!props.supportResize ? <div /> : undefined}
+      handle={!supportResize ? <div /> : undefined}
       width={size.width as number}
       height={size.height as number}
       onResize={(_, { size }) => {
@@ -132,8 +137,8 @@ export function Media({
   children,
 }: ElementProps<MediaNode>) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, path, store] = useSelStatus(element);
-
+  const [_, path] = useSelStatus(element);
+  const { store, readonly } = useEditorStore();
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [state, setState] = useGetSetState({
     height: element.height,
@@ -145,6 +150,7 @@ export function Media({
   });
   const updateElement = useCallback(
     (attr: Record<string, any>) => {
+      if (!store?.editor) return;
       Transforms.setNodes(store?.editor, attr, { at: path });
     },
     [path],
@@ -187,7 +193,7 @@ export function Media({
   const imageDom = useMemo(() => {
     if (state().type !== 'image' && state().type !== 'other') return null;
 
-    return !store?.readonly ? (
+    return !readonly ? (
       <ResizeImage
         defaultSize={{
           width: element.width,
@@ -221,7 +227,7 @@ export function Media({
         height={element.height}
       />
     );
-  }, [state().type, state().url, store?.readonly, state().selected]);
+  }, [state().type, state().url, readonly, state().selected]);
 
   const mediaElement = useMemo(() => {
     if (state().type === 'video')
