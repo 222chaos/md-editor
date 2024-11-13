@@ -1,0 +1,66 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Table component > renders Table component correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="overflow-shadow-container card-table-wrap"
+    data-be="table"
+    data-slate-node="element"
+    style="display: flex; gap: 1px; min-width: 600px;"
+  >
+    <div
+      class="ant-md-editor-drag-el ant-md-editor-table"
+      style="max-width: 100%; width: 100%;"
+    >
+      <span
+        class="ant-md-editor-drag-handle"
+        contenteditable="false"
+      >
+        <div
+          class="ant-md-editor-drag-icon"
+        >
+          <span
+            aria-label="holder"
+            class="anticon anticon-holder"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="holder"
+              fill="currentColor"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M300 276.5a56 56 0 1056-97 56 56 0 00-56 97zm0 284a56 56 0 1056-97 56 56 0 00-56 97zM640 228a56 56 0 10112 0 56 56 0 00-112 0zm0 284a56 56 0 10112 0 56 56 0 00-112 0zM300 844.5a56 56 0 1056-97 56 56 0 00-56 97zM640 796a56 56 0 10112 0 56 56 0 00-112 0z"
+              />
+            </svg>
+          </span>
+        </div>
+      </span>
+      <div
+        style="width: 100%; max-width: 100%; overflow: auto; flex: 1;"
+      >
+        <span>
+          Test Content
+        </span>
+        <table
+          style="border-collapse: collapse; border-spacing: 0;"
+        >
+          <tbody />
+        </table>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Table component > renders TableCell component correctly as <th> when title is present 1`] = `
+<DocumentFragment>
+  <span>
+    Test Content
+  </span>
+</DocumentFragment>
+`;
