@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Table component > renders Table component correctly 1`] = `
+exports[`Table component > renders Table component correctly from Markdown 1`] = `
 <DocumentFragment>
   <div
     class="overflow-shadow-container card-table-wrap"
