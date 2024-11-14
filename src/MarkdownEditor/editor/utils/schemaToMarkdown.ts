@@ -147,9 +147,6 @@ const parserNode = (node: any, preString = '', parent: any[]) => {
     case 'schema':
       str += '```schema\n' + JSON.stringify(node.otherProps, null, 2) + '\n```';
       break;
-    case 'card':
-      str += schemaToMarkdown(node.children, preString, newParent);
-      break;
     case 'link-card':
       str += `[${node.name}](${node.url} "${node.name}")`;
       break;
