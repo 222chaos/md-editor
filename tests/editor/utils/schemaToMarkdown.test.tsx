@@ -261,8 +261,35 @@ Class A {
 ## 删除线
 ~~腾讯六大事业群腾讯六大事业群腾讯六大事业群~~
 
+<!-- {"elementType":"column"} -->       
+| column1                                                                         | column2 |
+| ------------------------------------------------------------------------------- | ------- |
+| ![](blob:http://localhost:8000/b3fb90af-d975-4954-8299-88b06c03673e) | xxxx    |
+  
     `;
-    const schema = parserMarkdown(input).schema;
+
+    let md = '';
+    const chunkSize = 200;
+    let buffer = '';
+
+    for (let i = 0; i < input.length; i += chunkSize) {
+      const chunk = input.slice(i, i + chunkSize);
+      buffer += chunk;
+
+      const openBrackets = (buffer.match(/{/g) || []).length;
+      const closeBrackets = (buffer.match(/}/g) || []).length;
+      const openSquareBrackets = (buffer.match(/\[/g) || []).length;
+      const closeSquareBrackets = (buffer.match(/]/g) || []).length;
+
+      if (
+        openBrackets === closeBrackets &&
+        openSquareBrackets === closeSquareBrackets
+      ) {
+        md += buffer;
+        buffer = '';
+      }
+    }
+    const schema = parserMarkdown(md).schema;
     fs.writeFileSync('schema.json', JSON.stringify(schema, null, 2), 'utf-8');
     const schemaFilePath = path.resolve(__dirname, './schema.json');
 
