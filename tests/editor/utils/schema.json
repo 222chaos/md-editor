@@ -6659,5 +6659,97 @@
         }
       ]
     }
+  },
+  {
+    "type": "code",
+    "language": "html",
+    "render": true,
+    "children": [
+      {
+        "type": "code-line",
+        "children": [
+          {
+            "text": "<!-- {\"elementType\":\"column\"} -->       "
+          }
+        ]
+      }
+    ],
+    "otherProps": {
+      "elementType": "column"
+    },
+    "contextProps": {
+      "elementType": "column"
+    }
+  },
+  {
+    "type": "card",
+    "children": [
+      {
+        "type": "card-before",
+        "children": [
+          {
+            "text": ""
+          }
+        ]
+      },
+      {
+        "type": "column-group",
+        "children": [
+          {
+            "type": "column-cell",
+            "children": [
+              {
+                "type": "media",
+                "children": [
+                  {
+                    "type": "card-before",
+                    "children": [
+                      {
+                        "text": ""
+                      }
+                    ]
+                  },
+                  {
+                    "type": "card-after",
+                    "children": [
+                      {
+                        "text": ""
+                      }
+                    ]
+                  }
+                ],
+                "url": "blob:http://localhost:8000/b3fb90af-d975-4954-8299-88b06c03673e",
+                "alt": ""
+              }
+            ]
+          },
+          {
+            "type": "column-cell",
+            "children": [
+              {
+                "text": "xxxx"
+              }
+            ]
+          }
+        ],
+        "otherProps": {
+          "elementType": "column"
+        }
+      },
+      {
+        "type": "card-after",
+        "children": [
+          {
+            "text": ""
+          }
+        ]
+      }
+    ],
+    "contextProps": {
+      "elementType": "column"
+    },
+    "otherProps": {
+      "elementType": "column"
+    }
   }
 ]
