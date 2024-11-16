@@ -147,6 +147,9 @@ const parserNode = (node: any, preString = '', parent: any[]) => {
     case 'schema':
       str += '```schema\n' + JSON.stringify(node.otherProps, null, 2) + '\n```';
       break;
+    case 'card':
+      str += schemaToMarkdown(node.children, preString, newParent);
+      break;
     case 'link-card':
       str += `[${node.name}](${node.url} "${node.name}")`;
       break;
@@ -179,7 +182,12 @@ export const schemaToMarkdown = (
   let str = '';
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i];
-    if (node.otherProps) {
+    const p = parent[parent.length - 1];
+
+    const isCardParent = p.type === 'card';
+    const isTableChild = node.type === 'table';
+
+    if (node.otherProps && !(isCardParent && isTableChild)) {
       let configProps = {
         ...node.otherProps,
       };
@@ -194,7 +202,7 @@ export const schemaToMarkdown = (
       }
       str += `<!--${JSON.stringify(configProps)}-->\n`;
     }
-    const p = parent[parent.length - 1];
+
     if (p.type === 'list-item') {
       const list = parent[parent.length - 2];
       let pre = preString + (list.order ? space + ' ' : space);
@@ -292,7 +300,6 @@ export const schemaToMarkdown = (
   }
   return str;
 };
-
 export const isMix = (t: Text) => {
   return (
     Object.keys(t).filter((key) =>
