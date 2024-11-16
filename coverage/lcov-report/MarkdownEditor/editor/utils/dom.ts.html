@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.75% </span>
+                <span class="strong">56.25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/48</span>
+                <span class='fraction'>27/48</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">29.41% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/34</span>
+                <span class='fraction'>17/34</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.9% </span>
+                <span class="strong">58.53% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>18/41</span>
+                <span class='fraction'>24/41</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -253,24 +253,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -374,20 +374,20 @@ export const getMediaType = (name?: string, alt?: string) =&gt; {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (alt.startsWith('data:')) <span class="cstat-no" title="statement not covered" >return 'image';</span>
     if (alt.startsWith('video:')) return 'video';
     <span class="missing-if-branch" title="if path not taken" >I</span>if (alt.startsWith('audio:')) <span class="cstat-no" title="statement not covered" >return 'audio';</span>
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (alt.startsWith('attachment:')) return 'attachment';
+    if (alt.startsWith('attachment:')) return 'attachment';
   }
   name = name || <span class="branch-1 cbranch-no" title="branch not covered" >'';</span>
   <span class="missing-if-branch" title="if path not taken" >I</span>if (name?.startsWith('data:')) <span class="cstat-no" title="statement not covered" >return 'image';</span>
   name = name.split('?')[0];
   const ext = name.toLowerCase().match(/\.\w+$/)?.[0];
-  <span class="missing-if-branch" title="else path not taken" >E</span>if (!ext) return 'other';
-<span class="cstat-no" title="statement not covered" >  if (['.md', '.markdown'].includes(ext)) <span class="cstat-no" title="statement not covered" >return 'markdown';</span></span>
-<span class="cstat-no" title="statement not covered" >  if (['.png', '.jpg', '.gif', '.svg', '.jpeg', '.webp'].includes(ext))</span>
-<span class="cstat-no" title="statement not covered" >    return 'image';</span>
-<span class="cstat-no" title="statement not covered" >  if (['.mp3', '.ogg', '.aac', '.wav', '.oga', '.m4a'].includes(ext))</span>
+  if (!ext) return 'other';
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (['.md', '.markdown'].includes(ext)) <span class="cstat-no" title="statement not covered" >return 'markdown';</span>
+  if (['.png', '.jpg', '.gif', '.svg', '.jpeg', '.webp'].includes(ext))
+    return 'image';
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (['.mp3', '.ogg', '.aac', '.wav', '.oga', '.m4a'].includes(ext))
 <span class="cstat-no" title="statement not covered" >    return 'audio';</span>
-<span class="cstat-no" title="statement not covered" >  if (['.mpg', '.mp4', '.webm', '.mpeg', '.ogv', '.wmv', '.m4v'].includes(ext))</span>
-<span class="cstat-no" title="statement not covered" >    return 'video';</span>
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (['.mpg', '.mp4', '.webm', '.mpeg', '.ogv', '.wmv', '.m4v'].includes(ext))
+    return 'video';
 <span class="cstat-no" title="statement not covered" >  if (</span>
     [
       '.pdf',
@@ -421,7 +421,7 @@ export const getSelRect = <span class="fstat-no" title="function not covered" >(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-11-14T15:55:02.763Z
+                at 2024-11-16T07:06:42.021Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

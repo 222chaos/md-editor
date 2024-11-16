@@ -1,5 +1,31 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`schemaToMarkdown > complements for schemaToMarkdown 1`] = `
+"<a href="https://example.com/document.pdf" download data-size="2MB">Document</a>
+
+<video src="https://example.com/video.mp4" alt="" height="360"/>
+
+<img src="https://example.com/image.jpg" alt="" height="200" data-align="center"/>
+
+| Header 1      | Header 2      |
+| ------------- | ------------- |
+| Row 1, Cell 1 | Row 1, Cell 2 |
+
+|  |
+|  |
+
+
+|  |
+|  |
+|  |
+
+[Example Link Card](https://example.com "Example Link Card")
+
+***
+
+<br/>"
+`;
+
 exports[`schemaToMarkdown > should correctly convert schema nodes for a single Markdown input 1`] = `
 "## 创始人
 
