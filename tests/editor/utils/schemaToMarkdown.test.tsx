@@ -291,13 +291,12 @@ Class A {
       }
     }
     const schema = parserMarkdown(md).schema;
-    fs.writeFileSync('schema.json', JSON.stringify(schema, null, 2), 'utf-8');
+    // fs.writeFileSync('schema.json', JSON.stringify(schema, null, 2), 'utf-8');
     const schemaFilePath = path.resolve(__dirname, './schema.json');
 
     const expectedSchema = JSON.parse(fs.readFileSync(schemaFilePath, 'utf-8'));
 
     const markdownOutput = schemaToMarkdown(expectedSchema);
-    console.log(markdownOutput);
     expect(expectedSchema).toEqual(schema);
     expect(markdownOutput).toMatchSnapshot();
   });
