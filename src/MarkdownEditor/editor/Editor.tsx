@@ -23,7 +23,7 @@ import {
 } from './plugins/useHighlight';
 import { useKeyboard } from './plugins/useKeyboard';
 import { useOnchange } from './plugins/useOnchange';
-import { useEditorStore } from './store';
+import { EditorStore, useEditorStore } from './store';
 import { useStyle } from './style';
 import { isMarkdown } from './utils';
 import { getMediaType } from './utils/dom';
@@ -37,6 +37,207 @@ import {
   isPath,
 } from './utils/editorUtils';
 import { toUnixPath } from './utils/path';
+
+export const handlePaste = async (
+  event: React.ClipboardEvent<HTMLDivElement>,
+  editor: Editor,
+  store: EditorStore,
+  editorProps: MarkdownEditorProps,
+) => {
+  event.stopPropagation();
+  event.preventDefault();
+  if (!Range.isCollapsed(store.editor.selection!)) {
+    if (store.editor.selection && store.editor.selection.anchor) {
+      Transforms.delete(store.editor, { at: store.editor.selection! });
+    }
+  }
+
+  const selection = store.editor.selection;
+  const text = event.clipboardData.getData('text/plain');
+
+  // 如果是表格或者代码块，直接插入文本
+  if (selection?.focus) {
+    const rangeNodes = Editor.node(editor, [selection.focus.path.at(0)!]);
+    if (!rangeNodes) return;
+    const rangeNode = rangeNodes.at(0) as Elements;
+    if (
+      rangeNode.type === 'table-cell' ||
+      rangeNode.type === 'table-row' ||
+      rangeNode.type === 'table' ||
+      rangeNode.type === 'code' ||
+      rangeNode.type === 'schema' ||
+      rangeNode.type === 'apaasify' ||
+      rangeNode.type === 'description'
+    ) {
+      Transforms.insertText(editor, text);
+      return;
+    }
+  }
+
+  if (isMarkdown(text)) {
+    parseMarkdownToNodesAndInsert(editor, text);
+    return;
+  }
+
+  try {
+    if (text.startsWith('media://') || text.startsWith('attach://')) {
+      const path = EditorUtils.findMediaInsertPath(store.editor);
+      let insert = false;
+      const urlObject = new URL(text);
+      let url = urlObject.searchParams.get('url');
+      if (url && !url.startsWith('http')) {
+        url = toUnixPath(url);
+      }
+      if (path) {
+        if (text.startsWith('media://')) {
+          insert = true;
+          Transforms.insertNodes(
+            store.editor,
+            {
+              type: 'media',
+              height: urlObject.searchParams.get('height')
+                ? +urlObject.searchParams.get('height')!
+                : undefined,
+              url: url || undefined,
+              children: [{ text: '' }],
+            },
+            { select: true, at: path },
+          );
+        }
+        if (text.startsWith('attach://')) {
+          insert = true;
+          Transforms.insertNodes(
+            store.editor,
+            {
+              type: 'attach',
+              name: urlObject.searchParams.get('name'),
+              size: Number(urlObject.searchParams.get('size') || 0),
+              url: url || undefined,
+              children: [{ text: '' }],
+            },
+            { select: true, at: path },
+          );
+        }
+        if (insert) {
+          event.preventDefault();
+          const next = Editor.next(store.editor, { at: path });
+          if (next && next[0].type === 'paragraph' && !Node.string(next[0])) {
+            Transforms.delete(store.editor, { at: next[1] });
+          }
+        }
+      }
+    }
+    if (text.startsWith('http')) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (['image', 'video', 'audio'].includes(getMediaType(text))) {
+        if (text.startsWith('http')) {
+          const path = EditorUtils.findMediaInsertPath(store.editor);
+          if (!path) return;
+          Transforms.insertNodes(
+            store.editor,
+            {
+              type: 'media',
+              url: text,
+              children: [{ text: '' }],
+            },
+            { select: true, at: path },
+          );
+        }
+      } else {
+        store.insertLink(text);
+      }
+    }
+  } catch (e) {}
+
+  const [node] = Editor.nodes<Elements>(editor, {
+    match: (n) => Element.isElement(n) && n.type === 'code',
+  });
+
+  if (node) {
+    Transforms.insertFragment(
+      editor,
+      //@ts-ignore
+      text.split('\n').map((c) => {
+        return {
+          type: 'code-line',
+          children: [{ text: c.replace(/\t/g, ' '.repeat(2)) }],
+        };
+      }),
+    );
+    return;
+  }
+
+  try {
+    const paste = await event.clipboardData.getData('text/html');
+    if (paste) {
+      const success = await insertParsedHtmlNodes(editor, paste, editorProps);
+      if (success) {
+        return;
+      }
+    }
+  } catch (error) {
+    console.log('error', error);
+  }
+
+  try {
+    const fileList = event.clipboardData.files;
+    if (fileList.length > 0) {
+      const hideLoading = message.loading('Uploading...');
+      try {
+        const url = [];
+        for await (const file of fileList) {
+          const serverUrl = await editorProps.image?.upload?.([file]);
+          url.push(serverUrl);
+        }
+
+        if (store.editor.selection?.focus.path) {
+          Transforms.delete(store.editor, {
+            at: store.editor.selection.focus.path!,
+          });
+        }
+        [url].flat(2).forEach((u) => {
+          Transforms.insertNodes(
+            store.editor,
+            {
+              type: 'media',
+              url: u,
+              children: [{ text: '' }],
+            },
+            {
+              select: true,
+              at: store.editor.selection
+                ? Editor.after(store.editor, store.editor.selection.focus.path)!
+                : Editor.end(store.editor, []),
+            },
+          );
+        });
+        message.success('Upload success');
+      } catch (error) {
+        console.log('error', error);
+      } finally {
+        hideLoading();
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  } catch (error) {
+    console.log('error', error);
+  }
+
+  if (hasEditableTarget(editor, event.target)) {
+    ReactEditor.insertData(editor, event.clipboardData);
+    return;
+  }
+
+  Transforms.removeNodes(editor, {
+    at: editor.selection!,
+    match: (n) => n.type === 'media' || n.type === 'attach',
+  });
+  Transforms.insertText(editor, text);
+};
 
 export const MEditor = observer(
   ({
@@ -189,213 +390,10 @@ export const MEditor = observer(
      * @param {React.ClipboardEvent<HTMLDivElement>} e
      */
     const onPaste = useCallback(
-      async (event: React.ClipboardEvent<HTMLDivElement>) => {
-        event.stopPropagation();
-        event.preventDefault();
-        if (!Range.isCollapsed(store.editor.selection!)) {
-          if (store.editor.selection && store.editor.selection.anchor) {
-            Transforms.delete(store.editor, { at: store.editor.selection! });
-          }
-        }
-
-        const selection = store.editor.selection;
-        const text = event.clipboardData.getData('text/plain');
-
-        // 如果是表格或者代码块，直接插入文本
-        if (selection?.focus) {
-          const rangeNodes = Editor.node(editor, [selection.focus.path.at(0)!]);
-          if (!rangeNodes) return;
-          const rangeNode = rangeNodes.at(0) as Elements;
-          if (
-            rangeNode.type === 'table-cell' ||
-            rangeNode.type === 'table-row' ||
-            rangeNode.type === 'table' ||
-            rangeNode.type === 'code' ||
-            rangeNode.type === 'schema' ||
-            rangeNode.type === 'apaasify' ||
-            rangeNode.type === 'description'
-          ) {
-            Transforms.insertText(editor, text);
-            return;
-          }
-        }
-
-        if (isMarkdown(text)) {
-          parseMarkdownToNodesAndInsert(editor, text);
-          return;
-        }
-
-        try {
-          if (text.startsWith('media://') || text.startsWith('attach://')) {
-            const path = EditorUtils.findMediaInsertPath(store.editor);
-            let insert = false;
-            const urlObject = new URL(text);
-            let url = urlObject.searchParams.get('url');
-            if (url && !url.startsWith('http')) {
-              url = toUnixPath(url);
-            }
-            if (path) {
-              if (text.startsWith('media://')) {
-                insert = true;
-                Transforms.insertNodes(
-                  store.editor,
-                  {
-                    type: 'media',
-                    height: urlObject.searchParams.get('height')
-                      ? +urlObject.searchParams.get('height')!
-                      : undefined,
-                    url: url || undefined,
-                    children: [{ text: '' }],
-                  },
-                  { select: true, at: path },
-                );
-              }
-              if (text.startsWith('attach://')) {
-                insert = true;
-                Transforms.insertNodes(
-                  store.editor,
-                  {
-                    type: 'attach',
-                    name: urlObject.searchParams.get('name'),
-                    size: Number(urlObject.searchParams.get('size') || 0),
-                    url: url || undefined,
-                    children: [{ text: '' }],
-                  },
-                  { select: true, at: path },
-                );
-              }
-              if (insert) {
-                event.preventDefault();
-                const next = Editor.next(store.editor, { at: path });
-                if (
-                  next &&
-                  next[0].type === 'paragraph' &&
-                  !Node.string(next[0])
-                ) {
-                  Transforms.delete(store.editor, { at: next[1] });
-                }
-              }
-            }
-          }
-          if (text.startsWith('http')) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (['image', 'video', 'audio'].includes(getMediaType(text))) {
-              if (text.startsWith('http')) {
-                const path = EditorUtils.findMediaInsertPath(store.editor);
-                if (!path) return;
-                Transforms.insertNodes(
-                  store.editor,
-                  {
-                    type: 'media',
-                    url: text,
-                    children: [{ text: '' }],
-                  },
-                  { select: true, at: path },
-                );
-              }
-            } else {
-              store.insertLink(text);
-            }
-          }
-        } catch (e) {}
-
-        const [node] = Editor.nodes<Elements>(editor, {
-          match: (n) => Element.isElement(n) && n.type === 'code',
-        });
-
-        if (node) {
-          Transforms.insertFragment(
-            editor,
-            //@ts-ignore
-            text.split('\n').map((c) => {
-              return {
-                type: 'code-line',
-                children: [{ text: c.replace(/\t/g, ' '.repeat(2)) }],
-              };
-            }),
-          );
-          return;
-        }
-
-        try {
-          const paste = await event.clipboardData.getData('text/html');
-          if (paste) {
-            const success = await insertParsedHtmlNodes(
-              editor,
-              paste,
-              editorProps,
-            );
-            if (success) {
-              return;
-            }
-          }
-        } catch (error) {
-          console.log('error', error);
-        }
-
-        try {
-          const fileList = event.clipboardData.files;
-          if (fileList.length > 0) {
-            const hideLoading = message.loading('Uploading...');
-            try {
-              const url = [];
-              for await (const file of fileList) {
-                const serverUrl = await editorProps.image?.upload?.([file]);
-                url.push(serverUrl);
-              }
-
-              if (store.editor.selection?.focus.path) {
-                Transforms.delete(store.editor, {
-                  at: store.editor.selection.focus.path!,
-                });
-              }
-              [url].flat(2).forEach((u) => {
-                Transforms.insertNodes(
-                  store.editor,
-                  {
-                    type: 'media',
-                    url: u,
-                    children: [{ text: '' }],
-                  },
-                  {
-                    select: true,
-                    at: store.editor.selection
-                      ? Editor.after(
-                          store.editor,
-                          store.editor.selection.focus.path,
-                        )!
-                      : Editor.end(store.editor, []),
-                  },
-                );
-              });
-              message.success('Upload success');
-            } catch (error) {
-              console.log('error', error);
-            } finally {
-              hideLoading();
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-          }
-        } catch (error) {
-          console.log('error', error);
-        }
-
-        if (hasEditableTarget(editor, event.target)) {
-          ReactEditor.insertData(editor, event.clipboardData);
-          return;
-        }
-
-        Transforms.removeNodes(editor, {
-          at: editor.selection!,
-          match: (n) => n.type === 'media' || n.type === 'attach',
-        });
-        Transforms.insertText(editor, text);
+      (event: React.ClipboardEvent<HTMLDivElement>) => {
+        handlePaste(event, editor, store, editorProps);
       },
-      [note],
+      [editor, store, editorProps, note],
     );
 
     /**
