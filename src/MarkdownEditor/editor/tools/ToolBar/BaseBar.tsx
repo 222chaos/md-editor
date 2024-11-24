@@ -110,7 +110,7 @@ export const BaseToolBar = observer(
     const { hashId } = props;
 
     const { store, keyTask$ } = useEditorStore();
-
+    console.log('store', store);
     const [, setRefresh] = React.useState(false);
     const [highColor, setHighColor] = React.useState<string | null>(null);
 
