@@ -1,8 +1,8 @@
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { MarkdownInputField } from '../MarkdownInputField';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as AttachmentUtils from '../AttachmentButton/utils';
+import { MarkdownInputField } from '../MarkdownInputField';
 
 // Mock BaseMarkdownEditor to avoid complex slate initialization but we need to ensure refs work.
 // Actually, using the real component seems to work in other tests, but let's check if we need to mock isMobileDevice.
@@ -35,12 +35,12 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
   describe('Mode: Enter (Default)', () => {
     it('should send on Enter', () => {
       setup({ triggerSendKey: 'Enter' });
-      
+
       const wrapper = document.querySelector('.ant-agentic-md-input-field');
       if (!wrapper) throw new Error('Wrapper not found');
 
       fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13 });
-      
+
       expect(onSend).toHaveBeenCalledTimes(1);
     });
 
@@ -48,8 +48,13 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       setup({ triggerSendKey: 'Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
-      fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13, shiftKey: true });
-      
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
+        shiftKey: true,
+      });
+
       expect(onSend).not.toHaveBeenCalled();
     });
 
@@ -57,8 +62,13 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       setup({ triggerSendKey: 'Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
-      fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13, ctrlKey: true });
-      
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
+        ctrlKey: true,
+      });
+
       expect(onSend).not.toHaveBeenCalled();
     });
   });
@@ -68,8 +78,13 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       setup({ triggerSendKey: 'Mod+Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
-      fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13, ctrlKey: true });
-      
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
+        ctrlKey: true,
+      });
+
       expect(onSend).toHaveBeenCalledTimes(1);
     });
 
@@ -77,8 +92,13 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       setup({ triggerSendKey: 'Mod+Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
-      fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13, metaKey: true });
-      
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
+        metaKey: true,
+      });
+
       expect(onSend).toHaveBeenCalledTimes(1);
     });
 
@@ -87,7 +107,7 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
       fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13 });
-      
+
       expect(onSend).not.toHaveBeenCalled();
     });
 
@@ -95,14 +115,14 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       setup({ triggerSendKey: 'Mod+Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
 
-      fireEvent.keyDown(wrapper, { 
-        key: 'Enter', 
-        code: 'Enter', 
-        charCode: 13, 
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
         ctrlKey: true,
-        shiftKey: true 
+        shiftKey: true,
       });
-      
+
       expect(onSend).not.toHaveBeenCalled();
     });
   });
@@ -110,7 +130,7 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
   describe('Mobile Device Override', () => {
     it('should force Mod+Enter mode on mobile even if configured as Enter', () => {
       vi.spyOn(AttachmentUtils, 'isMobileDevice').mockReturnValue(true);
-      
+
       // Configure as 'Enter' mode
       setup({ triggerSendKey: 'Enter' });
       const wrapper = document.querySelector('.ant-agentic-md-input-field')!;
@@ -120,7 +140,12 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
       expect(onSend).not.toHaveBeenCalled();
 
       // Try Mod+Enter - SHOULD send
-      fireEvent.keyDown(wrapper, { key: 'Enter', code: 'Enter', charCode: 13, ctrlKey: true });
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
+        charCode: 13,
+        ctrlKey: true,
+      });
       expect(onSend).toHaveBeenCalledTimes(1);
     });
   });
@@ -132,20 +157,20 @@ describe('MarkdownInputField - Keyboard Shortcuts', () => {
 
       // Simulate composition event properties
       // Note: nativeEvent must have isComposing: true
-      
+
       // Override isComposing on the event object because KeyboardEventInit might not set it on all environments/browsers perfectly in jsdom?
       // Actually React synthesizes events. fireEvent creates synthetic events.
       // We can pass `isComposing: true` to fireEvent options.
-      
-      fireEvent.keyDown(wrapper, { 
-        key: 'Enter', 
-        code: 'Enter', 
+
+      fireEvent.keyDown(wrapper, {
+        key: 'Enter',
+        code: 'Enter',
         charCode: 13,
         isComposing: true,
         // Also simulate nativeEvent
-        nativeEvent: { isComposing: true }
+        nativeEvent: { isComposing: true },
       });
-      
+
       expect(onSend).not.toHaveBeenCalled();
     });
   });

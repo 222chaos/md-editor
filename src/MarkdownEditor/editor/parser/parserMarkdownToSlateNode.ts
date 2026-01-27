@@ -213,7 +213,10 @@ export interface ParserMarkdownToSlateNodeConfig {
  * 注意：parserConfig 需要通过 handleSingleElement 传递，不在这里传递
  */
 type ElementHandler = {
-  handler: (element: any, context: ElementHandlerContext) => Element | Element[] | null;
+  handler: (
+    element: any,
+    context: ElementHandlerContext,
+  ) => Element | Element[] | null;
   needsHtmlResult?: boolean;
 };
 
@@ -399,7 +402,10 @@ export class MarkdownToSlateParser {
         continue;
       }
 
-      const config = this.resolveConfig(context.preElement, context.contextProps);
+      const config = this.resolveConfig(
+        context.preElement,
+        context.contextProps,
+      );
       const pluginResult = this.parseWithPlugins(currentElement);
       let el: Element | Element[] | null = pluginResult.el;
 
@@ -515,18 +521,20 @@ export class MarkdownToSlateParser {
     };
   }
 
-  private handleSingleElement(
-    params: HandleSingleElementParams,
-  ): { el: Element | Element[] | null; contextProps?: any; htmlTag?: any[] } {
+  private handleSingleElement(params: HandleSingleElementParams): {
+    el: Element | Element[] | null;
+    contextProps?: any;
+    htmlTag?: any[];
+  } {
     const { currentElement, config, parent, htmlTag, preElement } = params;
     const elementType = currentElement.type;
     const elementHandlers = this.getElementHandlers();
     const handlerInfo = elementHandlers[elementType];
 
     if (handlerInfo?.needsHtmlResult) {
-      const htmlResult = handleHtml(currentElement, parent, htmlTag, (md) =>
-        ({ schema: this.parse(md).schema }),
-      );
+      const htmlResult = handleHtml(currentElement, parent, htmlTag, (md) => ({
+        schema: this.parse(md).schema,
+      }));
       const result: any = {
         el: htmlResult.el,
       };
@@ -550,15 +558,12 @@ export class MarkdownToSlateParser {
       };
     }
 
-    const handlerResult = handlerInfo.handler(
-      currentElement,
-      {
-        config,
-        parent,
-        htmlTag,
-        preElement,
-      },
-    );
+    const handlerResult = handlerInfo.handler(currentElement, {
+      config,
+      parent,
+      htmlTag,
+      preElement,
+    });
 
     return { el: handlerResult };
   }

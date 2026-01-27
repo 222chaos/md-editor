@@ -31,10 +31,7 @@ export const applyContextPropsAndConfig = (
         result.otherProps = config;
       }
       const alignVal = resolveAlign(item, result);
-      if (
-        alignVal &&
-        (result.type === 'paragraph' || result.type === 'head')
-      ) {
+      if (alignVal && (result.type === 'paragraph' || result.type === 'head')) {
         result.align = alignVal;
       }
       return result;
@@ -49,10 +46,7 @@ export const applyContextPropsAndConfig = (
     result.otherProps = config;
   }
   const alignVal = resolveAlign(el, result);
-  if (
-    alignVal &&
-    (result.type === 'paragraph' || result.type === 'head')
-  ) {
+  if (alignVal && (result.type === 'paragraph' || result.type === 'head')) {
     result.align = alignVal;
   }
   return result;

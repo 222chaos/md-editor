@@ -1,6 +1,6 @@
-import { Typography } from 'antd';
-import React from 'react';
 import * as SofaIcons from '@sofa-design/icons';
+import { Input, Typography } from 'antd';
+import React, { useMemo, useState } from 'react';
 
 type SofaIconEntry = [string, React.ElementType];
 
@@ -93,21 +93,40 @@ const getSofaIconEntries = (): SofaIconEntry[] => {
     iconEntries.push([name, icon as React.ElementType]);
   });
 
-  return iconEntries.sort(([nameA], [nameB]) =>
-    nameA.localeCompare(nameB),
-  );
+  return iconEntries.sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
 };
 
 const sofaIconEntries = getSofaIconEntries();
 
 const IconListDemo: React.FC = () => {
+  const [searchValue, setSearchValue] = useState('');
+
+  const filteredIconEntries = useMemo(() => {
+    if (!searchValue.trim()) {
+      return sofaIconEntries;
+    }
+
+    const lowerSearchValue = searchValue.toLowerCase();
+    return sofaIconEntries.filter(([iconName]) =>
+      iconName.toLowerCase().includes(lowerSearchValue),
+    );
+  }, [searchValue]);
+
   return (
     <div style={containerStyle}>
+      <Input
+        placeholder="搜索图标名称"
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        allowClear
+        style={{ marginBottom: GRID_GAP }}
+      />
       <Typography.Text type="secondary">
-        共 {sofaIconEntries.length} 个 Sofa Icons
+        共 {filteredIconEntries.length} 个 Sofa Icons
+        {searchValue && ` (从 ${sofaIconEntries.length} 个中筛选)`}
       </Typography.Text>
       <div style={gridStyle}>
-        {sofaIconEntries.map(([iconName, IconComponent]) => (
+        {filteredIconEntries.map(([iconName, IconComponent]) => (
           <div key={iconName} style={cellStyle} title={iconName}>
             <IconComponent style={iconStyle} aria-label={iconName} />
             <span style={labelStyle}>{iconName}</span>

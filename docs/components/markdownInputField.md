@@ -214,10 +214,10 @@ export default () => {
 
 ### 发送与换行
 
-| 模式 | 发送快捷键 | 换行快捷键 | 适用场景 |
-| :--- | :--- | :--- | :--- |
-| `'Enter'` (默认) | <kbd>Enter</kbd> | <kbd>Shift</kbd> + <kbd>Enter</kbd> | 适合短文本对话，按回车直接发送 |
-| `'Mod+Enter'` | <kbd>Cmd</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | <kbd>Enter</kbd> | 适合长文本编辑，需要频繁换行 |
+| 模式             | 发送快捷键                                          | 换行快捷键                          | 适用场景                       |
+| :--------------- | :-------------------------------------------------- | :---------------------------------- | :----------------------------- |
+| `'Enter'` (默认) | <kbd>Enter</kbd>                                    | <kbd>Shift</kbd> + <kbd>Enter</kbd> | 适合短文本对话，按回车直接发送 |
+| `'Mod+Enter'`    | <kbd>Cmd</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | <kbd>Enter</kbd>                    | 适合长文本编辑，需要频繁换行   |
 
 > **特殊说明**：
 >
@@ -228,71 +228,71 @@ export default () => {
 
 除了发送快捷键外，组件还支持以下 Markdown 编辑常用的快捷键：
 
-| 快捷键 (Mac / Windows) | 功能 |
-| :--- | :--- |
-| <kbd>Cmd</kbd> + <kbd>B</kbd> / <kbd>Ctrl</kbd> + <kbd>B</kbd> | 加粗 |
-| <kbd>Cmd</kbd> + <kbd>I</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd> | 斜体 |
-| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | 删除线 |
-| <kbd>Option</kbd> + <kbd>`</kbd> / <kbd>Alt</kbd> + <kbd>`</kbd> | 行内代码 |
-| <kbd>Cmd</kbd> + <kbd>\</kbd> / <kbd>Ctrl</kbd> + <kbd>\</kbd> | 清除格式 |
-| <kbd>Cmd</kbd> + <kbd>1</kbd>~<kbd>4</kbd> / <kbd>Ctrl</kbd> + <kbd>1</kbd>~<kbd>4</kbd> | 标题 H1 ~ H4 |
-| <kbd>Cmd</kbd> + <kbd>0</kbd> / <kbd>Ctrl</kbd> + <kbd>0</kbd> | 转换为普通段落 |
-| <kbd>Cmd</kbd> + <kbd>]</kbd> / <kbd>Ctrl</kbd> + <kbd>]</kbd> | 增加标题级别（变小） |
-| <kbd>Cmd</kbd> + <kbd>[</kbd> / <kbd>Ctrl</kbd> + <kbd>[</kbd> | 降低标题级别（变大） |
-| <kbd>Option</kbd> + <kbd>Q</kbd> / <kbd>Alt</kbd> + <kbd>Q</kbd> | 引用块 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>O</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>O</kbd> | 有序列表 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>U</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>U</kbd> | 无序列表 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>S</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> | 任务列表 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>C</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>C</kbd> | 代码块 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>T</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> | 表格 |
-| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>/</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>/</kbd> | 分割线 |
-| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> | 选择当前行 |
-| <kbd>Cmd</kbd> + <kbd>D</kbd> / <kbd>Ctrl</kbd> + <kbd>D</kbd> | 选择当前单词/汉字 |
-| <kbd>Cmd</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Z</kbd> | 撤销 |
-| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | 重做 |
+| 快捷键 (Mac / Windows)                                                                               | 功能                 |
+| :--------------------------------------------------------------------------------------------------- | :------------------- |
+| <kbd>Cmd</kbd> + <kbd>B</kbd> / <kbd>Ctrl</kbd> + <kbd>B</kbd>                                       | 加粗                 |
+| <kbd>Cmd</kbd> + <kbd>I</kbd> / <kbd>Ctrl</kbd> + <kbd>I</kbd>                                       | 斜体                 |
+| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | 删除线               |
+| <kbd>Option</kbd> + <kbd>`</kbd> / <kbd>Alt</kbd> + <kbd>`</kbd>                                     | 行内代码             |
+| <kbd>Cmd</kbd> + <kbd>\</kbd> / <kbd>Ctrl</kbd> + <kbd>\</kbd>                                       | 清除格式             |
+| <kbd>Cmd</kbd> + <kbd>1</kbd>~<kbd>4</kbd> / <kbd>Ctrl</kbd> + <kbd>1</kbd>~<kbd>4</kbd>             | 标题 H1 ~ H4         |
+| <kbd>Cmd</kbd> + <kbd>0</kbd> / <kbd>Ctrl</kbd> + <kbd>0</kbd>                                       | 转换为普通段落       |
+| <kbd>Cmd</kbd> + <kbd>]</kbd> / <kbd>Ctrl</kbd> + <kbd>]</kbd>                                       | 增加标题级别（变小） |
+| <kbd>Cmd</kbd> + <kbd>[</kbd> / <kbd>Ctrl</kbd> + <kbd>[</kbd>                                       | 降低标题级别（变大） |
+| <kbd>Option</kbd> + <kbd>Q</kbd> / <kbd>Alt</kbd> + <kbd>Q</kbd>                                     | 引用块               |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>O</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>O</kbd>     | 有序列表             |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>U</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>U</kbd>     | 无序列表             |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>S</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd>     | 任务列表             |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>C</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>C</kbd>     | 代码块               |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>T</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>     | 表格                 |
+| <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>/</kbd> / <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>/</kbd>     | 分割线               |
+| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> | 选择当前行           |
+| <kbd>Cmd</kbd> + <kbd>D</kbd> / <kbd>Ctrl</kbd> + <kbd>D</kbd>                                       | 选择当前单词/汉字    |
+| <kbd>Cmd</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Z</kbd>                                       | 撤销                 |
+| <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | 重做                 |
 
 ## API
 
-| 属性名                   | 类型                                                                 | 默认值    | 描述                                                                 |
-| ------------------------ | -------------------------------------------------------------------- | --------- | -------------------------------------------------------------------- |
-| `value`                  | `string`                                                             | -         | 当前的 markdown 文本值                                               |
-| `onChange`               | `(value: string) => void`                                            | -         | 当输入值改变时触发的回调函数                                         |
-| `placeholder`            | `string`                                                             | -         | 输入字段的占位文本                                                   |
-| `style`                  | `React.CSSProperties`                                                | -         | 应用于输入字段的内联样式                                             |
-| `className`              | `string`                                                             | -         | 应用于输入字段的 CSS 类名                                            |
-| `disabled`               | `boolean`                                                            | -         | 是否禁用输入字段                                                     |
-| `typing`                 | `boolean`                                                            | -         | 用户是否正在输入的状态标志                                           |
-| `allowEmptySubmit`       | `boolean`                                                            | `false`   | 是否允许在内容为空时也触发发送                                       |
-| `triggerSendKey`         | `'Enter' \| 'Mod+Enter'`                             | `'Enter'` | 触发发送操作的键盘快捷键 |
-| `onSend`                 | `(value: string) => Promise<void>`                                   | -         | 当内容发送时触发的异步回调函数                                       |
-| `onStop`                 | `() => void`                                                         | -         | 正在输入中时点击发送按钮的回调函数                                   |
-| `onFocus`                | `(value: string, schema: Elements[], e: FocusEvent) => void`         | -         | 当输入字段获得焦点时触发的回调函数                                   |
-| `onBlur`                 | `(value: string, schema: Elements[], e: MouseEvent) => void`         | -         | 当输入字段失去焦点时触发的回调函数                                   |
-| `tagInputProps`          | `MarkdownEditorProps['tagInputProps']`                               | -         | 标签输入的相关属性                                                   |
-| `borderRadius`           | `number`                                                             | `12`      | 边框圆角大小                                                         |
-| `attachment`             | `{ enable?: boolean } & AttachmentButtonProps`                       | -         | 附件配置                                                             |
-| `voiceRecognizer`        | `CreateRecognizer`                                                   | -         | 语音输入配置                                                         |
-| `actionsRender`          | `(props, defaultActions) => React.ReactNode[]`                       | -         | 自定义渲染操作按钮的函数                                             |
-| `toolsRender`            | `(props) => React.ReactNode[]`                                       | -         | 自定义渲染操作按钮前内容的函数                                       |
-| `beforeToolsRender`      | `(props) => React.ReactNode`                                         | -         | 自定义渲染输入框上方的工具栏区域                                     |
-| `quickActionRender`      | `(props) => React.ReactNode[]`                                       | -         | 自定义右上操作按钮渲染函数                                           |
-| `leafRender`             | `(props, defaultDom) => React.ReactElement`                          | -         | 自定义叶子节点渲染函数                                               |
-| `inputRef`               | `React.MutableRefObject<MarkdownEditorInstance>`                     | -         | 输入框引用                                                           |
-| `skillMode`              | `SkillModeConfig`                                                    | -         | 技能模式配置                                                         |
-| `onSkillModeOpenChange`  | `(open: boolean) => void`                                            | -         | 技能模式状态变化回调                                                 |
-| `pasteConfig`            | `{ enabled?: boolean; allowedTypes?: string[] }`                     | -         | 粘贴配置                                                             |
-| `refinePrompt`           | `{ enable: boolean; onRefine: (input: string) => Promise<string>; }` | -         | 提示词优化配置                                                       |
-| `enlargeable`            | `{ enable?: boolean; height?: number; }`                             | -         | 放大功能配置                                                         |
-| `isShowTopOperatingArea` | `boolean`                                                            | `false`   | 是否显示顶部操作区域                                                 |
-| `targetRef`              | `React.RefObject<HTMLDivElement>`                                    | -         | 顶部操作区域回到顶部/底部功能的目标元素引用                          |
-| `operationBtnRender`     | `() => React.ReactNode`                                              | -         | 顶部操作区域自定义操作按钮渲染函数                                   |
-| `isShowBackTo`           | `boolean`                                                            | `true`    | 是否在顶部操作区域显示回到顶部/底部按钮                              |
-| `maxHeight`              | `number \| string`                                                   | -         | 输入框的最大高度                                                     |
-| `maxLength`              | `number`                                                             | -         | 输入文本的最大字符数限制                                             |
-| `onMaxLengthExceeded`    | `(value: string) => void`                                            | -         | 当输入达到最大长度限制时的回调函数                                   |
-| `sendButtonProps`        | `SendButtonCustomizationProps`                                       | -         | 发送按钮配置                                                         |
-| `disableHoverAnimation`  | `boolean`                                                            | `false`   | 是否禁用 hover 动画                                                  |
-| `bgColorList`            | `string[]`                                                           | -         | 背景颜色列表                                                         |
+| 属性名                   | 类型                                                                 | 默认值    | 描述                                        |
+| ------------------------ | -------------------------------------------------------------------- | --------- | ------------------------------------------- |
+| `value`                  | `string`                                                             | -         | 当前的 markdown 文本值                      |
+| `onChange`               | `(value: string) => void`                                            | -         | 当输入值改变时触发的回调函数                |
+| `placeholder`            | `string`                                                             | -         | 输入字段的占位文本                          |
+| `style`                  | `React.CSSProperties`                                                | -         | 应用于输入字段的内联样式                    |
+| `className`              | `string`                                                             | -         | 应用于输入字段的 CSS 类名                   |
+| `disabled`               | `boolean`                                                            | -         | 是否禁用输入字段                            |
+| `typing`                 | `boolean`                                                            | -         | 用户是否正在输入的状态标志                  |
+| `allowEmptySubmit`       | `boolean`                                                            | `false`   | 是否允许在内容为空时也触发发送              |
+| `triggerSendKey`         | `'Enter' \| 'Mod+Enter'`                                             | `'Enter'` | 触发发送操作的键盘快捷键                    |
+| `onSend`                 | `(value: string) => Promise<void>`                                   | -         | 当内容发送时触发的异步回调函数              |
+| `onStop`                 | `() => void`                                                         | -         | 正在输入中时点击发送按钮的回调函数          |
+| `onFocus`                | `(value: string, schema: Elements[], e: FocusEvent) => void`         | -         | 当输入字段获得焦点时触发的回调函数          |
+| `onBlur`                 | `(value: string, schema: Elements[], e: MouseEvent) => void`         | -         | 当输入字段失去焦点时触发的回调函数          |
+| `tagInputProps`          | `MarkdownEditorProps['tagInputProps']`                               | -         | 标签输入的相关属性                          |
+| `borderRadius`           | `number`                                                             | `12`      | 边框圆角大小                                |
+| `attachment`             | `{ enable?: boolean } & AttachmentButtonProps`                       | -         | 附件配置                                    |
+| `voiceRecognizer`        | `CreateRecognizer`                                                   | -         | 语音输入配置                                |
+| `actionsRender`          | `(props, defaultActions) => React.ReactNode[]`                       | -         | 自定义渲染操作按钮的函数                    |
+| `toolsRender`            | `(props) => React.ReactNode[]`                                       | -         | 自定义渲染操作按钮前内容的函数              |
+| `beforeToolsRender`      | `(props) => React.ReactNode`                                         | -         | 自定义渲染输入框上方的工具栏区域            |
+| `quickActionRender`      | `(props) => React.ReactNode[]`                                       | -         | 自定义右上操作按钮渲染函数                  |
+| `leafRender`             | `(props, defaultDom) => React.ReactElement`                          | -         | 自定义叶子节点渲染函数                      |
+| `inputRef`               | `React.MutableRefObject<MarkdownEditorInstance>`                     | -         | 输入框引用                                  |
+| `skillMode`              | `SkillModeConfig`                                                    | -         | 技能模式配置                                |
+| `onSkillModeOpenChange`  | `(open: boolean) => void`                                            | -         | 技能模式状态变化回调                        |
+| `pasteConfig`            | `{ enabled?: boolean; allowedTypes?: string[] }`                     | -         | 粘贴配置                                    |
+| `refinePrompt`           | `{ enable: boolean; onRefine: (input: string) => Promise<string>; }` | -         | 提示词优化配置                              |
+| `enlargeable`            | `{ enable?: boolean; height?: number; }`                             | -         | 放大功能配置                                |
+| `isShowTopOperatingArea` | `boolean`                                                            | `false`   | 是否显示顶部操作区域                        |
+| `targetRef`              | `React.RefObject<HTMLDivElement>`                                    | -         | 顶部操作区域回到顶部/底部功能的目标元素引用 |
+| `operationBtnRender`     | `() => React.ReactNode`                                              | -         | 顶部操作区域自定义操作按钮渲染函数          |
+| `isShowBackTo`           | `boolean`                                                            | `true`    | 是否在顶部操作区域显示回到顶部/底部按钮     |
+| `maxHeight`              | `number \| string`                                                   | -         | 输入框的最大高度                            |
+| `maxLength`              | `number`                                                             | -         | 输入文本的最大字符数限制                    |
+| `onMaxLengthExceeded`    | `(value: string) => void`                                            | -         | 当输入达到最大长度限制时的回调函数          |
+| `sendButtonProps`        | `SendButtonCustomizationProps`                                       | -         | 发送按钮配置                                |
+| `disableHoverAnimation`  | `boolean`                                                            | `false`   | 是否禁用 hover 动画                         |
+| `bgColorList`            | `string[]`                                                           | -         | 背景颜色列表                                |
 
 ### 类型定义
 

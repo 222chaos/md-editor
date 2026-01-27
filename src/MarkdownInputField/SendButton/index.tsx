@@ -210,7 +210,15 @@ type SendButtonProps = {
  * - 在SSR环境下不渲染
  */
 export const SendButton: React.FC<SendButtonProps> = (props) => {
-  const { isSendable, disabled, typing, onClick, style, colors, triggerSendKey = 'Enter' } = props;
+  const {
+    isSendable,
+    disabled,
+    typing,
+    onClick,
+    style,
+    colors,
+    triggerSendKey = 'Enter',
+  } = props;
   useEffect(() => {
     props.onInit?.();
   }, []);
@@ -232,13 +240,17 @@ export const SendButton: React.FC<SendButtonProps> = (props) => {
     (triggerSendKey === 'Mod+Enter'
       ? locale?.['input.sendButtonTooltip.send.mod']
       : locale?.['input.sendButtonTooltip.send']) ||
-    (triggerSendKey === 'Mod+Enter' ? '按 Cmd/Ctrl+Enter 键发送' : '按 Enter 键发送');
+    (triggerSendKey === 'Mod+Enter'
+      ? '按 Cmd/Ctrl+Enter 键发送'
+      : '按 Enter 键发送');
 
   const newlineText =
     (triggerSendKey === 'Mod+Enter'
       ? locale?.['input.sendButtonTooltip.newline.mod']
       : locale?.['input.sendButtonTooltip.newline']) ||
-    (triggerSendKey === 'Mod+Enter' ? '按 Enter 键换行' : '按 Shift+Enter 键换行');
+    (triggerSendKey === 'Mod+Enter'
+      ? '按 Enter 键换行'
+      : '按 Shift+Enter 键换行');
 
   const tooltipTitle = (
     <div style={{ lineHeight: '1.5', textAlign: 'left' }}>

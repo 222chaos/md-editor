@@ -345,7 +345,7 @@ const MLeafComponent = (
   });
 
   const style: CSSProperties = {};
-  let prefixClassName = ''
+  let prefixClassName = '';
   let children = <>{props.children}</>;
 
   if (leaf.code || leaf.tag) {
