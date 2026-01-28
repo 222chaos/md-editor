@@ -16,7 +16,7 @@ export class MatchKey {
     };
   }
 
-  run(e: React.KeyboardEvent) {
+  run(e: React.KeyboardEvent): boolean {
     const [node] = Editor.nodes<Element>(this.editor, {
       match: (n) => Element.isElement(n),
       mode: 'lowest',
