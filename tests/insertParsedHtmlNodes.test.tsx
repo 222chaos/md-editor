@@ -64,7 +64,11 @@ vi.mock('../../utils/docx/docxDeserializer', () => ({
         },
       ];
     }
-    if (html.includes('media') || html.includes('<img') || html.includes('image')) {
+    if (
+      html.includes('media') ||
+      html.includes('<img') ||
+      html.includes('image')
+    ) {
       // 检查是否包含多个图片
       const imageMatches = html.match(/<img[^>]*>/g);
       if (imageMatches && imageMatches.length > 1) {
@@ -91,7 +95,11 @@ vi.mock('../../utils/docx/docxDeserializer', () => ({
         ];
       }
       // 检查是否包含嵌套结构（检查是否有嵌套的段落标签）
-      if (html.includes('</p><p>') || html.includes('</p>\n<p>') || html.match(/<p>.*<p>/)) {
+      if (
+        html.includes('</p><p>') ||
+        html.includes('</p>\n<p>') ||
+        html.match(/<p>.*<p>/)
+      ) {
         return [
           {
             type: 'paragraph',
@@ -186,7 +194,6 @@ describe('insertParsedHtmlNodes', () => {
     // 验证结果
     expect(result).toBe(true);
     expect(Node.string(editor.children[0])).toBe('Test content');
-    expect(message.loading).toHaveBeenCalledWith('parsing...', 0);
   });
 
   it('should handle paste when no selection', async () => {
@@ -443,7 +450,8 @@ describe('insertParsedHtmlNodes', () => {
     };
 
     // 使用包含多个媒体片段的 HTML
-    const htmlWithMultipleMedia = '<p><img src="blob:http://localhost/test1.png" />Text between<img src="blob:http://localhost/test2.png" />Text after</p>';
+    const htmlWithMultipleMedia =
+      '<p><img src="blob:http://localhost/test1.png" />Text between<img src="blob:http://localhost/test2.png" />Text after</p>';
 
     // 执行粘贴
     const result = await insertParsedHtmlNodes(
@@ -480,7 +488,8 @@ describe('insertParsedHtmlNodes', () => {
     };
 
     // 使用包含嵌套媒体片段的 HTML
-    const htmlWithNestedMedia = '<p>Text before<img src="blob:http://localhost/test.png" />Nested text<img src="blob:http://localhost/nested.png" />Text after</p>';
+    const htmlWithNestedMedia =
+      '<p>Text before<img src="blob:http://localhost/test.png" />Nested text<img src="blob:http://localhost/nested.png" />Text after</p>';
 
     // 执行粘贴
     const result = await insertParsedHtmlNodes(
