@@ -432,7 +432,7 @@ export type MarkdownEditorProps = {
     e: React.MouseEvent<HTMLDivElement, Element>,
   ) => void;
 
-  onPaste?: (e: React.ClipboardEvent<HTMLDivElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLDivElement>) => boolean | void;
 
   /**
    * 自定义 markdown 转 HTML 的 remark 插件配置，格式类似 Babel 插件数组

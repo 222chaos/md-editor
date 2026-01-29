@@ -4,7 +4,7 @@ import { message } from 'antd';
 import { Editor, Element, Node, Path, Range, Transforms } from 'slate';
 import { jsx } from 'slate-hyperscript';
 import { debugInfo } from '../../../Utils/debugUtils';
-import { debugLog, EditorUtils } from '../utils';
+import { EditorUtils } from '../utils';
 import { docxDeserializer } from '../utils/docx/docxDeserializer';
 
 import { BackspaceKey } from './hotKeyCommands/backspace';
@@ -13,6 +13,23 @@ import { BackspaceKey } from './hotKeyCommands/backspace';
 const BATCH_SIZE = 10; // 每批处理的节点数量
 const BATCH_DELAY = 16; // 每批之间的延迟时间(ms)，约60fps
 const MAX_SYNC_SIZE = 1000; // 同步处理的最大字符数
+
+/** 文件上传时排除的片段类型 */
+const UPLOAD_EXCLUDED_FRAGMENT_TYPES = ['media', 'image'];
+
+/** card 的第二个子节点为 media/image 时排除上传 */
+const CARD_CONTENT_EXCLUDED_TYPES = ['media', 'image'];
+
+const shouldExcludeFromUpload = (fragment: any): boolean => {
+  if (UPLOAD_EXCLUDED_FRAGMENT_TYPES.includes(fragment?.type)) {
+    return true;
+  }
+  if (fragment?.type === 'card') {
+    const secondNode = fragment?.children?.[1];
+    return CARD_CONTENT_EXCLUDED_TYPES.includes(secondNode?.type);
+  }
+  return false;
+};
 
 const findElementByNode = (node: ChildNode) => {
   const index = Array.prototype.indexOf.call(node.parentNode!.childNodes, node);
@@ -588,31 +605,19 @@ export const insertParsedHtmlNodes = async (
     return false;
   }
 
-  // 2. 显示解析提示
-  const hideLoading = message.loading('parsing...', 0);
-
   try {
     // 3. 异步解析 HTML
-    debugInfo('insertParsedHtmlNodes - 开始解析 HTML');
     const fragmentList = await parseHtmlOptimized(html, rtl);
-    debugInfo('insertParsedHtmlNodes - HTML 解析完成', {
-      fragmentListLength: fragmentList?.length,
-      fragmentTypes: fragmentList?.map((f) => f?.type),
-    });
 
     if (!fragmentList?.length) {
-      debugInfo('insertParsedHtmlNodes - 解析结果为空');
-      hideLoading();
       return false;
     }
 
-    // 4. 异步处理文件上传
-    debugInfo('insertParsedHtmlNodes - 开始处理文件上传');
-    await upLoadFileBatch(fragmentList, editorProps);
-    debugInfo('insertParsedHtmlNodes - 文件上传完成');
-
-    debugLog('wordFragmentList', fragmentList);
-    hideLoading();
+    // 4. 异步处理文件上传（排除 media、image；card 需判断第二个节点类型）
+    const fragmentsToUpload = fragmentList.filter(
+      (f) => !shouldExcludeFromUpload(f),
+    );
+    await upLoadFileBatch(fragmentsToUpload, editorProps);
 
     // 5. 获取当前节点
     let [node] = Editor.nodes<Element>(editor, {
@@ -624,7 +629,7 @@ export const insertParsedHtmlNodes = async (
     // 6. 如果没有选区或路径无效，直接插入
     if (!selection || !Editor.hasPath(editor, selection.anchor.path)) {
       debugInfo('insertParsedHtmlNodes - 无有效选区，直接插入');
-      const processedNodes = fragmentList?.map((item) => {
+      const processedNodes = fragmentsToUpload?.map((item) => {
         if (!item.type) {
           return { type: 'paragraph', children: [item] };
         }
@@ -722,15 +727,15 @@ export const insertParsedHtmlNodes = async (
     // 10. 处理列表项
     if (
       node?.[0].type === 'list-item' &&
-      (fragmentList[0].type === 'list' ||
-        fragmentList[0].type === 'bulleted-list' ||
-        fragmentList[0].type === 'numbered-list')
+      (fragmentsToUpload[0].type === 'list' ||
+        fragmentsToUpload[0].type === 'bulleted-list' ||
+        fragmentsToUpload[0].type === 'numbered-list')
     ) {
       debugInfo('insertParsedHtmlNodes - 处理列表项', {
         currentNodeType: node[0].type,
-        fragmentListType: fragmentList[0].type,
+        fragmentListType: fragmentsToUpload[0].type,
       });
-      const children = fragmentList[0].children || [];
+      const children = fragmentsToUpload[0].children || [];
       debugInfo('insertParsedHtmlNodes - 列表项子节点', {
         childrenCount: children.length,
       });
@@ -773,10 +778,10 @@ export const insertParsedHtmlNodes = async (
           });
         }
 
-        if (fragmentList.length > 1) {
+        if (fragmentsToUpload.length > 1) {
           await insertNodesBatch(
             editor,
-            fragmentList.slice(1),
+            fragmentsToUpload.slice(1),
             selection!.anchor.path,
             { select: true },
           );
@@ -787,7 +792,7 @@ export const insertParsedHtmlNodes = async (
 
     // 11. 处理表格单元格
     if (node?.[0].type === 'table-cell') {
-      Transforms.insertFragment(editor, getTextsNode(fragmentList), {
+      Transforms.insertFragment(editor, getTextsNode(fragmentsToUpload), {
         at: selection!,
       });
       return true;
@@ -795,8 +800,8 @@ export const insertParsedHtmlNodes = async (
 
     // 12. 处理标题
     if (node?.[0].type === 'head') {
-      if (fragmentList[0].type) {
-        if (fragmentList[0].type !== 'paragraph') {
+      if (fragmentsToUpload[0].type) {
+        if (fragmentsToUpload[0].type !== 'paragraph') {
           Transforms.insertNodes(
             editor,
             {
@@ -810,7 +815,7 @@ export const insertParsedHtmlNodes = async (
         return false;
       }
 
-      const texts = fragmentList.filter((c) => c.text);
+      const texts = fragmentsToUpload.filter((c) => c.text);
       if (texts.length) {
         await insertNodesBatch(editor, texts, selection!.anchor.path);
         return true;
@@ -820,11 +825,12 @@ export const insertParsedHtmlNodes = async (
 
     // 13. 处理单个段落的特殊情况
     if (
-      fragmentList.length === 1 &&
-      (fragmentList[0].type === 'paragraph' || !fragmentList[0].type) &&
+      fragmentsToUpload.length === 1 &&
+      (fragmentsToUpload[0].type === 'paragraph' ||
+        !fragmentsToUpload[0].type) &&
       node
     ) {
-      const text = Node.string(fragmentList[0]);
+      const text = Node.string(fragmentsToUpload[0]);
       if (text) {
         Transforms.insertText(editor, text, {
           at: selection!,
@@ -835,7 +841,7 @@ export const insertParsedHtmlNodes = async (
 
     // 14. 默认情况：替换选中节点
     debugInfo('insertParsedHtmlNodes - 使用默认处理方式');
-    const processedNodes = fragmentList?.map((item) => {
+    const processedNodes = fragmentsToUpload?.map((item) => {
       if (!item.type) {
         return { type: 'paragraph', children: [item] };
       }
@@ -859,7 +865,6 @@ export const insertParsedHtmlNodes = async (
     return true;
   } catch (error) {
     console.error('插入HTML节点失败:', error);
-    hideLoading();
     message.error('Content parsing failed, please try again');
 
     return false;

@@ -676,7 +676,10 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
       }
     }
 
-    props.onPaste?.(event);
+    const result = props.onPaste?.(event);
+    if (result === false) {
+      return;
+    }
 
     const types = event.clipboardData?.types || ['text/plain'];
 
@@ -701,13 +704,12 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
 
     // 2. 然后尝试处理 HTML
     if (types.includes('text/html') && allowedTypes.includes('text/html')) {
-      if (
-        await handleHtmlPaste(
-          markdownEditorRef.current,
-          event.clipboardData,
-          props,
-        )
-      ) {
+      const result = await handleHtmlPaste(
+        markdownEditorRef.current,
+        event.clipboardData,
+        props,
+      );
+      if (result === false) {
         return;
       }
     }
