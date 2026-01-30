@@ -3579,6 +3579,7 @@ console.log('嵌套的代码');
                   data-slate-node="text"
                 >
                   <span
+                    class="ant-agentic-md-editor-content-m-html"
                     data-be="text"
                     data-slate-leaf="true"
                     draggable="false"
@@ -4087,6 +4088,7 @@ console.log('嵌套的代码');
                   data-slate-node="text"
                 >
                   <span
+                    class="ant-agentic-md-editor-content-m-html"
                     data-be="text"
                     data-slate-leaf="true"
                     draggable="false"
