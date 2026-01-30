@@ -970,10 +970,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
   );
 
   const decorateFn = (e: any) => {
-    // 只读且无评论时，跳过 decorate（useHighlight + comment）以提升性能
-    if (readonly && !props?.comment?.commentList?.length) {
-      return [];
-    }
+    // 始终运行 useHighlight，以支持 fnc（脚注）、链接等基础展示
     const decorateList: any[] | undefined = high(e) || [];
     if (!props?.comment) return decorateList;
     if (props?.comment?.enable === false) return decorateList;
