@@ -236,7 +236,7 @@
                   style="min-width: 0px;"
                 >
                   <div
-                    class="agent-item-default-content ant-agentic-ui-messages-content-message"
+                    class="agent-item-default-content ant-agentic-ui-display-messages-content-message"
                     data-testid="message-box-content"
                   >
                     <div

@@ -197,7 +197,7 @@
                   style="min-width: 0px; background-color: rgb(255, 255, 255); border: 1px solid rgb(217, 217, 217); border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
                 >
                   <div
-                    class="agent-item-default-content ant-agentic-ui-messages-content-message"
+                    class="agent-item-default-content ant-agentic-ui-display-messages-content-message"
                     data-testid="message-box-content"
                   >
                     <div
@@ -316,7 +316,7 @@
                   style="min-width: 0px; background-color: rgb(255, 255, 255); border: 1px solid rgb(217, 217, 217); border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
                 >
                   <div
-                    class="agent-item-default-content ant-agentic-ui-messages-content-message"
+                    class="agent-item-default-content ant-agentic-ui-display-messages-content-message"
                     data-testid="message-box-content"
                   >
                     <div
@@ -441,7 +441,7 @@
                   style="min-width: 0px; background-color: rgb(255, 255, 255); border: 1px solid rgb(217, 217, 217); border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
                 >
                   <div
-                    class="agent-item-default-content ant-agentic-ui-messages-content-message"
+                    class="agent-item-default-content ant-agentic-ui-display-messages-content-message"
                     data-testid="message-box-content"
                   >
                     <div
