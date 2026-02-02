@@ -40,27 +40,27 @@ vi.mock('classnames', () => ({
 vi.mock('@ant-design/agentic-ui', async () => {
   const actual = await vi.importActual('@ant-design/agentic-ui');
   // Mock Lottie 组件
-  const mockPlayLottie = ({ active, ...props }: any) => (
+  const mockPlayLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'voice-play-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockCopyLottie = ({ active, ...props }: any) => (
+  const mockCopyLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'copy-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockLikeLottie = ({ active, ...props }: any) => (
+  const mockLikeLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'like-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockDislikeLottie = ({ active, ...props }: any) => (
+  const mockDislikeLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'dislike-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockRefreshLottie = ({ active, ...props }: any) => (
+  const mockRefreshLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'refresh-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
@@ -146,6 +146,35 @@ describe('BubbleExtra - shouldShowCopy and onLikeCancel Tests', () => {
       updateAt: 1716537600000,
     },
   };
+
+  it('should render retry container with data attribute when preMessage exists', () => {
+    const bubbleWithPreMessage = {
+      ...defaultBubbleProps,
+      originData: {
+        ...defaultBubbleProps.originData,
+        extra: {
+          preMessage: {
+            content: '重新生成内容',
+          },
+        },
+      },
+    };
+
+    const { container } = render(
+      <BubbleConfigProvide>
+        <BubbleExtra
+          bubble={bubbleWithPreMessage as any}
+          onLike={vi.fn()}
+          onDislike={vi.fn()}
+          onReply={vi.fn()}
+        />
+      </BubbleConfigProvide>,
+    );
+
+    expect(
+      container.querySelector('[data-messages-content-retry]'),
+    ).toBeInTheDocument();
+  });
 
   describe('shouldShowCopy Tests', () => {
     it('should show copy button by default when shouldShowCopy is undefined', () => {

@@ -51,6 +51,14 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       width: '100%',
     },
 
+    // 重新生成按钮容器
+    [`div[data-messages-content-retry]`]: {
+      gap: 4,
+      display: 'flex',
+      cursor: 'pointer',
+      alignItems: 'center',
+    },
+
     // 文档标签容器
     [`${token.chatCls}-messages-content-doc-tag`]: {
       borderRadius: '20px',

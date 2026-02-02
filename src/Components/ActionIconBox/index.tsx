@@ -112,10 +112,10 @@ export const ActionIconBox: React.FC<ActionIconBoxProps> = (props) => {
       try {
         return React.cloneElement(element as any, {
           // @ts-ignore
-          ...props?.children?.props,
+          ...element?.props,
           style: {
             // @ts-ignore
-            ...props?.children?.props?.style,
+            ...element?.props?.style,
             ...props.iconStyle,
           },
         });

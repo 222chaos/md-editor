@@ -58,6 +58,7 @@ export const BubbleExtra = ({
   const originalData = bubble?.originData;
 
   const prefixCls = getPrefixCls('chat-item-extra');
+  const chatCls = getPrefixCls('agentic-ui');
 
   // 判断是否已经点过赞或踩
   const alreadyFeedback = ['thumbsDown', 'thumbsUp'].includes(
@@ -347,6 +348,7 @@ export const BubbleExtra = ({
   );
 
   const reSend = useMemo(() => {
+    console.log('originalData?.isAborted', originalData, typing);
     if (originalData?.isAborted && !originalData.isFinished) {
       return (
         <span>
@@ -372,12 +374,8 @@ export const BubbleExtra = ({
       >
         {(isHovered) => (
           <div
-            style={{
-              gap: 4,
-              display: 'flex',
-              cursor: 'pointer',
-              alignItems: 'center',
-            }}
+            className={classNames(`${chatCls}-messages-content-retry`)}
+            data-messages-content-retry
           >
             <RefreshLottie active={isHovered} />
             <span>
