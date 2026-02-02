@@ -12,6 +12,7 @@
     "guidelines"
   ],
   "scripts": {
+    "bench:parsemd": "vitest --run tests/editor/parseMd.benchmark.test.ts",
     "build": "father build",
     "build:watch": "father dev",
     "check:demo": "node scripts/checkDemoFiles.js",
@@ -34,7 +35,6 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:skip-server": "cross-env SKIP_WEBSERVER=1 playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "bench:parsemd": "vitest --run tests/editor/parseMd.benchmark.test.ts",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
@@ -61,7 +61,7 @@
     "@better-scroll/mouse-wheel": "^2.5.1",
     "@better-scroll/observe-dom": "^2.5.1",
     "@better-scroll/scroll-bar": "^2.5.1",
-    "@galacean/effects": "^2.8.6",
+    "@galacean/effects": "^2.8.7",
     "@juggle/resize-observer": "^3.4.0",
     "@react-three/fiber": "^8.18.0",
     "@schema-element-editor/host-sdk": "^2.2.1",
@@ -130,7 +130,7 @@
   "devDependencies": {
     "@mlc-ai/web-llm": "^0.2.80",
     "@playwright/test": "^1.58.0",
-    "@swc/core": "^1.15.10",
+    "@swc/core": "^1.15.11",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
