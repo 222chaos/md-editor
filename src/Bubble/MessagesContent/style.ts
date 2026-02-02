@@ -8,12 +8,13 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       lineHeight: '24px',
       display: 'flex',
       alignItems: 'center',
-      gap: 8,
+      gap: 'var(--padding-2x)',
+      padding: 'var(--padding-3x)',
       '&-compact': {
-        padding: '8px',
+        padding: 'var(--padding-2x)',
       },
       '&-default': {
-        padding: '12px',
+        padding: 'var(--padding-3x)',
       },
     },
 
@@ -42,7 +43,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       maxHeight: 400,
       overflow: 'auto',
       flexDirection: 'column',
-      gap: 12,
+      gap: 'var(--padding-3x)',
     },
 
     // MarkdownEditor 容器样式
@@ -61,13 +62,13 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 
     // 文档标签容器
     [`${token.chatCls}-messages-content-doc-tag`]: {
-      borderRadius: '20px',
+      borderRadius: 'var(--padding-5x)',
       opacity: 1,
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      padding: '10px',
-      gap: '10px',
+      padding: 'var(--padding-2x) var(--padding-3x)',
+      gap: 'var(--padding-2x)',
       alignSelf: 'stretch',
       background: '#FBFCFD',
       cursor: 'pointer',
