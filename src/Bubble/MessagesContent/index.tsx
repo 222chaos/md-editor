@@ -77,10 +77,10 @@ export const BubbleMessageDisplay: React.FC<
       origin_url: any;
     }[]
   >([]);
-
-  const { hashId, wrapSSR } = useMessagesContentStyle();
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const chatCls = getPrefixCls('agentic-ui');
+  const baseChatCls = `${chatCls}-display`;
+  const { hashId, wrapSSR } = useMessagesContentStyle(baseChatCls);
 
   const funRender = useRefFunction((props: { identifier?: any }) => {
     const node = nodeList.find((item) => item.placeholder === props.identifier);
@@ -135,10 +135,10 @@ export const BubbleMessageDisplay: React.FC<
           <div
             className={classNames(
               'agent-item-default-content',
-              `${chatCls}-messages-content-loading`,
+              `${baseChatCls}-messages-content-loading`,
               context?.compact
-                ? `${chatCls}-messages-content-loading-compact`
-                : `${chatCls}-messages-content-loading-default`,
+                ? `${baseChatCls}-messages-content-loading-compact`
+                : `${baseChatCls}-messages-content-loading-default`,
               hashId,
             )}
             data-testid="message-content"
@@ -224,7 +224,7 @@ export const BubbleMessageDisplay: React.FC<
         <div
           className={classNames(
             'agent-item-default-content',
-            `${chatCls}-messages-content-message`,
+            `${baseChatCls}-messages-content-message`,
             hashId,
           )}
           data-testid="message-box-content"
@@ -252,12 +252,12 @@ export const BubbleMessageDisplay: React.FC<
       props.originData?.extra?.answerStatus === 'EXCEPTION' ||
       (props.originData?.extra?.answerStatus && !props.originData?.content)
     ) {
-      return (
+      return wrapSSR(
         <EXCEPTION
           content={props.originData.content as string}
           originData={props.originData}
           extra={isExtraNull ? null : extra}
-        />
+        />,
       );
     }
 
@@ -289,7 +289,8 @@ export const BubbleMessageDisplay: React.FC<
         />
       );
     }
-    return (
+
+    return wrapSSR(
       <MarkdownPreview
         markdownRenderConfig={props.markdownRenderConfig}
         isFinished={props.originData?.isFinished}
@@ -313,7 +314,7 @@ export const BubbleMessageDisplay: React.FC<
                 title={
                   <div
                     className={classNames(
-                      `${chatCls}-messages-content-popover-title`,
+                      `${baseChatCls}-messages-content-popover-title`,
                       hashId,
                     )}
                     style={props?.customConfig?.PopoverProps?.titleStyle}
@@ -348,7 +349,7 @@ export const BubbleMessageDisplay: React.FC<
                 content={
                   <div
                     className={classNames(
-                      `${chatCls}-messages-content-popover-content`,
+                      `${baseChatCls}-messages-content-popover-content`,
                       hashId,
                     )}
                     style={props?.customConfig?.PopoverProps?.contentStyle}
@@ -381,13 +382,13 @@ export const BubbleMessageDisplay: React.FC<
                       >
                         <div
                           className={classNames(
-                            `${chatCls}-messages-content-doc-tag`,
+                            `${baseChatCls}-messages-content-doc-tag`,
                             hashId,
                           )}
                         >
                           <img
                             className={classNames(
-                              `${chatCls}-messages-content-doc-tag-icon`,
+                              `${baseChatCls}-messages-content-doc-tag-icon`,
                               hashId,
                             )}
                             src={
@@ -396,7 +397,7 @@ export const BubbleMessageDisplay: React.FC<
                           />
                           <div
                             className={classNames(
-                              `${chatCls}-messages-content-doc-name`,
+                              `${baseChatCls}-messages-content-doc-name`,
                               hashId,
                             )}
                           >
@@ -430,7 +431,7 @@ export const BubbleMessageDisplay: React.FC<
             : (props.originData?.content as string) || ''
         }
         originData={props.originData}
-      />
+      />,
     );
   }, [
     content,

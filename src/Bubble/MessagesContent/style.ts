@@ -4,7 +4,7 @@ import { useEditorStyleRegister } from '../../Hooks/useStyle';
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   return {
     // 加载状态容器（compact模式）
-    [`${token.chatCls}-messages-content-loading`]: {
+    [`${token.componentCls}-messages-content-loading`]: {
       lineHeight: '24px',
       display: 'flex',
       alignItems: 'center',
@@ -19,17 +19,17 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 消息内容容器
-    [`${token.chatCls}-messages-content-message`]: {
+    [`${token.componentCls}-messages-content-message`]: {
       lineHeight: '24px',
     },
 
     // 用户消息文本颜色
-    [`${token.chatCls}-messages-content-user-text`]: {
+    [`${token.componentCls}-messages-content-user-text`]: {
       color: '#343A45',
     },
 
     // Popover 标题容器
-    [`${token.chatCls}-messages-content-popover-title`]: {
+    [`${token.componentCls}-messages-content-popover-title`]: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -37,7 +37,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // Popover 内容容器
-    [`${token.chatCls}-messages-content-popover-content`]: {
+    [`${token.componentCls}-messages-content-popover-content`]: {
       width: 400,
       display: 'flex',
       maxHeight: 400,
@@ -47,7 +47,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // MarkdownEditor 容器样式
-    [`${token.chatCls}-messages-content-markdown-editor`]: {
+    [`${token.componentCls}-messages-content-markdown-editor`]: {
       padding: 0,
       width: '100%',
     },
@@ -61,7 +61,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 文档标签容器
-    [`${token.chatCls}-messages-content-doc-tag`]: {
+    [`${token.componentCls}-messages-content-doc-tag`]: {
       borderRadius: 'var(--padding-5x)',
       opacity: 1,
       display: 'flex',
@@ -76,12 +76,12 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 文档标签图标
-    [`${token.chatCls}-messages-content-doc-tag-icon`]: {
+    [`${token.componentCls}-messages-content-doc-tag-icon`]: {
       width: 24,
     },
 
     // 文档名称文本
-    [`${token.chatCls}-messages-content-doc-name`]: {
+    [`${token.componentCls}-messages-content-doc-name`]: {
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       WebkitBoxOrient: 'vertical',
@@ -91,13 +91,11 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   };
 };
 
-export function useMessagesContentStyle() {
+export function useMessagesContentStyle(componentCls: string) {
   return useEditorStyleRegister('BubbleMessageDisplay', (token) => {
     const chatToken: ChatTokenType = {
       ...token,
-      componentCls: token.componentCls || '',
-      chatCls: '',
-      antCls: '',
+      componentCls: componentCls || '',
     };
     return genStyle(chatToken);
   });
