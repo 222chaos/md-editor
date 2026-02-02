@@ -78,7 +78,7 @@ export const BubbleMessageDisplay: React.FC<
     }[]
   >([]);
 
-  const { hashId } = useMessagesContentStyle();
+  const { hashId, wrapSSR } = useMessagesContentStyle();
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const chatCls = getPrefixCls('agentic-ui');
 
@@ -131,7 +131,7 @@ export const BubbleMessageDisplay: React.FC<
       (!props.originData?.isFinished && !content)
     ) {
       if (context?.thoughtChain?.alwaysRender !== true) {
-        return (
+        return wrapSSR(
           <div
             className={classNames(
               'agent-item-default-content',
@@ -144,7 +144,7 @@ export const BubbleMessageDisplay: React.FC<
             data-testid="message-content"
           >
             {locale?.['chat.message.thinking'] || '思考中...'}
-          </div>
+          </div>,
         );
       }
       return null;
@@ -220,7 +220,7 @@ export const BubbleMessageDisplay: React.FC<
       props?.originData?.extra?.tags?.includes?.('REJECT_TO_ANSWER') ||
       props.originData?.role === 'bot'
     ) {
-      return (
+      return wrapSSR(
         <div
           className={classNames(
             'agent-item-default-content',
@@ -244,7 +244,7 @@ export const BubbleMessageDisplay: React.FC<
             originData={props.originData}
             content={props.originData?.content as string}
           />
-        </div>
+        </div>,
       );
     }
     // answerStatus= 'EXCEPTION'时 一定是异常情况
