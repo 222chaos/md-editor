@@ -3,13 +3,18 @@ import classnames from 'classnames';
 import React from 'react';
 import { ToolBarItem } from './ToolBarItem';
 
-const HeatTextMap = {
-  1: '大标题',
-  2: '段落标题',
-  3: '小标题',
-  4: '正文',
-  Text: '正文',
+const HeadingLocaleKeyMap = {
+  1: 'largeTitle',
+  2: 'paragraphTitle',
+  3: 'smallTitle',
+  4: 'bodyText',
+  Text: 'bodyText',
 } as const;
+
+const getHeadingText = (i18n: any, level: keyof typeof HeadingLocaleKeyMap) => {
+  const localeKey = HeadingLocaleKeyMap[level];
+  return i18n?.locale?.[localeKey] || localeKey;
+};
 
 interface HeadingDropdownProps {
   baseClassName: string;
@@ -29,22 +34,26 @@ export const HeadingDropdown = React.memo<HeadingDropdownProps>(
             if (hideTools?.includes(item)) {
               return null;
             }
+            const level =
+              item === 'Text'
+                ? 'Text'
+                : (Number(item.slice(1)) as 1 | 2 | 3 | 4);
             return {
-              label: HeatTextMap[item.replace('H', '') as '1'] || item,
+              label: getHeadingText(i18n, level),
               key: `head-${item}`,
               onClick: () => onHeadingChange(index + 1),
             };
           })
           .filter(Boolean),
-      [hideTools, onHeadingChange],
+      [hideTools, i18n, onHeadingChange],
     );
 
     const currentText = React.useMemo(() => {
       if (node?.[0]?.level) {
-        return HeatTextMap[(node[0].level + '') as '1'] || `H${node[0].level}`;
+        return getHeadingText(i18n, node[0].level);
       }
-      return '正文';
-    }, [node]);
+      return getHeadingText(i18n, 'Text');
+    }, [i18n, node]);
 
     return (
       <Dropdown menu={{ items: headingItems }}>
