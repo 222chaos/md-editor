@@ -12,7 +12,7 @@ import { Subject } from 'rxjs';
 import { createEditor, Editor, Selection } from 'slate';
 import { withHistory } from 'slate-history';
 import { withReact } from 'slate-react';
-import { I18nProvide } from '../I18n';
+import { I18nContext, I18nProvide } from '../I18n';
 import { CommentList } from './editor/components/CommentList';
 import { SlateMarkdownEditor } from './editor/Editor';
 import { parserMdToSchema } from './editor/parser/parserMdToSchema';
@@ -56,6 +56,19 @@ const composeEditors = (editor: Editor, plugins: MarkdownEditorPlugin[]) => {
     }, editor);
   }
   return editor;
+};
+
+const I18nBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const outerI18n = useContext(I18nContext);
+  const hasOuterI18nProvider = Boolean(
+    outerI18n?.setLanguage || outerI18n?.setLocale,
+  );
+
+  if (hasOuterI18nProvider) {
+    return <>{children}</>;
+  }
+
+  return <I18nProvide>{children}</I18nProvide>;
 };
 
 /**
@@ -305,7 +318,7 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
   const [domRect, setDomRect] = useState<DOMRect | null>(null);
 
   return wrapSSR(
-    <I18nProvide>
+    <I18nBoundary>
       <PluginContext.Provider value={props.plugins || []}>
         <EditorStoreContext.Provider
           value={{
@@ -453,6 +466,6 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
           </div>
         </EditorStoreContext.Provider>
       </PluginContext.Provider>
-    </I18nProvide>,
+    </I18nBoundary>,
   );
 };
