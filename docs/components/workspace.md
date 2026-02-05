@@ -40,7 +40,7 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 <code src="../demos/workspace-file-custom-preview-flow.tsx">文件-自定义预览</code>
 <code src="../demos/workspace-file-actionref-demo.tsx">actionRef外部打开</code>
 <code src="../demos/workspace-file-search-demo.tsx">文件-搜索</code>
-<code src="../demos/workspace-locate-demo.tsx">文件、网页定位到对话</code>
+<code src="../demos/workspace-locate.tsx">文件、网页定位到对话</code>
 <code src="../demos/workspace-file-custom-render-demo.tsx">文件-自定义渲染</code>
 
 <!-- <code src="../demos/workspace-file-previewComponent.tsx">导出文件预览组件</code> -->
