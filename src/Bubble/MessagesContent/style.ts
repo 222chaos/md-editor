@@ -95,7 +95,7 @@ export function useMessagesContentStyle(componentCls: string) {
   return useEditorStyleRegister('BubbleMessageDisplay', (token) => {
     const chatToken: ChatTokenType = {
       ...token,
-      componentCls: componentCls || '',
+      componentCls: `.${componentCls}`,
     };
     return genStyle(chatToken);
   });
