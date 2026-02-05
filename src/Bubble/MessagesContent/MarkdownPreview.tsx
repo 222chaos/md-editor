@@ -175,25 +175,32 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
     </div>
   );
 
+  const contentWrapper = (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 0,
+        maxWidth: '100%',
+      }}
+    >
+      <ErrorBoundary fallback={errorDom}>
+        {beforeContent}
+        {markdown}
+        {docListNode}
+        {afterContent}
+      </ErrorBoundary>
+      {props.placement === 'right' ? null : extra}
+    </div>
+  );
+
   if (props.placement !== 'right') {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
-          maxWidth: '100%',
-        }}
-      >
-        <ErrorBoundary fallback={errorDom}>
-          {beforeContent}
-          {markdown}
-          {docListNode}
-          {afterContent}
-        </ErrorBoundary>
-        {extra}
-      </div>
-    );
+    return contentWrapper;
+  }
+
+  // 仅当 extra 有内容时才用 Popover，避免 shouldShowCopy={false} 时 hover 出现空浮层小点
+  if (!extra) {
+    return contentWrapper;
   }
 
   return (

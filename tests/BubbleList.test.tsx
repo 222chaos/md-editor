@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BubbleConfigContext } from '../src/Bubble/BubbleConfigProvide';
@@ -356,6 +357,25 @@ describe('BubbleList', () => {
         );
       }).not.toThrow();
     });
+
+    it('should not render copy button when shouldShowCopy is false (avoids hover dot)', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'User message'),
+        {
+          ...createMockBubbleData('2', 'assistant', 'Assistant reply'),
+          isFinished: true,
+          extra: {},
+        } as MessageBubbleData,
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} shouldShowCopy={false} />
+        </BubbleConfigProvide>,
+      );
+
+      expect(screen.queryByTestId('chat-item-copy-button')).not.toBeInTheDocument();
+    });
   });
 
   describe('onScroll callback', () => {
@@ -610,6 +630,25 @@ describe('BubbleList', () => {
           </BubbleConfigProvide>,
         );
       }).not.toThrow();
+    });
+
+    it('should not render copy button when shouldShowCopy is false (avoids hover dot)', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'User message'),
+        {
+          ...createMockBubbleData('2', 'assistant', 'Assistant reply'),
+          isFinished: true,
+          extra: {},
+        } as MessageBubbleData,
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} shouldShowCopy={false} />
+        </BubbleConfigProvide>,
+      );
+
+      expect(screen.queryByTestId('chat-item-copy-button')).not.toBeInTheDocument();
     });
   });
 
