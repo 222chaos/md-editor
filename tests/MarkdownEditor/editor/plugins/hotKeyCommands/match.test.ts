@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MatchKey } from '../../../../../src/MarkdownEditor/editor/plugins/hotKeyCommands/match';
 
 // 模拟 Slate Editor
@@ -27,7 +27,7 @@ const mockTransforms = {
 // 模拟 Slate Editor 静态方法
 vi.mock('slate', () => ({
   Editor: {
-    nodes: (editor, options) => {
+    nodes: (editor: any, _options: any) => {
       // 模拟 Editor.nodes 返回当前段落
       return [[editor.children[0], [0]]];
     },
@@ -46,10 +46,10 @@ vi.mock('slate', () => ({
     isCollapsed: () => true,
   },
   Transforms: {
-    delete: (...args) => mockTransforms.delete(...args),
-    insertNodes: (...args) => mockTransforms.insertNodes(...args),
-    select: (...args) => mockTransforms.select(...args),
-    setNodes: (...args) => mockTransforms.setNodes(...args),
+    delete: (...args: any[]) => mockTransforms.delete(...args),
+    insertNodes: (...args: any[]) => mockTransforms.insertNodes(...args),
+    select: (...args: any[]) => mockTransforms.select(...args),
+    setNodes: (...args: any[]) => mockTransforms.setNodes(...args),
   },
   Path: {
     hasPrevious: () => false,

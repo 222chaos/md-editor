@@ -1320,13 +1320,13 @@ describe('Elements Index', () => {
         attributes: {},
         children: <div>Test</div>,
         deps: ['dep1', 'dep2'],
-      };
+      } as any;
       const props2 = {
         element: { type: 'paragraph', children: [] },
         attributes: {},
         children: <div>Test</div>,
         deps: ['dep1', 'dep2'],
-      };
+      } as any;
       
       // 通过 React.memo 的比较函数来测试
       const { rerender } = render(<MElement {...props1} />);
@@ -1339,12 +1339,12 @@ describe('Elements Index', () => {
         element: { type: 'paragraph', children: [] },
         attributes: {},
         children: <div>Test</div>,
-      };
+      } as any;
       const props2 = {
         element: { type: 'paragraph', children: [] },
         attributes: {},
         children: <div>Test</div>,
-      };
+      } as any;
       
       const { rerender } = render(<MElement {...props1} />);
       rerender(<MElement {...props2} />);
@@ -1357,13 +1357,13 @@ describe('Elements Index', () => {
         attributes: {},
         children: <div>Test</div>,
         deps: ['dep1'],
-      };
+      } as any;
       const props2 = {
         element: { type: 'paragraph', children: [] },
         attributes: {},
         children: <div>Test</div>,
         deps: ['dep1', 'dep2'],
-      };
+      } as any;
       
       const { rerender } = render(<MElement {...props1} />);
       rerender(<MElement {...props2} />);
@@ -1382,14 +1382,15 @@ describe('Elements Index', () => {
         attributes: {},
         children: <span>test</span>,
         readonly: false,
+        text: 'test',
         tagInputProps: {
           enable: true,
-          tagTextRender: vi.fn((props, text) => text),
+          tagTextRender: vi.fn((props: any, text: any) => text),
         },
         fncProps: {},
         comment: undefined,
         linkConfig: {},
-      };
+      } as any;
 
       render(<MLeaf {...props} />);
       expect(screen.getByText('test')).toBeInTheDocument();
@@ -1416,7 +1417,7 @@ describe('Elements Index', () => {
         fncProps: {},
         comment: undefined,
         linkConfig: {},
-      };
+      } as any;
 
       const { container } = render(<MLeaf {...props} />);
       const span = container.querySelector('span[data-be="text"]');
@@ -1442,7 +1443,7 @@ describe('Elements Index', () => {
           onClick: vi.fn(() => false),
           openInNewTab: true,
         },
-      };
+      } as any;
 
       const { container } = render(<MLeaf {...props} />);
       const span = container.querySelector('span[data-be="text"]');
@@ -1470,7 +1471,7 @@ describe('Elements Index', () => {
         linkConfig: {
           openInNewTab: false,
         },
-      };
+      } as any;
 
       const { container } = render(<MLeaf {...props} />);
       const span = container.querySelector('span[data-be="text"]');
@@ -1492,11 +1493,12 @@ describe('Elements Index', () => {
         attributes: {},
         children: <span>test</span>,
         readonly: false,
+        text: 'test',
         tagInputProps: {},
         fncProps: {},
         comment: 'test comment',
         linkConfig: {},
-      };
+      } as any;
 
       render(<MLeaf {...props} />);
       expect(screen.getByText('test')).toBeInTheDocument();

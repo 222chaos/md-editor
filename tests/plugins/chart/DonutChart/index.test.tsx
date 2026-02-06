@@ -5,7 +5,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DonutChart from '../../../../src/Plugins/chart/DonutChart';
 
 // Mock react-chartjs-2 - 支持 ref 回调
@@ -86,16 +86,16 @@ vi.mock('../../../../src/Plugins/chart/utils', () => ({
 // Mock hooks - 使用函数形式以便在测试中动态修改返回值
 const mockUseMobile = vi.fn(() => ({ isMobile: false, windowWidth: 1920 }));
 const mockUseFilterLabels = vi.fn((data: any) => ({
-  filterLabels: [],
+  filterLabels: [] as string[],
   filteredDataByFilterLabel: data,
-  selectedFilterLabel: null,
+  selectedFilterLabel: null as string | null,
   setSelectedFilterLabel: vi.fn(),
 }));
 const mockUseAutoCategory = vi.fn((data: any) => ({
-  autoCategoryData: null,
-  internalSelectedCategory: null,
+  autoCategoryData: null as { categories: string[]; allData: any[] } | null,
+  internalSelectedCategory: null as string | null,
   setInternalSelectedCategory: vi.fn(),
-  selectedCategory: null,
+  selectedCategory: null as string | null,
 }));
 const mockUseResponsiveDimensions = vi.fn(() => ({
   width: 200,
@@ -105,10 +105,10 @@ const mockUseResponsiveDimensions = vi.fn(() => ({
 }));
 
 vi.mock('../../../../src/Plugins/chart/DonutChart/hooks', () => ({
-  useMobile: (...args: any[]) => mockUseMobile(...args),
-  useFilterLabels: (...args: any[]) => mockUseFilterLabels(...args),
-  useAutoCategory: (...args: any[]) => mockUseAutoCategory(...args),
-  useResponsiveDimensions: (...args: any[]) => mockUseResponsiveDimensions(...args),
+  useMobile: () => mockUseMobile(),
+  useFilterLabels: (data: any) => mockUseFilterLabels(data),
+  useAutoCategory: (data: any) => mockUseAutoCategory(data),
+  useResponsiveDimensions: () => mockUseResponsiveDimensions(),
 }));
 
 // Mock Legend 组件

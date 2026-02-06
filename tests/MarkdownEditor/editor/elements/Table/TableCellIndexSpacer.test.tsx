@@ -837,7 +837,7 @@ describe('TableCellIndexSpacer 组件测试', () => {
       // Editor.hasPath 和 Editor.node 是真实的 Slate API，它们应该能正常工作
       // 因为我们已经设置了正确的 editor.children 和 testEditorInstance
       // 如果 toDOMNode 被调用，说明至少有一个单元格被处理
-      if (ReactEditor.toDOMNode.mock.calls.length > 0) {
+      if (vi.mocked(ReactEditor.toDOMNode).mock.calls.length > 0) {
         expect(ReactEditor.toDOMNode).toHaveBeenCalled();
         expect(mockSetAttribute).toHaveBeenCalledWith('data-select', 'true');
       } else {
@@ -1177,7 +1177,7 @@ describe('TableCellIndexSpacer 组件测试', () => {
 
       // 模拟点击外部
       if (clickAwayCallback) {
-        clickAwayCallback();
+        (clickAwayCallback as () => void)();
       }
 
       // clearSelect 会调用 setDeleteIconPosition(null)
@@ -1188,9 +1188,9 @@ describe('TableCellIndexSpacer 组件测试', () => {
     it('应该在点击外部但 deleteIconPosition 不匹配时不清除', () => {
       let clickAwayCallback: (() => void) | null = null;
 
-      vi.mocked(useClickAway).mockImplementation((callback: () => void) => {
+      vi.mocked(useClickAway).mockImplementation(((callback: () => void) => {
         clickAwayCallback = callback;
-      });
+      }) as any);
 
       renderTableCellIndexSpacer(
         { columnIndex: 0 },
@@ -1202,7 +1202,7 @@ describe('TableCellIndexSpacer 组件测试', () => {
 
       // 模拟点击外部
       if (clickAwayCallback) {
-        clickAwayCallback();
+        (clickAwayCallback as () => void)();
       }
 
       // 不应该清除，因为 columnIndex 不匹配

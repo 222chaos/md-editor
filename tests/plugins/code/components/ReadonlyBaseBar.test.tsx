@@ -208,7 +208,7 @@ describe('ReadonlyBaseBar', () => {
     });
 
     it('应该处理没有 prefix 的情况', () => {
-      render(<ReadonlyBaseBar hashId="test-hash" />);
+      render(<ReadonlyBaseBar />);
 
       const commentButton = screen.getByRole('button', { name: /comment/i });
       expect(commentButton).toHaveClass('toolbar-action-item');
