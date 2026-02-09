@@ -1,5 +1,5 @@
 import { ConfigProvider } from 'antd';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import React, {
   useContext,
   useEffect,
@@ -370,7 +370,7 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
                 })}
               >
                 <ToolBar
-                  hideTools={toolBar.hideTools}
+                  hideTools={toolBar.hideTools as any}
                   extra={toolBar.extra}
                   min={toolBar.min}
                 />

@@ -2,10 +2,15 @@ import SkeletonList from './SkeletonList';
 
 import { MutableRefObject, useContext, useMemo, useRef } from 'react';
 
-import type { BubbleMetaData, BubbleProps, MessageBubbleData } from '../type';
+import type {
+  BubbleImperativeHandle,
+  BubbleMetaData,
+  BubbleProps,
+  MessageBubbleData,
+} from '../type';
 
 import { ConfigProvider } from 'antd';
-import cx from 'classnames';
+import cx from 'clsx';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { LazyElement } from '../../MarkdownEditor/editor/components/LazyElement';
@@ -18,7 +23,7 @@ export interface PureBubbleListProps {
   bubbleList: MessageBubbleData[];
   readonly?: boolean;
   bubbleListRef?: MutableRefObject<HTMLDivElement | null>;
-  bubbleRef?: MutableRefObject<any | undefined>;
+  bubbleRef?: MutableRefObject<BubbleImperativeHandle | null | undefined>;
   isLoading?: boolean;
   className?: string;
   bubbleRenderConfig?: BubbleProps['bubbleRenderConfig'];
@@ -30,14 +35,14 @@ export interface PureBubbleListProps {
   markdownRenderConfig?: BubbleProps['markdownRenderConfig'];
   docListProps?: BubbleProps['docListProps'];
   /**
-   * @deprecated 请使用 onDislike 替代（符合命名规范）
+   * @deprecated @since 2.29.0 请使用 onDislike 替代（符合命名规范）
    */
   onDisLike?: BubbleProps['onDisLike'];
   /** 不喜欢回调 */
   onDislike?: BubbleProps['onDislike'];
   onLike?: BubbleProps['onLike'];
   /**
-   * @deprecated 请使用 onLikeCancel 替代（符合命名规范）
+   * @deprecated @since 2.29.0 请使用 onLikeCancel 替代（符合命名规范）
    */
   onCancelLike?: BubbleProps['onCancelLike'];
   /** Like 子组件取消事件 */

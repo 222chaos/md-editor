@@ -1,7 +1,7 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { ConfigProvider, Tooltip, TooltipProps } from 'antd';
-import cx from 'classnames';
-import { isFunction } from 'lodash';
+import cx from 'clsx';
+import { isFunction } from 'lodash-es';
 import { useMergedState } from 'rc-util';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useStyle } from './style';
@@ -17,7 +17,7 @@ export type ActionIconBoxProps = {
   className?: string;
   borderLess?: boolean;
   /**
-   * @deprecated 请使用 isLoading 代替
+   * @deprecated @since 2.29.0 请使用 isLoading 代替
    * @description 已废弃，将在未来版本移除
    */
   loading?: boolean;

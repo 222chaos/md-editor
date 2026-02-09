@@ -7,7 +7,7 @@ import {
   Sparkles,
 } from '@sofa-design/icons';
 import { ConfigProvider, Descriptions, Drawer, Typography } from 'antd';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { motion } from 'framer-motion';
@@ -84,17 +84,10 @@ const ThoughtChainTitle = React.memo<{
         <div className={classNames(`${prefixCls}-title-content`, hashId)}>
           <Sparkles
             data-testid="magic-icon"
-            style={{
-              width: 15,
-              height: 15,
-              color: '#0CE0AD',
-            }}
+            className={classNames(`${prefixCls}-title-icon`, hashId)}
           />
           <span
             className={classNames(`${prefixCls}-title-progress`, hashId)}
-            style={{
-              fontSize: '1em',
-            }}
           >
             {endStatusDisplay}
           </span>
@@ -380,14 +373,16 @@ export const ThoughtChainList: React.FC<ThoughtChainListProps> = React.memo(
     const {
       thoughtChainList,
       loading,
-      //@ts-ignore
-      bubble = props.chatItem,
+      bubble: bubbleProp,
+      chatItem,
       style: customStyle,
       compact,
       markdownRenderProps,
       finishAutoCollapse = true,
       onDocMetaClick,
     } = props;
+    // 兼容旧版 chatItem 属性，优先使用 bubble
+    const bubble = bubbleProp ?? chatItem;
     const context = useContext(ConfigProvider.ConfigContext);
     const [collapse, setCollapse] = React.useState<boolean>(false);
     const prefixCls = context?.getPrefixCls('thought-chain-list');
@@ -517,12 +512,7 @@ export const ThoughtChainList: React.FC<ThoughtChainListProps> = React.memo(
               }
             />
             <div
-              style={{
-                backgroundColor: '#FFF',
-                position: 'relative',
-                borderRadius: '6px 12px 12px 12px',
-                zIndex: 9,
-              }}
+              className={classNames(`${prefixCls}-content-wrapper`, hashId)}
             >
               <ThoughtChainContent
                 prefixCls={prefixCls}

@@ -1,6 +1,6 @@
 import { ChevronUp, CircleDashed, SuccessFill, X } from '@sofa-design/icons';
 import { ConfigProvider } from 'antd';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMergedState } from 'rc-util';
 import React, { memo, useCallback, useContext, useMemo } from 'react';
@@ -34,7 +34,7 @@ type TaskItem = {
 /**
  * TaskList 组件属性
  */
-type ThoughtChainProps = {
+export type TaskListProps = {
   /** 任务列表数据 */
   items: TaskItem[];
   /** 自定义类名 */
@@ -44,6 +44,11 @@ type ThoughtChainProps = {
   /** 受控模式：展开状态变化时的回调函数 */
   onExpandedKeysChange?: (expandedKeys: string[]) => void;
 };
+
+/**
+ * @deprecated @since 2.30.0 请使用 TaskListProps 替代
+ */
+export type ThoughtChainProps = TaskListProps;
 
 const getArrowRotation = (collapsed: boolean): React.CSSProperties => ({
   transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)',
@@ -247,7 +252,7 @@ export const TaskList = memo(
     className,
     expandedKeys,
     onExpandedKeysChange,
-  }: ThoughtChainProps) => {
+  }: TaskListProps) => {
     const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
     const prefixCls = getPrefixCls('task-list');
     const { wrapSSR, hashId } = useStyle(prefixCls);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable react/no-children-prop */
 import { useDebounceFn } from '@ant-design/pro-components';
-import classNames from 'classnames';
+import classNames from 'clsx';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import {
@@ -946,7 +946,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
         <MLeaf
           {...leafComponentProps}
           fncProps={props.fncProps}
-          comment={props?.comment}
+          comment={props?.comment as any}
           children={leafComponentProps.children}
           tagInputProps={props.tagInputProps}
           linkConfig={props.linkConfig}
@@ -960,7 +960,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
         {
           ...leafComponentProps,
           fncProps: props.fncProps,
-          comment: props?.comment,
+          comment: props?.comment as any,
           hashId: hashId,
           tagInputProps: props.tagInputProps,
         },

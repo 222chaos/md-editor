@@ -358,14 +358,14 @@ export default () => (
 
 #### 核心属性
 
-| 属性       | 说明                   | 类型                | 默认值   |
-| ---------- | ---------------------- | ------------------- | -------- |
-| originData | 消息的原始数据         | `MessageBubbleData` | -        |
-| avatar     | 头像元数据配置         | `BubbleMetaData`    | -        |
-| placement  | 消息布局位置           | `'left' \| 'right'` | `'left'` |
-| loading    | 加载状态显示           | `boolean`           | `false`  |
-| readonly   | 只读模式               | `boolean`           | `false`  |
-| pure       | 简洁模式（无边框阴影） | `boolean`           | `false`  |
+| 属性       | 说明                   | 类型                | 默认值   | 废弃版本 |
+| ---------- | ---------------------- | ------------------- | -------- | -------- |
+| originData | 消息的原始数据         | `MessageBubbleData` | -        | - |
+| avatar     | 头像元数据配置         | `BubbleMetaData`    | -        | - |
+| placement  | 消息布局位置           | `'left' \| 'right'` | `'left'` | - |
+| loading    | 加载状态显示           | `boolean`           | `false`  | - |
+| readonly   | 只读模式               | `boolean`           | `false`  | - |
+| pure       | 简洁模式（无边框阴影） | `boolean`           | `false`  | - |
 
 #### 样式配置
 
@@ -384,36 +384,37 @@ export default () => (
 
 #### 交互回调
 
-| 属性          | 说明                                        | 类型                                  | 默认值 |
-| ------------- | ------------------------------------------- | ------------------------------------- | ------ |
-| onLike        | 点赞回调函数                                | `(bubble: MessageBubbleData) => void` | -      |
-| onDislike     | 点踩回调函数（符合命名规范）                | `(bubble: MessageBubbleData) => void` | -      |
-| onDisLike     | 点踩回调函数（已废弃，请使用 onDislike）    | `(bubble: MessageBubbleData) => void` | -      |
-| onLikeCancel  | Like 子组件取消事件（符合命名规范）         | `(bubble: MessageBubbleData) => void` | -      |
-| onCancelLike  | 取消点赞回调（已废弃，请使用 onLikeCancel） | `(bubble: MessageBubbleData) => void` | -      |
-| onReply       | 回复回调函数                                | `(message: string) => void`           | -      |
-| onAvatarClick | 头像点击回调                                | `() => void`                          | -      |
-| onDoubleClick | 双击回调函数                                | `() => void`                          | -      |
-| preMessage    | 前一条消息数据                              | `MessageBubbleData \| undefined`      | -      |
+| 属性          | 说明                                        | 类型                                  | 默认值 | 废弃版本 |
+| ------------- | ------------------------------------------- | ------------------------------------- | ------ | -------- |
+| onLike        | 点赞回调函数                                | `(bubble: MessageBubbleData) => void` | -      | - |
+| onDislike     | 点踩回调函数（符合命名规范）                | `(bubble: MessageBubbleData) => void` | -      | - |
+| ~~onDisLike~~     | 已废弃，请使用 `onDislike`              | `(bubble: MessageBubbleData) => void` | -      | 2.29.0 |
+| onLikeCancel  | Like 子组件取消事件（符合命名规范）         | `(bubble: MessageBubbleData) => void` | -      | - |
+| ~~onCancelLike~~  | 已废弃，请使用 `onLikeCancel`           | `(bubble: MessageBubbleData) => void` | -      | 2.29.0 |
+| onReply       | 回复回调函数                                | `(message: string) => void`           | -      | - |
+| onAvatarClick | 头像点击回调                                | `() => void`                          | -      | - |
+| onDoubleClick | 双击回调函数                                | `() => void`                          | -      | - |
+| preMessage    | 前一条消息数据                              | `MessageBubbleData \| undefined`      | -      | - |
 
 ### BubbleList 消息列表组件
 
 #### 核心属性
 
-| 属性          | 说明          | 类型                  | 默认值  |
-| ------------- | ------------- | --------------------- | ------- |
-| bubbleList    | 消息列表数据  | `MessageBubbleData[]` | `[]`    |
-| assistantMeta | AI 助手元数据 | `BubbleMetaData`      | -       |
-| userMeta      | 用户元数据    | `BubbleMetaData`      | -       |
-| loading       | 列表加载状态  | `boolean`             | `false` |
-| readonly      | 只读模式      | `boolean`             | `false` |
+| 属性          | 说明          | 类型                  | 默认值  | 废弃版本 |
+| ------------- | ------------- | --------------------- | ------- | -------- |
+| bubbleList    | 消息列表数据  | `MessageBubbleData[]` | `[]`    | - |
+| assistantMeta | AI 助手元数据 | `BubbleMetaData`      | -       | - |
+| userMeta      | 用户元数据    | `BubbleMetaData`      | -       | - |
+| ~~loading~~   | 已废弃，请使用 `isLoading` | `boolean` | `false` | 2.29.0 |
+| isLoading     | 列表加载状态  | `boolean`             | `false` | - |
+| readonly      | 只读模式      | `boolean`             | `false` | - |
 
 #### 引用和样式
 
 | 属性          | 说明            | 类型                               | 默认值 |
 | ------------- | --------------- | ---------------------------------- | ------ |
 | bubbleListRef | 列表容器引用    | `MutableRefObject<HTMLDivElement>` | -      |
-| bubbleRef     | 气泡组件引用    | `MutableRefObject<any>`            | -      |
+| bubbleRef     | 气泡组件引用    | `MutableRefObject<BubbleImperativeHandle>` | -      |
 | className     | 自定义 CSS 类名 | `string`                           | -      |
 | style         | 自定义内联样式  | `React.CSSProperties`              | -      |
 | styles        | 详细样式配置    | `BubbleListStylesConfig`           | -      |
@@ -444,11 +445,14 @@ interface MessageBubbleData {
 interface BubbleMetaData {
   avatar?: string; // 头像 URL
   title?: string; // 显示名称
+  name?: string; // 名称（别名）
   description?: string; // 描述信息
   backgroundColor?: string; // 背景色
-  [key: string]: any; // 其他自定义字段
+  metadata?: Record<string, unknown>; // 扩展元数据
 }
 ```
+
+> **变更说明**：移除了 `[key: string]: any` 索引签名，新增 `name` 和 `metadata` 属性。如需传递自定义数据，请使用 `metadata` 字段。
 
 #### BubbleRenderConfig
 
@@ -470,6 +474,46 @@ type CustomRenderFunction = (
   defaultDom: ReactNode,
 ) => ReactNode;
 ```
+
+#### BubbleImperativeHandle
+
+通过 `bubbleRef` 暴露的命令式方法：
+
+```typescript
+interface BubbleImperativeHandle {
+  /** 更新消息项数据 */
+  setMessageItem?: (id: string, data: Partial<MessageBubbleData>) => void;
+}
+```
+
+#### BubbleSlotStyles（推荐）
+
+简洁版样式配置接口，属性名不带 `bubble` 前缀：
+
+```typescript
+interface BubbleSlotStyles {
+  root?: React.CSSProperties;        // 气泡根容器
+  avatarTitle?: React.CSSProperties;  // 头像标题区域
+  container?: React.CSSProperties;    // 主容器
+  loadingIcon?: React.CSSProperties;  // 加载图标
+  name?: React.CSSProperties;         // 名称区域
+  content?: React.CSSProperties;      // 内容
+  before?: React.CSSProperties;       // 内容前置区域
+  after?: React.CSSProperties;        // 内容后置区域
+  title?: React.CSSProperties;        // 标题
+  avatar?: React.CSSProperties;       // 头像
+  extra?: React.CSSProperties;        // 额外内容
+}
+```
+
+> **变更说明**：新增 `BubbleSlotStyles` / `BubbleSlotClassNames` 作为推荐的样式接口，属性名更简洁。原 `BubbleStyles` / `BubbleClassNames`（带 `bubble` 前缀）仍可使用，但已标记为 deprecated。
+
+#### AI 气泡属性
+
+| 属性 | 说明 | 类型 | 默认值 | 废弃版本 |
+| --- | --- | --- | --- | --- |
+| aiBubbleProps | AI 气泡的属性配置 | `BubbleProps` | - | - |
+| ~~aIBubbleProps~~ | 已废弃，请使用 `aiBubbleProps` | `BubbleProps` | - | 2.30.0 |
 
 ## 🎯 功能特性详解
 
