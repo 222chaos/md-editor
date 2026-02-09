@@ -10,7 +10,7 @@ import { ConfigProvider } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BubbleConfigContext } from '../../Bubble/BubbleConfigProvide';
+import { I18nContext, cnLabels } from '../../I18n';
 import { History, HistoryDataType } from '../index';
 
 // 模拟默认请求函数
@@ -48,16 +48,18 @@ const defaultProps = {
   request: mockRequest,
 };
 
-// 测试包装器
+// 测试包装器：国际化统一走 I18nContext
 const TestWrapper: React.FC<{ children: React.ReactNode; locale?: any }> = ({
   children,
-  locale = {},
+  locale = cnLabels,
 }) => {
   return (
     <ConfigProvider>
-      <BubbleConfigContext.Provider value={{ locale, standalone: false }}>
+      <I18nContext.Provider
+        value={{ locale, language: 'zh-CN' }}
+      >
         {children}
-      </BubbleConfigContext.Provider>
+      </I18nContext.Provider>
     </ConfigProvider>
   );
 };

@@ -8,6 +8,7 @@ import {
   ActionIconBoxProps,
 } from '../../../Components/ActionIconBox';
 import { useCopied } from '../../../Hooks/useCopied';
+import { useMergedLocale } from '../../../I18n';
 import { BubbleConfigContext } from '../../BubbleConfigProvide';
 
 /**
@@ -114,10 +115,9 @@ export type CopyButtonProps = {
 export const CopyButton = memo<CopyButtonProps>(
   ({ className, onClick, 'data-testid': dataTestId, ...props }) => {
     const { copied, setCopied } = useCopied();
-    const context = useContext(BubbleConfigContext);
+    const locale = useMergedLocale(useContext(BubbleConfigContext)?.locale);
 
-    const copySuccessText =
-      context?.locale?.['chat.message.copy.success'] || '复制成功';
+    const copySuccessText = locale?.['chat.message.copy.success'] || '复制成功';
 
     return (
       <ActionIconBox

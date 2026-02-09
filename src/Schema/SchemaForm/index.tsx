@@ -12,7 +12,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { I18nContext, cnLabels } from '../../I18n';
+import { I18nContext } from '../../I18n';
 import { LowCodeSchema, SchemaProperty } from '../types';
 
 export interface SchemaFormProps {
@@ -84,7 +84,7 @@ const SchemaFormComponent: React.FC<SchemaFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { properties = {} } = schema?.component || {};
-  const { locale = cnLabels } = useContext(I18nContext);
+  const { locale } = useContext(I18nContext);
 
   // 生成表单验证规则
   const generateRules = useCallback(
