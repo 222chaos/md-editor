@@ -150,7 +150,7 @@ History 组件用于显示和管理聊天历史记录，支持两种显示模式
 
 ### 国际化支持
 
-组件支持国际化，通过 `BubbleConfigContext` 提供以下文案：
+组件支持国际化，通过 `I18nProvide`（或 `I18nContext`）统一提供文案，例如：
 
 ```ts | pure
 {

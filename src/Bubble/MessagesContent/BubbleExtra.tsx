@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ActionIconBox } from '../../Components/ActionIconBox';
 import { Loading } from '../../Components/Loading';
-import { useMergedLocale } from '../../I18n';
+import { useLocale } from '../../I18n';
 import { BubbleConfigContext } from '../BubbleConfigProvide';
 import { BubbleExtraProps } from '../types/BubbleExtra';
 import { CopyButton } from './CopyButton';
@@ -53,7 +53,7 @@ export const BubbleExtra = ({
 }: BubbleExtraProps) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const context = useContext(BubbleConfigContext);
-  const locale = useMergedLocale(context?.locale);
+  const locale = useLocale();
   const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   // 获取聊天项的原始数据
@@ -88,9 +88,7 @@ export const BubbleExtra = ({
       if (props.onLikeCancel || props.onCancelLike) {
         return locale?.['chat.message.cancel-like'] || '取消点赞';
       } else {
-        return (
-          locale?.['chat.message.feedback-success'] || '已经反馈过了哦'
-        );
+        return locale?.['chat.message.feedback-success'] || '已经反馈过了哦';
       }
     } else {
       // 未点赞的情况
@@ -351,9 +349,7 @@ export const BubbleExtra = ({
     console.log('originalData?.isAborted', originalData, typing);
     if (originalData?.isAborted && !originalData.isFinished) {
       return (
-        <span>
-          {locale?.['chat.message.aborted'] || '回答已停止生成'}
-        </span>
+        <span>{locale?.['chat.message.aborted'] || '回答已停止生成'}</span>
       );
     }
     if (!originalData?.extra?.preMessage?.content) return null;
@@ -378,9 +374,7 @@ export const BubbleExtra = ({
             data-messages-content-retry
           >
             <RefreshLottie active={isHovered} />
-            <span>
-              {locale?.['chat.message.retrySend'] || '重新生成'}
-            </span>
+            <span>{locale?.['chat.message.retrySend'] || '重新生成'}</span>
           </div>
         )}
       </ActionIconBox>

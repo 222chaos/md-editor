@@ -79,7 +79,7 @@ export const UserBubble: React.FC<
 
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const context = useContext(BubbleConfigContext);
-  const { compact, standalone, locale } = context || {};
+  const { compact, standalone } = context || {};
 
   const prefixClass = getPrefixCls('agentic');
   const { wrapSSR, hashId } = useStyle(prefixClass, classNames);
@@ -165,7 +165,6 @@ export const UserBubble: React.FC<
       value={{
         compact,
         standalone: !!standalone,
-        locale: locale as any,
         bubble: props as any,
       }}
     >

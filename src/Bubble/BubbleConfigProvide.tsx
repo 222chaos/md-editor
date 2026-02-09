@@ -1,5 +1,4 @@
 import React from 'react';
-import type { LocalKeys } from '../I18n';
 import { ThoughtChainListProps } from '../ThoughtChainList/types';
 import { BubbleProps } from './type';
 
@@ -22,8 +21,6 @@ export type ChatConfigType = {
      */
     enable: boolean;
   };
-  /** 可选覆盖，与 I18nContext 合并时优先生效，国际化主数据源为 I18nContext */
-  locale?: Partial<LocalKeys>;
   bubble?: BubbleProps<{
     /**
      * 聊天内容
@@ -41,5 +38,4 @@ export const BubbleConfigContext = React.createContext<
   ChatConfigType | undefined
 >({
   standalone: false,
-  locale: undefined,
 });

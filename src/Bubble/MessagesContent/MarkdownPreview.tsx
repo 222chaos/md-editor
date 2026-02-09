@@ -7,7 +7,7 @@ import {
   MarkdownEditorProps,
   parserMdToSchema,
 } from '../../';
-import { useMergedLocale } from '../../I18n';
+import { useLocale } from '../../I18n';
 import { BubbleConfigContext } from '../BubbleConfigProvide';
 import { MessageBubbleData } from '../type';
 import { MessagesContext } from './BubbleContext';
@@ -104,7 +104,7 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
   const { hidePadding } = useContext(MessagesContext) || {};
 
   const config = useContext(BubbleConfigContext);
-  const locale = useMergedLocale(config?.locale);
+  const locale = useLocale();
   const standalone = config?.standalone;
   const { token } = theme.useToken();
 
