@@ -44,6 +44,16 @@ describe('BrowserList Component', () => {
     },
   ];
 
+  const mockItemsWithIcon: BrowserItem[] = [
+    {
+      id: '1',
+      title: '带图标的结果',
+      site: 'example.com',
+      url: 'https://example.com',
+      icon: 'https://example.com/favicon.ico',
+    },
+  ];
+
   it('应该正确渲染结果列表和计数标签', () => {
     renderWithProvider(<BrowserList items={mockItems} activeLabel="搜索A" />);
 
@@ -52,6 +62,18 @@ describe('BrowserList Component', () => {
     expect(screen.getByText('结果标题2')).toBeInTheDocument();
     // 默认计数文案
     expect(screen.getByText('共2个结果')).toBeInTheDocument();
+  });
+
+  it('当 item 带 icon 时应渲染站点头像为 Image', () => {
+    renderWithProvider(
+      <BrowserList items={mockItemsWithIcon} activeLabel="搜索Icon" />,
+    );
+
+    const img = screen.getByRole('img', { name: 'example.com' });
+    expect(img).toBeInTheDocument();
+    expect((img as HTMLImageElement).src).toBe(
+      'https://example.com/favicon.ico',
+    );
   });
 
   it('点击站点信息时应通过 window.open 打开链接', async () => {

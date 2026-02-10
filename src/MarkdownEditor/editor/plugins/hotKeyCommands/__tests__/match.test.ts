@@ -6,20 +6,20 @@ import { ReactEditor, withReact } from 'slate-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MatchKey } from '../match';
 
-// Mock TextMatchNodes
+// Mock TextMatchNodes：第一个节点 matchKey '**' 且 checkAllow 为 false，用于覆盖 continue 分支
 vi.mock('../elements', () => ({
   TextMatchNodes: [
     {
       matchKey: '**',
       reg: /\*\*([^*]+)\*\*/,
       run: vi.fn(() => true),
-      checkAllow: vi.fn(() => true),
+      checkAllow: vi.fn(() => false),
     },
     {
       matchKey: '*',
       reg: /\*([^*]+)\*/,
       run: vi.fn(() => false),
-      checkAllow: vi.fn(() => true),
+      checkAllow: vi.fn(() => false),
     },
     {
       matchKey: /^`$/,
@@ -135,8 +135,17 @@ describe('MatchKey', () => {
     });
 
     it('应该在 checkAllow 返回 false 时跳过匹配', () => {
-      // 这个测试需要访问 TextMatchNodes，暂时跳过
-      expect(true).toBe(true);
+      Transforms.insertText(editor, '**a**');
+      Transforms.select(editor, { path: [0, 0], offset: 6 });
+
+      const mockEvent = {
+        key: '**',
+        preventDefault: vi.fn(),
+      } as any;
+
+      matchKey.run(mockEvent);
+
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
     });
 
     it('应该在匹配成功时调用 run 方法', () => {

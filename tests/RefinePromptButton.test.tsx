@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
@@ -200,6 +200,9 @@ describe('RefinePromptButton', () => {
       const button = screen.getByTestId('refine-prompt-button');
       expect(button).toBeInTheDocument();
     });
+
+    // 注：SSR 分支（window/document 为 undefined 时 return null）在 jsdom 中难以覆盖，
+    // 因 stubGlobal 会破坏后续测试的 document，且组件 hooks 在判断前已执行。
   });
 
   describe('Multiple States Combination', () => {

@@ -55,6 +55,11 @@ describe('Media Utils', () => {
       expect(result).toBe('other');
     });
 
+    it('应在 url 类型非 string 时返回 other', async () => {
+      const result = await getRemoteMediaType(123 as any);
+      expect(result).toBe('other');
+    });
+
     it('应该通过文件扩展名识别媒体类型', async () => {
       const result = await getRemoteMediaType('https://example.com/image.png');
       expect(result).toBe('image');
