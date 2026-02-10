@@ -6,14 +6,15 @@ import { I18nProvide } from '../../src/I18n';
 
 describe('useLanguage Hook', () => {
   it('应该在没有 I18nProvide 时抛出错误', () => {
-    // 使用 console.error 来捕获 React 的错误
     const originalError = console.error;
     console.error = vi.fn();
 
     try {
       renderHook(() => useLanguage());
-    } catch (error) {
-      expect(error).toBeDefined();
+    } catch (e) {
+      expect((e as Error).message).toContain(
+        'useLanguage must be used within I18nProvide',
+      );
     }
 
     console.error = originalError;

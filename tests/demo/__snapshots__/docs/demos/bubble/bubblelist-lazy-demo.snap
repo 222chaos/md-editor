@@ -2346,7 +2346,7 @@
                                 <span
                                   data-slate-string="true"
                                 >
-                                  [消息 191] 这是一条测试消息，用于展示懒加载功能。
+                                  [消息 191] 你好，请帮我看一下这个接口的响应时间为什么突然变慢了？
                                 </span>
                               </span>
                             </span>
@@ -2472,7 +2472,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    [消息 192] 懒加载可以显著提升长列表的渲染性能。
+                                    [消息 192] 根据日志分析，接口延迟主要来自数据库查询层，建议添加索引优化。
                                   </span>
                                 </span>
                               </span>
@@ -2574,7 +2574,7 @@
                                 <span
                                   data-slate-string="true"
                                 >
-                                  [消息 193] 只有进入视口的气泡才会被渲染。
+                                  [消息 193] 我已经在 user_id 字段上加了索引，还需要做什么？
                                 </span>
                               </span>
                             </span>
@@ -2700,7 +2700,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    [消息 194] 这样可以减少初始渲染时间，提升用户体验。
+                                    [消息 194] 建议同时检查 N+1 查询问题，可以使用 DataLoader 进行批量查询优化。
                                   </span>
                                 </span>
                               </span>
@@ -2802,7 +2802,7 @@
                                 <span
                                   data-slate-string="true"
                                 >
-                                  [消息 195] IntersectionObserver API 用于检测元素是否进入视口。
+                                  [消息 195] 能具体说一下 DataLoader 的使用方式吗？
                                 </span>
                               </span>
                             </span>
@@ -2928,7 +2928,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    [消息 196] 占位符保持布局稳定，避免滚动时的跳动。
+                                    [消息 196] DataLoader 通过批处理和缓存机制，将多个单独的数据请求合并为一次批量请求。
                                   </span>
                                 </span>
                               </span>
@@ -3030,7 +3030,7 @@
                                 <span
                                   data-slate-string="true"
                                 >
-                                  [消息 197] 支持自定义占位符高度和提前加载距离。
+                                  [消息 197] 另外，Redis 缓存层也建议加上，热点数据的缓存命中率能达到 95% 以上。
                                 </span>
                               </span>
                             </span>
@@ -3156,7 +3156,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    [消息 198] 适用于包含大量消息的聊天场景。
+                                    [消息 198] 好的，那缓存过期策略应该怎么设计比较合理？
                                   </span>
                                 </span>
                               </span>
@@ -3258,7 +3258,7 @@
                                 <span
                                   data-slate-string="true"
                                 >
-                                  [消息 199] 性能优化是前端开发的重要课题。
+                                  [消息 199] 推荐使用 TTL + 主动失效的双重策略，TTL 设为 5 分钟，数据变更时主动清除。
                                 </span>
                               </span>
                             </span>
@@ -3384,7 +3384,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    [消息 200] 通过懒加载可以减少 DOM 节点数量。
+                                    [消息 200] 明白了，我先按这个方案试一下，有问题再来请教。
                                   </span>
                                 </span>
                               </span>

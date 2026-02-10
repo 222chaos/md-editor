@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { parserMdToSchema } from '../parserMdToSchema';
 import {
   clearParseCache,
   parserMarkdownToSlateNode,
@@ -1603,6 +1604,42 @@ const y = 2;
 
       // 验证不同插件可能产生不同的 hash
       expect(result1.schema.length).toBe(result2.schema.length);
+    });
+
+    it('应在插件 match 为 true 时调用 convert', () => {
+      const convertFn = vi.fn(() => null as any);
+      const plugin: import('../../../plugin').MarkdownEditorPlugin = {
+        parseMarkdown: [
+          {
+            match: () => true,
+            convert: convertFn,
+          },
+        ],
+      };
+      parserMarkdownToSlateNode('# a', [plugin]);
+      expect(convertFn).toHaveBeenCalled();
+    });
+
+    it('parserMdToSchema 应过滤掉 language===html 且 isConfig 的节点', () => {
+      const plugin: import('../../../plugin').MarkdownEditorPlugin = {
+        parseMarkdown: [
+          {
+            match: () => true,
+            convert: () =>
+              ({
+                type: 'code',
+                language: 'html',
+                isConfig: true,
+                children: [{ text: '' }],
+              }) as any,
+          },
+        ],
+      };
+      const result = parserMdToSchema('# a', [plugin]);
+      const htmlConfigNodes = result.schema.filter(
+        (s: any) => s.language === 'html' && s.isConfig,
+      );
+      expect(htmlConfigNodes).toHaveLength(0);
     });
 
     it('应该限制缓存大小为 100 个条目', () => {

@@ -286,7 +286,7 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    这是第一条助手消息
+                                    你好！我可以帮你进行代码审查、性能优化建议和技术方案设计。
                                   </span>
                                 </span>
                               </span>
@@ -412,7 +412,7 @@
                                     <span
                                       data-slate-string="true"
                                     >
-                                      这是用户消息
+                                      请帮我看一下这个 React 组件的渲染性能问题。
                                     </span>
                                   </span>
                                 </span>
@@ -514,7 +514,42 @@
                                   <span
                                     data-slate-string="true"
                                   >
-                                    这是第二条助手消息
+                                    好的，建议你先使用 React DevTools 的 Profiler 定位重渲染的组件，然后针对性地使用 
+                                  </span>
+                                </span>
+                              </span>
+                              <span
+                                data-slate-node="text"
+                              >
+                                <span
+                                  class="ant-agentic-md-editor-content-inline-code"
+                                  data-be="text"
+                                  data-slate-leaf="true"
+                                  draggable="false"
+                                >
+                                  <code
+                                    class="ant-agentic-md-editor-content-inline-code"
+                                  >
+                                    <span
+                                      data-slate-string="true"
+                                    >
+                                      React.memo
+                                    </span>
+                                  </code>
+                                </span>
+                              </span>
+                              <span
+                                data-slate-node="text"
+                              >
+                                <span
+                                  data-be="text"
+                                  data-slate-leaf="true"
+                                  draggable="false"
+                                >
+                                  <span
+                                    data-slate-string="true"
+                                  >
+                                     进行优化。
                                   </span>
                                 </span>
                               </span>

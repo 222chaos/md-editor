@@ -45,6 +45,26 @@ describe('Chart Utils', () => {
       expect(stringFormatNumber(123)).toBe('123');
     });
 
+    it('应在 format 抛出时走 catch 并返回原始 value', async () => {
+      const OriginalNumberFormat = Intl.NumberFormat;
+      vi.stubGlobal('Intl', {
+        ...Intl,
+        NumberFormat: class MockNumberFormat {
+          format = (value: unknown) => {
+            if (typeof value === 'number') throw new RangeError('format error');
+            return String(value);
+          };
+        },
+      });
+      vi.resetModules();
+      const { stringFormatNumber: stringFormatNumberReloaded } = await import(
+        '../../../src/Plugins/chart/utils'
+      );
+      const result = stringFormatNumberReloaded(42);
+      expect(result).toBe(42);
+      vi.unstubAllGlobals();
+    });
+
     it('应该处理不同类型的输入', () => {
       expect(stringFormatNumber(123)).toBe('123');
       expect(stringFormatNumber('123')).toBe('123');

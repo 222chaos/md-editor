@@ -59,7 +59,7 @@
             class="ant-agentic-quote-quoteDescription"
             data-testid="quote-description"
           >
-            这是一个工具函数的引用，用于处理数据格式化
+            用户认证状态管理 Hook，处理 Token 刷新和登录态维护
           </span>
           <div
             class="ant-agentic-quote-popup"
@@ -111,26 +111,36 @@
                 class="ant-agentic-quote-popup-title"
                 data-testid="quote-popup-title"
               >
-                utils/helper.ts
+                src/hooks/useAuth.ts
               </span>
               <span
                 class="ant-agentic-quote-popup-range"
                 data-testid="quote-popup-range"
               >
-                (12-25)
+                (18-32)
               </span>
             </div>
             <div
               class="ant-agentic-quote-popup-content"
               data-testid="quote-popup-content"
             >
-              export const formatData = (data: any) =&gt; {
-  if (!data) return null;
-  return {
-    id: data.id,
-    name: data.name,
-    createdAt: new Date(data.created_at)
-  };
+              export const useAuth = () =&gt; {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      validateToken(token)
+        .then(setUser)
+        .catch(() =&gt; localStorage.removeItem('auth_token'))
+        .finally(() =&gt; setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  return { user, loading, isAuthenticated: !!user };
 };
             </div>
           </div>
@@ -184,7 +194,7 @@
             class="ant-agentic-quote-quoteDescription"
             data-testid="quote-description"
           >
-            Button组件的点击事件处理逻辑
+            数据表格组件的分页和排序逻辑
           </span>
           <div
             class="ant-agentic-quote-close-button"
@@ -271,7 +281,7 @@
             class="ant-agentic-quote-quoteDescription"
             data-testid="quote-description"
           >
-            这是一个没有文件来源的引用内容
+            项目采用微前端架构，主应用负责路由调度和公共状态管理
           </span>
           <div
             class="ant-agentic-quote-popup"
@@ -282,9 +292,12 @@
               class="ant-agentic-quote-popup-content"
               data-testid="quote-popup-content"
             >
-              这里是详细的说明文本，可以包含多行内容。
-当内容过多时，会出现滚动条。
-用户可以通过滚动查看完整内容。
+              架构设计说明：
+
+1. 主应用（Shell）：基于 qiankun 框架，负责子应用的生命周期管理
+2. 子应用通过 props 和 globalState 与主应用通信
+3. 公共依赖通过 externals 方式共享，避免重复打包
+4. 每个子应用独立部署，支持灰度发布
             </div>
           </div>
         </div>
@@ -337,7 +350,7 @@
             class="ant-agentic-quote-quoteDescription"
             data-testid="quote-description"
           >
-            项目使用说明和API文档
+            生产环境部署流程和注意事项
           </span>
         </div>
       </div>
@@ -389,7 +402,7 @@
             class="ant-agentic-quote-quoteDescription"
             data-testid="quote-description"
           >
-            这是一个很长的文件路径，用来测试文件名的省略效果
+            实时数据大盘的多轴时序图组件，包含数据聚合和自动刷新逻辑
           </span>
           <div
             class="ant-agentic-quote-popup"
@@ -441,23 +454,25 @@
                 class="ant-agentic-quote-popup-title"
                 data-testid="quote-popup-title"
               >
-                src/components/ComplexComponent/SubComponent/VeryLongFileName.tsxsrc/components/ComplexComponent/SubComponent/VeryLongFileName.tsx
+                src/modules/analytics/components/RealtimeDashboard/charts/MultiAxisTimeSeriesChart.tsx
               </span>
               <span
                 class="ant-agentic-quote-popup-range"
                 data-testid="quote-popup-range"
               >
-                (100-150)
+                (120-185)
               </span>
             </div>
             <div
               class="ant-agentic-quote-popup-content"
               data-testid="quote-popup-content"
             >
-              interface VeryLongInterfaceName {
-  propertyWithVeryLongName: string;
-  anotherPropertyWithEvenLongerName: number;
-  yetAnotherPropertyThatIsEvenLonger: boolean;
+              interface MultiAxisChartConfig {
+  axes: AxisConfig[];
+  refreshInterval: number;
+  aggregation: 'sum' | 'avg' | 'max' | 'min';
+  timeRange: TimeRange;
+  dataSource: DataSourceConfig;
 }
             </div>
           </div>
@@ -520,7 +535,7 @@
                 class="ant-agentic-quote-quoteDescription"
                 data-testid="quote-description"
               >
-                左侧对齐的工具函数
+                日期和数字格式化工具函数
               </span>
               <div
                 class="ant-agentic-quote-popup"
@@ -572,26 +587,30 @@
                     class="ant-agentic-quote-popup-title"
                     data-testid="quote-popup-title"
                   >
-                    src/utils/leftAlign.ts
+                    src/utils/format.ts
                   </span>
                   <span
                     class="ant-agentic-quote-popup-range"
                     data-testid="quote-popup-range"
                   >
-                    (1-20)
+                    (1-15)
                   </span>
                 </div>
                 <div
                   class="ant-agentic-quote-popup-content"
                   data-testid="quote-popup-content"
                 >
-                  export const leftAlign = (text: string, width: number) =&gt; {
-  return text.padEnd(width, ' ');
+                  export const formatCurrency = (amount: number, currency = 'CNY') =&gt; {
+  return new Intl.NumberFormat('zh-CN', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
 };
 
-// 使用示例
-const aligned = leftAlign('Hello', 10);
-// 'Hello     '
+export const formatDate = (date: Date, pattern = 'YYYY-MM-DD') =&gt; {
+  return dayjs(date).format(pattern);
+};
                 </div>
               </div>
             </div>
@@ -646,7 +665,7 @@ const aligned = leftAlign('Hello', 10);
                 class="ant-agentic-quote-quoteDescription"
                 data-testid="quote-description"
               >
-                右侧对齐的工具函数
+                表单校验规则和自定义校验器
               </span>
               <div
                 class="ant-agentic-quote-popup"
@@ -698,26 +717,29 @@ const aligned = leftAlign('Hello', 10);
                     class="ant-agentic-quote-popup-title"
                     data-testid="quote-popup-title"
                   >
-                    src/utils/rightAlign.ts
+                    src/utils/validator.ts
                   </span>
                   <span
                     class="ant-agentic-quote-popup-range"
                     data-testid="quote-popup-range"
                   >
-                    (1-20)
+                    (1-18)
                   </span>
                 </div>
                 <div
                   class="ant-agentic-quote-popup-content"
                   data-testid="quote-popup-content"
                 >
-                  export const rightAlign = (text: string, width: number) =&gt; {
-  return text.padStart(width, ' ');
+                  export const validators = {
+  email: (value: string) =&gt;
+    /^[\w.-]+@[\w.-]+\.\w+$/.test(value) || '请输入有效的邮箱地址',
+  phone: (value: string) =&gt;
+    /^1[3-9]\d{9}$/.test(value) || '请输入有效的手机号码',
+  password: (value: string) =&gt;
+    value.length &gt;= 8 || '密码长度不能少于 8 位',
+  required: (value: string) =&gt;
+    !!value?.trim() || '此字段为必填项',
 };
-
-// 使用示例
-const aligned = rightAlign('Hello', 10);
-// '     Hello'
                 </div>
               </div>
             </div>

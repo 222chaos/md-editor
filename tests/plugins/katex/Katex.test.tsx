@@ -472,6 +472,29 @@ describe('Katex', () => {
       process.env.NODE_ENV = originalEnv;
     });
 
+    it('应在 katex.render 抛出时执行 catch 分支且不崩溃', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+      mockLoadKatex.mockResolvedValue({ default: mockKatex });
+      mockRender.mockImplementation(() => {
+        throw new Error('KaTeX render failed');
+      });
+
+      const { container } = render(<Katex el={mockElement} />);
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+        vi.advanceTimersByTime(0);
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
+
+      expect(container.firstChild).toBeInTheDocument();
+      process.env.NODE_ENV = originalEnv;
+    });
+
     it('应该在 katexRef.current 为 null 时不渲染公式', async () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';

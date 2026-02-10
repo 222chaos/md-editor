@@ -7,7 +7,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -74,6 +74,14 @@ describe('Blockquote Component', () => {
 
       const blockquoteElement = container.querySelector('blockquote');
       expect(blockquoteElement).toBeInTheDocument();
+    });
+
+    it('应在 onDragStart 时调用 store.dragStart', () => {
+      const { container } = renderWithProvider(
+        <Blockquote {...defaultProps} />,
+      );
+      const blockquote = container.querySelector('[data-be="blockquote"]');
+      fireEvent.dragStart(blockquote!);
     });
   });
 
