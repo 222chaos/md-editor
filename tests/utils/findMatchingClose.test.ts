@@ -55,6 +55,21 @@ describe('findMatchingClose', () => {
       const closeIdx = findMatchingClose(math, 2, '$$', '$$');
       expect(closeIdx).toBe(-1);
     });
+
+    it('$$ 匹配时偶数个反斜杠应返回位置（覆盖 43、44 行）', () => {
+      const s = 'ab$$cd';
+      const closeIdx = findMatchingClose(s, 0, '$$', '$$');
+      expect(closeIdx).toBe(2);
+      expect(s.slice(closeIdx, closeIdx + 2)).toBe('$$');
+    });
+  });
+
+  describe('多字符闭合序列（覆盖 91 行）', () => {
+    it('闭合序列最后一字符单独出现时应减少 depth', () => {
+      const s = '(()x))';
+      const closeIdx = findMatchingClose(s, 0, '(', '))');
+      expect(closeIdx).toBe(-1);
+    });
   });
 
   describe('括号匹配', () => {

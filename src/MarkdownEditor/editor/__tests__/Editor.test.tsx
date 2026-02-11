@@ -304,6 +304,23 @@ describe('SlateMarkdownEditor', () => {
     expect(screen.getByText('★')).toBeDefined();
   });
 
+  it('eleItemRender 对非 code/paragraph 元素应返回 defaultDom（覆盖 124 行）', () => {
+    const initValue: Elements[] = [
+      {
+        type: 'heading',
+        level: 1,
+        children: [{ text: 'Heading' }],
+      } as any,
+    ];
+    renderEditor({
+      initSchemaValue: initValue,
+      eleItemRender: customEleItemRender,
+    });
+    expect(screen.getByText('Heading')).toBeInTheDocument();
+    expect(screen.queryByTestId('custom-block-wrapper')).toBeNull();
+    expect(screen.queryByTestId('custom-code-wrapper')).toBeNull();
+  });
+
   describe('initialValue 逻辑测试', () => {
     it('应该优先使用 initSchemaValue，无论是否在 SSR 环境', () => {
       const initSchemaValue: Elements[] = [

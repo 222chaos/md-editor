@@ -723,6 +723,7 @@ export const ChartRender: React.FC<{
       filterByChanged;
 
     if (hasChanged) {
+      const dataHashChanged = prevDataRef.current.dataHash !== dataHash;
       // 更新缓存
       prevDataRef.current = {
         dataHash,
@@ -733,7 +734,7 @@ export const ChartRender: React.FC<{
       };
 
       // 对于流式数据，使用防抖更新，避免频繁渲染
-      if (prevDataRef.current.dataHash !== dataHash) {
+      if (dataHashChanged) {
         debouncedUpdateRenderKeyRef.current();
       } else {
         // 配置变化时立即更新

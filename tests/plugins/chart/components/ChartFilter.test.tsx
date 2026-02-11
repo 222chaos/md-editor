@@ -3,26 +3,31 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import ChartFilter from '../../../../src/Plugins/chart/components/ChartFilter/ChartFilter';
 
-// Mock Ant Design components
+// Mock Ant Design components（Dropdown 渲染时调用 getPopupContainer 以覆盖 111 行）
 vi.mock('antd', async () => {
   const actual = await vi.importActual('antd');
   return {
     ...actual,
-    Dropdown: ({ children, menu }: any) => (
-      <div data-testid="dropdown">
-        {children}
-        {menu?.items?.map((item: any) => (
-          <button
-            type="button"
-            key={item.key}
-            onClick={() => item.onClick?.({ key: item.key })}
-            data-testid={`dropdown-item-${item.key}`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-    ),
+    Dropdown: ({ children, menu, getPopupContainer }: any) => {
+      if (typeof getPopupContainer === 'function') {
+        getPopupContainer();
+      }
+      return (
+        <div data-testid="dropdown">
+          {children}
+          {menu?.items?.map((item: any) => (
+            <button
+              type="button"
+              key={item.key}
+              onClick={() => menu?.onClick?.({ key: item.key })}
+              data-testid={`dropdown-item-${item.key}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      );
+    },
     Button: ({ children, ...props }: any) => (
       <button type="button" {...props} data-testid="filter-button">
         {children}
@@ -92,6 +97,30 @@ describe('ChartFilter', () => {
     }, 1000);
   });
 
+  it('点击分段应调用 onFilterChange（覆盖 54、55 行）', () => {
+    const onFilterChange = vi.fn();
+    render(
+      <ChartFilter
+        {...defaultProps}
+        onFilterChange={onFilterChange}
+        filterOptions={[
+          { label: 'A', value: 'a' },
+          { label: 'B', value: 'b' },
+        ]}
+        selectedFilter="a"
+      />,
+    );
+    screen.getByTestId('segment-b').click();
+    expect(onFilterChange).toHaveBeenCalledWith('b');
+  });
+
+  it('点击地区下拉项应调用 onSelectionChange（覆盖 108 行）', () => {
+    const onSelectionChange = vi.fn();
+    render(<ChartFilter {...defaultProps} onSelectionChange={onSelectionChange} />);
+    screen.getByTestId('dropdown-item-region2').click();
+    expect(onSelectionChange).toHaveBeenCalledWith('region2');
+  });
+
   it('应该处理地区选择变化', () => {
     const onSelectionChange = vi.fn();
     const props = { ...defaultProps, onSelectionChange };
@@ -101,10 +130,7 @@ describe('ChartFilter', () => {
     const dropdownItem = screen.getByTestId('dropdown-item-region2');
     dropdownItem.click();
 
-    // 防抖函数有1秒延迟，需要等待
-    setTimeout(() => {
-      expect(onSelectionChange).toHaveBeenCalledWith('region2');
-    }, 1000);
+    expect(onSelectionChange).toHaveBeenCalledWith('region2');
   });
 
   it('应该在没有筛选选项时不渲染', () => {

@@ -87,6 +87,17 @@ describe('SuggestionList 组件', () => {
     expect(screen.queryByText('建议5')).not.toBeInTheDocument();
   });
 
+  it('应创建 MutationObserver 并 observe 文本节点（覆盖 70、71 行）', () => {
+    const observeSpy = vi.spyOn(MutationObserver.prototype, 'observe');
+    render(
+      <SuggestionList
+        items={[{ key: '1', text: '较长文本用于触发 OverflowTooltip 挂载' }]}
+      />,
+    );
+    expect(observeSpy).toHaveBeenCalled();
+    observeSpy.mockRestore();
+  });
+
   it('应该支持垂直布局', () => {
     const { container } = render(
       <SuggestionList items={mockItems} layout="vertical" />,

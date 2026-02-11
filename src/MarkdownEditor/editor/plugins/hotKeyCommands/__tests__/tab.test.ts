@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import { BaseEditor, createEditor, Node, Transforms } from 'slate';
+import { BaseEditor, createEditor, Node, Path, Transforms } from 'slate';
 import { HistoryEditor, withHistory } from 'slate-history';
 import { ReactEditor, withReact } from 'slate-react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -954,6 +954,52 @@ describe('TabKey', () => {
       expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 
+    it('indentListItem 在 targetList 非列表类型时应 return false（覆盖 244 行）', () => {
+      const list = {
+        type: 'bulleted-list',
+        children: [
+          {
+            type: 'list-item',
+            children: [
+              { type: 'paragraph', children: [{ text: 'item1' }] },
+              {
+                type: 'bulleted-list',
+                children: [
+                  {
+                    type: 'list-item',
+                    children: [
+                      { type: 'paragraph', children: [{ text: 'nested' }] },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'list-item',
+            children: [
+              { type: 'paragraph', children: [{ text: 'item2' }] },
+            ],
+          },
+        ],
+      };
+      editor.children = [list];
+      Transforms.select(editor, { path: [0, 1, 0, 0], offset: 5 });
+      const mockEvent = { preventDefault: vi.fn(), shiftKey: false } as any;
+      const originalNodeGet = Node.get.bind(Node);
+      const nodeGetSpy = vi.spyOn(Node, 'get').mockImplementation((editor, path) => {
+        if (Path.equals(path, [0, 0, 1])) {
+          return { type: 'paragraph', children: [] } as any;
+        }
+        return originalNodeGet(editor, path);
+      });
+      const mockInsertText = vi.fn();
+      editor.insertText = mockInsertText;
+      tabKey.run(mockEvent);
+      expect(mockInsertText).toHaveBeenCalledWith('\t');
+      nodeGetSpy.mockRestore();
+    });
+
     it('应该在列表项中当前一个 list-item 的最后一个子节点不是列表时创建新列表', () => {
       const list = {
         type: 'bulleted-list',
@@ -1038,6 +1084,35 @@ describe('TabKey', () => {
       expect(mockInsertText).toHaveBeenCalledWith('\t');
 
       editor.insertText = originalInsertText;
+    });
+
+    it('listItem 在 Node.get 返回非 list-item 时应 return false（覆盖 157 行）', () => {
+      const list = {
+        type: 'bulleted-list',
+        children: [
+          {
+            type: 'list-item',
+            children: [
+              { type: 'paragraph', children: [{ text: 'item1' }] },
+            ],
+          },
+        ],
+      };
+      editor.children = [list];
+      Transforms.select(editor, { path: [0, 0, 0, 0], offset: 0 });
+      const mockEvent = { preventDefault: vi.fn(), shiftKey: false } as any;
+      const originalNodeGet = Node.get.bind(Node);
+      const nodeGetSpy = vi.spyOn(Node, 'get').mockImplementation((editor, path) => {
+        if (Path.equals(path, [0, 0])) {
+          return { type: 'paragraph', children: [] } as any;
+        }
+        return originalNodeGet(editor, path);
+      });
+      const mockInsertText = vi.fn();
+      editor.insertText = mockInsertText;
+      tabKey.run(mockEvent);
+      expect(mockInsertText).toHaveBeenCalledWith('\t');
+      nodeGetSpy.mockRestore();
     });
 
     it('应该在列表项中当前一个 list-item 没有子列表时创建新列表', () => {
@@ -1644,6 +1719,98 @@ describe('TabKey', () => {
       }
     });
 
+    it('Shift+Tab 列表成功时应命中 try 分支（覆盖 1635）', () => {
+      const blockquote = {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'bulleted-list',
+            children: [
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item1' }] },
+                ],
+              },
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item2' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      editor.children = [blockquote];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 1, 0, 0], offset: 5 },
+      });
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        shiftKey: true,
+      } as any;
+      try {
+        tabKey.run(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+      } catch (error: any) {
+        if (error.message?.includes('depth of less than')) {
+          expect(mockEvent.preventDefault).toHaveBeenCalled();
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow（覆盖 1642）', () => {
+      const blockquote = {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'bulleted-list',
+            children: [
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item1' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      editor.children = [blockquote];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 0, 0, 0], offset: 5 },
+      });
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        shiftKey: true,
+      } as any;
+      let liftCallCount = 0;
+      const originalLift = Transforms.liftNodes.bind(Transforms);
+      const liftSpy = vi.spyOn(Transforms, 'liftNodes').mockImplementation((...args: any[]) => {
+        liftCallCount += 1;
+        if (liftCallCount === 2) throw new Error('other error');
+        return originalLift(...args);
+      });
+      expect(() => {
+        try {
+          tabKey.run(mockEvent);
+          expect(mockEvent.preventDefault).toHaveBeenCalled();
+        } catch (error: any) {
+          if (error.message?.includes('depth of less than')) {
+            expect(mockEvent.preventDefault).toHaveBeenCalled();
+          } else {
+            throw error;
+          }
+        }
+      }).toThrow('other error');
+      liftSpy.mockRestore();
+    });
+
     it('应该在非折叠选择时处理列表的 Shift+Tab（选择不从列表结束，使用 Editor.end）', () => {
       // 创建嵌套结构，使得 liftNodes 可以工作（需要深度 >= 2）
       // 列表必须在 blockquote 中，这样列表的深度为 2
@@ -1701,6 +1868,104 @@ describe('TabKey', () => {
           throw error;
         }
       }
+    });
+
+    it('Shift+Tab 列表成功时应命中 try 分支（覆盖 1694）', () => {
+      const blockquote = {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'bulleted-list',
+            children: [
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item1' }] },
+                ],
+              },
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item2' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      editor.children = [
+        blockquote,
+        { type: 'paragraph', children: [{ text: 'after' }] },
+      ];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 1, 0, 0], offset: 5 },
+      });
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        shiftKey: true,
+      } as any;
+      try {
+        tabKey.run(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+      } catch (error: any) {
+        if (error.message?.includes('depth of less than')) {
+          expect(mockEvent.preventDefault).toHaveBeenCalled();
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow（覆盖 1701）', () => {
+      const blockquote = {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'bulleted-list',
+            children: [
+              {
+                type: 'list-item',
+                children: [
+                  { type: 'paragraph', children: [{ text: 'item1' }] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      editor.children = [
+        blockquote,
+        { type: 'paragraph', children: [{ text: 'after' }] },
+      ];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 0, 0, 0], offset: 5 },
+      });
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        shiftKey: true,
+      } as any;
+      let liftCallCount = 0;
+      const originalLift = Transforms.liftNodes.bind(Transforms);
+      const liftSpy = vi.spyOn(Transforms, 'liftNodes').mockImplementation((...args: any[]) => {
+        liftCallCount += 1;
+        if (liftCallCount === 2) throw new Error('other error');
+        return originalLift(...args);
+      });
+      expect(() => {
+        try {
+          tabKey.run(mockEvent);
+          expect(mockEvent.preventDefault).toHaveBeenCalled();
+        } catch (error: any) {
+          if (error.message?.includes('depth of less than')) {
+            expect(mockEvent.preventDefault).toHaveBeenCalled();
+          } else {
+            throw error;
+          }
+        }
+      }).toThrow('other error');
+      liftSpy.mockRestore();
     });
 
     it('应该在非折叠选择时处理非列表的 Shift+Tab', () => {

@@ -398,6 +398,44 @@ describe('ReadonlyTableComponent', () => {
         });
       }
     });
+
+    it('应在模态框内容区触发 onMouseDown/onDragStart/onDoubleClick 时调用 preventDefault（覆盖 210,214,219,222）', async () => {
+      renderComponent();
+      const fullscreenButton = screen
+        .getAllByTestId('action-icon')
+        .find((el) => el.getAttribute('title') === '全屏');
+      expect(fullscreenButton).toBeDefined();
+      fireEvent.click(fullscreenButton!);
+
+      await waitFor(() => {
+        expect(screen.getByText('预览表格')).toBeInTheDocument();
+      });
+
+      const modalBody = document.querySelector('.ant-modal-body');
+      expect(modalBody).toBeInTheDocument();
+      const contentDiv = modalBody?.querySelector(
+        '.ant-agentic-md-editor-content-table.ant-agentic-md-editor-content',
+      ) || modalBody?.firstElementChild;
+      expect(contentDiv).toBeInTheDocument();
+
+      const preventDefaultSpy = vi.fn();
+      const createEvent = (type: string) => {
+        const e = new Event(type, { bubbles: true }) as MouseEvent;
+        e.preventDefault = preventDefaultSpy;
+        return e;
+      };
+
+      contentDiv!.dispatchEvent(createEvent('mousedown'));
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+
+      preventDefaultSpy.mockClear();
+      contentDiv!.dispatchEvent(createEvent('dragstart'));
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+
+      preventDefaultSpy.mockClear();
+      contentDiv!.dispatchEvent(createEvent('dblclick'));
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('样式和容器测试', () => {

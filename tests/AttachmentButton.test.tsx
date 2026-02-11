@@ -121,6 +121,30 @@ describe('AttachmentButton', () => {
       expect(message.success).toHaveBeenCalledWith('Upload success');
     });
 
+    it('should use uploadWithResponse when provided', async () => {
+      const mockFiles = [
+        new File(['test'], 'test.txt', {
+          type: 'text/plain',
+        }) as AttachmentFile,
+      ];
+      const uploadWithResponse = vi.fn().mockResolvedValue({
+        fileUrl: 'response-url',
+        uploadStatus: 'SUCCESS',
+        errorMessage: null,
+      });
+
+      await upLoadFileToServer(mockFiles, {
+        uploadWithResponse,
+        onFileMapChange: mockOnFileMapChange,
+      });
+
+      expect(uploadWithResponse).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'test.txt' }),
+        0,
+      );
+      expect(message.success).toHaveBeenCalledWith('Upload success');
+    });
+
     it('should handle upload errors', async () => {
       const mockFiles = [
         new File(['test'], 'test.txt', {
@@ -136,6 +160,27 @@ describe('AttachmentButton', () => {
       });
 
       expect(message.error).toHaveBeenCalledWith('Upload failed');
+    });
+
+    it('should handle processFile throw and hit outer catch', async () => {
+      const mockFiles = [
+        new File(['test'], 'test.txt', {
+          type: 'text/plain',
+        }) as AttachmentFile,
+      ];
+      mockUpload.mockRejectedValue(new Error('Upload failed'));
+      const throwingOnFileMapChange = vi.fn().mockImplementation((_map?: Map<string, AttachmentFile>) => {
+        if (throwingOnFileMapChange.mock.calls.length === 2) {
+          throw new Error('onFileMapChange throw');
+        }
+      });
+
+      await upLoadFileToServer(mockFiles, {
+        upload: mockUpload,
+        onFileMapChange: throwingOnFileMapChange,
+      });
+
+      expect(message.error).toHaveBeenCalled();
     });
 
     it('should validate file count limits', async () => {

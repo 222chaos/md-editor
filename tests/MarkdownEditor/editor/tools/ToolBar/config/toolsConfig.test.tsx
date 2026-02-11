@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nContext } from '../../../../../../src/I18n';
@@ -301,7 +301,7 @@ describe('toolsConfig', () => {
   });
 
   describe('isCodeNode 函数', () => {
-    it('应该返回 false 当编辑器为空时', () => {
+    it('应该返回 false 当编辑器为空时（覆盖 toolsConfig 30）', () => {
       const result = isCodeNode(null);
       expect(result).toBe(false);
     });
@@ -433,6 +433,174 @@ describe('toolsConfig', () => {
       );
 
       expect(screen.getByTestId('has-isActive')).toHaveTextContent('true');
+    });
+
+    it('align-left onClick 在非代码块时调用 setAlignment（覆盖 70,71）', async () => {
+      const { Editor } = await import('slate');
+      const EditorUtils = (await import(
+        '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
+      )) as any;
+      vi.mocked(Editor.nodes).mockReturnValue([[{ type: 'paragraph' }, [0]]] as any);
+
+      const TestComponent = () => {
+        const tools = useToolsConfig();
+        const alignLeft = tools.find((t) => t.key === 'align-left');
+        return (
+          <button
+            type="button"
+            data-testid="align-left-btn"
+            onClick={() => alignLeft?.onClick?.(mockEditor)}
+          >
+            Left
+          </button>
+        );
+      };
+
+      render(
+        <I18nContext.Provider value={mockI18n}>
+          <TestComponent />
+        </I18nContext.Provider>,
+      );
+      fireEvent.click(screen.getByTestId('align-left-btn'));
+      expect(EditorUtils.EditorUtils.setAlignment).toHaveBeenCalledWith(
+        mockEditor,
+        'left',
+      );
+    });
+
+    it('align-left isActive 调用 isAlignmentActive（覆盖 71）', async () => {
+      const EditorUtils = (await import(
+        '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
+      )) as any;
+      vi.mocked((await import('slate')).Editor.nodes).mockReturnValue([
+        [{ type: 'paragraph' }, [0]],
+      ] as any);
+
+      const TestComponent = () => {
+        const tools = useToolsConfig();
+        const alignLeft = tools.find((t) => t.key === 'align-left');
+        if (alignLeft?.isActive) alignLeft.isActive(mockEditor);
+        return <div data-testid="mount">ok</div>;
+      };
+
+      render(
+        <I18nContext.Provider value={mockI18n}>
+          <TestComponent />
+        </I18nContext.Provider>,
+      );
+      expect(EditorUtils.EditorUtils.isAlignmentActive).toHaveBeenCalledWith(
+        mockEditor,
+        'left',
+      );
+    });
+
+    it('align-center onClick 与 isActive 被调用（覆盖 83,84）', async () => {
+      const EditorUtils = (await import(
+        '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
+      )) as any;
+      vi.mocked((await import('slate')).Editor.nodes).mockReturnValue([
+        [{ type: 'paragraph' }, [0]],
+      ] as any);
+
+      const TestComponent = () => {
+        const tools = useToolsConfig();
+        const alignCenter = tools.find((t) => t.key === 'align-center');
+        if (alignCenter?.isActive) alignCenter.isActive(mockEditor);
+        return (
+          <button
+            type="button"
+            data-testid="align-center-btn"
+            onClick={() => alignCenter?.onClick?.(mockEditor)}
+          >
+            Center
+          </button>
+        );
+      };
+
+      render(
+        <I18nContext.Provider value={mockI18n}>
+          <TestComponent />
+        </I18nContext.Provider>,
+      );
+      fireEvent.click(screen.getByTestId('align-center-btn'));
+      expect(EditorUtils.EditorUtils.setAlignment).toHaveBeenCalledWith(
+        mockEditor,
+        'center',
+      );
+      expect(EditorUtils.EditorUtils.isAlignmentActive).toHaveBeenCalledWith(
+        mockEditor,
+        'center',
+      );
+    });
+
+    it('align-right onClick 与 isActive 被调用（覆盖 96,97）', async () => {
+      const EditorUtils = (await import(
+        '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
+      )) as any;
+      vi.mocked((await import('slate')).Editor.nodes).mockReturnValue([
+        [{ type: 'paragraph' }, [0]],
+      ] as any);
+
+      const TestComponent = () => {
+        const tools = useToolsConfig();
+        const alignRight = tools.find((t) => t.key === 'align-right');
+        if (alignRight?.isActive) alignRight.isActive(mockEditor);
+        return (
+          <button
+            type="button"
+            data-testid="align-right-btn"
+            onClick={() => alignRight?.onClick?.(mockEditor)}
+          >
+            Right
+          </button>
+        );
+      };
+
+      render(
+        <I18nContext.Provider value={mockI18n}>
+          <TestComponent />
+        </I18nContext.Provider>,
+      );
+      fireEvent.click(screen.getByTestId('align-right-btn'));
+      expect(EditorUtils.EditorUtils.setAlignment).toHaveBeenCalledWith(
+        mockEditor,
+        'right',
+      );
+      expect(EditorUtils.EditorUtils.isAlignmentActive).toHaveBeenCalledWith(
+        mockEditor,
+        'right',
+      );
+    });
+
+    it('align-left onClick 在 isCodeNode 为 true 时不调用 setAlignment', async () => {
+      const EditorUtils = (await import(
+        '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
+      )) as any;
+      vi.mocked((await import('slate')).Editor.nodes).mockReturnValue([
+        [{ type: 'code' }, [0]],
+      ] as any);
+
+      const TestComponent = () => {
+        const tools = useToolsConfig();
+        const alignLeft = tools.find((t) => t.key === 'align-left');
+        return (
+          <button
+            type="button"
+            data-testid="align-left-code-btn"
+            onClick={() => alignLeft?.onClick?.(mockEditor)}
+          >
+            Left
+          </button>
+        );
+      };
+
+      render(
+        <I18nContext.Provider value={mockI18n}>
+          <TestComponent />
+        </I18nContext.Provider>,
+      );
+      fireEvent.click(screen.getByTestId('align-left-code-btn'));
+      expect(EditorUtils.EditorUtils.setAlignment).not.toHaveBeenCalled();
     });
   });
 

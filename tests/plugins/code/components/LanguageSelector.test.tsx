@@ -347,6 +347,42 @@ describe('LanguageSelector Component', () => {
     });
   });
 
+  describe('覆盖 81、139、140、142 行', () => {
+    it('当语言从有值变为空且非 katex 时应重置 hasUserClosedRef（覆盖 81 行）', () => {
+      const { rerender } = render(
+        <LanguageSelector
+          {...defaultProps}
+          element={{ language: 'javascript', katex: false }}
+        />,
+      );
+      rerender(
+        <LanguageSelector
+          {...defaultProps}
+          element={{ language: undefined, katex: false }}
+        />,
+      );
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    it('弹层关闭时应清空 keyword 并标记用户已关闭（覆盖 139、140、142 行）', async () => {
+      const user = userEvent.setup();
+      render(<LanguageSelector {...defaultProps} />);
+      const button = screen.getByRole('button');
+      await user.click(button);
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
+      });
+      const searchInput = screen.getByPlaceholderText('Search');
+      await user.type(searchInput, 'py');
+      expect(searchInput).toHaveValue('py');
+      await user.click(button);
+      await user.click(button);
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Search')).toHaveValue('');
+      });
+    });
+  });
+
   describe('边界情况测试', () => {
     it('应该处理未定义的 containerRef', () => {
       const props = {

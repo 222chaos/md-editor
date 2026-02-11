@@ -67,6 +67,7 @@ describe('ToolUseBar - Expanded Keys', () => {
     expect(mockOnExpandedKeysChange).toHaveBeenCalledWith(['tool1'], []);
   });
 
+
   it('should collapse when clicking expanded item expand button', async () => {
     const mockOnExpandedKeysChange = vi.fn();
 

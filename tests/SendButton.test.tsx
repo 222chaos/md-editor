@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import '@testing-library/jest-dom';
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
@@ -183,6 +183,40 @@ describe('SendButton', () => {
       fireEvent.mouseLeave(button!);
 
       expect(button).toBeInTheDocument();
+    });
+  });
+
+  describe('键盘与样式（覆盖 274,275,276,277）', () => {
+    it('按 Enter 或空格应触发 onClick（覆盖 274,275）', () => {
+      const onClick = vi.fn();
+      const { container } = render(
+        <SendButton isSendable={true} typing={false} onClick={onClick} />,
+      );
+      const button = container.querySelector(
+        '.ant-agentic-md-input-field-send-button',
+      );
+      fireEvent.keyDown(button!, { key: 'Enter' });
+      expect(onClick).toHaveBeenCalled();
+      onClick.mockClear();
+      fireEvent.keyDown(button!, { key: ' ' });
+      expect(onClick).toHaveBeenCalled();
+    });
+
+    it('应应用 style 和 className（覆盖 276,277）', () => {
+      const { container } = render(
+        <SendButton
+          isSendable={true}
+          typing={false}
+          onClick={vi.fn()}
+          style={{ marginTop: 4 }}
+          compact
+        />,
+      );
+      const button = container.querySelector(
+        '.ant-agentic-md-input-field-send-button',
+      ) as HTMLElement;
+      expect(button?.style.marginTop).toBe('4px');
+      expect(button?.className).toContain('compact');
     });
   });
 

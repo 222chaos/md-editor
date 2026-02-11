@@ -332,6 +332,40 @@ describe('proxySandbox/index.ts', () => {
         // 应该包含 recommendations 数组
         expect(Array.isArray(result.recommendations)).toBe(true);
       });
+
+      it('当 Proxy 不可用时应报告 issue 与 recommendation（覆盖 243,244）', () => {
+        const origProxy = (global as any).Proxy;
+        try {
+          (global as any).Proxy = undefined;
+          const checker = SandboxHealthChecker.getInstance();
+          const result = checker.checkEnvironmentSupport();
+          expect(result.issues).toContain(
+            'Proxy is not supported in this environment',
+          );
+          expect(result.recommendations).toContain(
+            'Use a modern browser that supports ES6 Proxy',
+          );
+        } finally {
+          (global as any).Proxy = origProxy;
+        }
+      });
+
+      it('当 performance 不可用时应报告 issue 与 recommendation（覆盖 249,250）', () => {
+        const origPerf = (global as any).performance;
+        try {
+          (global as any).performance = undefined;
+          const checker = SandboxHealthChecker.getInstance();
+          const result = checker.checkEnvironmentSupport();
+          expect(result.issues).toContain(
+            'Performance API is not available',
+          );
+          expect(result.recommendations).toContain(
+            'Performance monitoring will be disabled',
+          );
+        } finally {
+          (global as any).performance = origPerf;
+        }
+      });
     });
 
     describe('testBasicFunctionality', () => {
@@ -373,6 +407,40 @@ describe('proxySandbox/index.ts', () => {
         expect(typeof result.results).toBe('object');
         expect(result).toHaveProperty('errors');
         expect(Array.isArray(result.errors)).toBe(true);
+      });
+
+      it('全局隔离与超时走 catch 时正确设置 results（覆盖 283,284,292,300）', async () => {
+        const ProxySandboxModule = await import(
+          '../../../src/Utils/proxySandbox/ProxySandbox'
+        );
+        let callCount = 0;
+        vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
+          (code: string, opts?: any) => {
+            callCount += 1;
+            if (callCount === 1) {
+              return Promise.resolve({
+                success: true,
+                result: 2,
+                executionTime: 0,
+              });
+            }
+            if (code.includes('window')) {
+              return Promise.reject(new Error('blocked'));
+            }
+            if (opts?.timeout !== undefined) {
+              return Promise.reject(new Error('Execution timeout'));
+            }
+            return Promise.resolve({ success: false, result: undefined });
+          },
+        );
+
+        const checker = SandboxHealthChecker.getInstance();
+        const result = await checker.testBasicFunctionality();
+
+        expect(result.results.globalIsolation).toBe(true);
+        expect(result.results.timeoutMechanism).toBe(true);
+
+        vi.restoreAllMocks();
       });
     });
   });

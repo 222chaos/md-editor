@@ -228,6 +228,43 @@ describe('SchemaEditorBridgeManager', () => {
       expect(createSchemaElementEditorBridge).not.toHaveBeenCalled();
     });
 
+    it('先注册再 setEnabled(true) 时应启动 bridge（覆盖 setEnabled 内 startBridge 分支）', async () => {
+      const { createSchemaElementEditorBridge } = await import(
+        '@schema-element-editor/host-sdk/core'
+      );
+      vi.mocked(createSchemaElementEditorBridge).mockClear();
+      const manager = SchemaEditorBridgeManager.getInstance();
+
+      manager.register('test-id', {
+        getContent: () => 'content',
+        setContent: vi.fn(),
+      });
+      manager.setEnabled(true);
+
+      expect(createSchemaElementEditorBridge).toHaveBeenCalled();
+    });
+
+    it('setEnabled(false) 时应调用 bridge.cleanup 并清空 bridge', async () => {
+      const mockCleanup = vi.fn();
+      const { createSchemaElementEditorBridge } = await import(
+        '@schema-element-editor/host-sdk/core'
+      );
+      vi.mocked(createSchemaElementEditorBridge).mockReturnValue({
+        cleanup: mockCleanup,
+        recording: { push: vi.fn() },
+      });
+      const manager = SchemaEditorBridgeManager.getInstance();
+
+      manager.setEnabled(true);
+      manager.register('test-id', {
+        getContent: () => 'content',
+        setContent: vi.fn(),
+      });
+      manager.setEnabled(false);
+
+      expect(mockCleanup).toHaveBeenCalled();
+    });
+
     it('所有 handler 注销后应该停止 bridge', async () => {
       const mockCleanup = vi.fn();
       const { createSchemaElementEditorBridge } = await import(

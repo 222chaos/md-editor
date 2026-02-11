@@ -806,6 +806,128 @@ describe('PreviewComponent', () => {
     });
   });
 
+  describe('覆盖率补充', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('processFile 抛出时设置 contentState.error 为 err.message（覆盖 231）', async () => {
+      const { fileTypeProcessor } = await import(
+        '../../../src/Workspace/File/FileTypeProcessor'
+      );
+      vi.spyOn(fileTypeProcessor, 'processFile').mockImplementation(() => {
+        throw new Error('custom process error');
+      });
+
+      const file: FileNode = {
+        id: 'f1',
+        name: 'test.txt',
+        content: 'x',
+      };
+
+      const { container } = render(
+        <TestWrapper>
+          <PreviewComponent file={file} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(fileTypeProcessor.processFile).toHaveBeenCalledWith(file);
+      });
+      expect(container.querySelector('.ant-spin')).toBeInTheDocument();
+    });
+
+    it('contentState 为 loading 时显示加载文案（覆盖 504）', async () => {
+      const { fileTypeProcessor } = await import(
+        '../../../src/Workspace/File/FileTypeProcessor'
+      );
+      vi.spyOn(fileTypeProcessor, 'processFile').mockReturnValue({
+        typeInference: {
+          fileType: 'plainText',
+          category: 'text',
+        },
+        dataSource: { previewUrl: 'https://example.com/f.txt', content: undefined },
+        canPreview: true,
+        previewMode: 'inline',
+      } as any);
+      (global.fetch as any).mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      const file: FileNode = {
+        id: 'f1',
+        name: 'test.txt',
+        url: 'https://example.com/f.txt',
+      };
+
+      const { container } = render(
+        <TestWrapper>
+          <PreviewComponent file={file} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(container.querySelector('.ant-spin')).toBeInTheDocument();
+      });
+    });
+
+    it('媒体无 previewUrl 时显示 getPreviewErrorMessage（覆盖 528,541,548）', async () => {
+      const { fileTypeProcessor } = await import(
+        '../../../src/Workspace/File/FileTypeProcessor'
+      );
+      vi.spyOn(fileTypeProcessor, 'processFile').mockReturnValue({
+        typeInference: { fileType: 'image', category: 'image' },
+        dataSource: { previewUrl: undefined },
+        canPreview: true,
+        previewMode: 'inline',
+      });
+
+      const file: FileNode = {
+        id: 'f1',
+        name: 'image.png',
+      };
+
+      render(
+        <TestWrapper>
+          <PreviewComponent file={file} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/无法获取图片预览|无法获取.*预览/),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('未知文件类型走 default 分支显示未知类型提示（覆盖 614）', async () => {
+      const { fileTypeProcessor } = await import(
+        '../../../src/Workspace/File/FileTypeProcessor'
+      );
+      vi.spyOn(fileTypeProcessor, 'processFile').mockReturnValue({
+        typeInference: { fileType: 'word', category: 'word' },
+        dataSource: {},
+        canPreview: true,
+        previewMode: 'inline',
+      } as any);
+
+      const file: FileNode = {
+        id: 'f1',
+        name: 'doc.doc',
+      };
+
+      render(
+        <TestWrapper>
+          <PreviewComponent file={file} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('未知的文件类型')).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('边缘情况', () => {
     it('应该处理空内容', () => {
       const file: FileNode = {

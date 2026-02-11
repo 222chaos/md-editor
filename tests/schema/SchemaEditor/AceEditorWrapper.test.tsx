@@ -605,22 +605,44 @@ describe('AceEditorWrapper', () => {
   });
 
   describe('ResizeObserver 兼容性', () => {
-    it('应该在 ResizeObserver 不存在时创建 mock', () => {
-      // 临时移除 ResizeObserver
+    it('应该在 ResizeObserver 不存在时仍能正常渲染', () => {
       const originalResizeObserver = window.ResizeObserver;
       delete (window as any).ResizeObserver;
 
       const { container } = render(<AceEditorWrapper value="test" />);
 
-      // 应该正常渲染
       expect(container.firstChild).toBeInTheDocument();
 
-      // 恢复 ResizeObserver
       window.ResizeObserver = originalResizeObserver;
     });
   });
 
   describe('错误处理', () => {
+    it('应在 loadAceEditor 失败时设置 aceLoaded 并静默处理（覆盖 65、66 行）', async () => {
+      const { loadAceEditor } = await import(
+        '../../../src/Plugins/code/loadAceEditor'
+      );
+      vi.mocked(loadAceEditor).mockRejectedValueOnce(
+        new Error('Failed to load Ace'),
+      );
+
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const { container } = render(<AceEditorWrapper value="test" />);
+
+      await waitFor(() => {
+        expect(container.firstChild).toBeInTheDocument();
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to load Ace Editor:',
+        expect.any(Error),
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
     it('应该处理编辑器创建失败', async () => {
       // 抑制 console.error
       const consoleErrorSpy = vi

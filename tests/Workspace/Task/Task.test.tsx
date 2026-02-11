@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { TaskList } from '../../../src/Workspace/Task';
 
 describe('TaskList Component', () => {
@@ -711,6 +711,54 @@ describe('TaskList Component', () => {
         );
         expect(item).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('onItemClick 键盘交互（覆盖 82、83、84 行）', () => {
+    it('应按 Enter 触发 onItemClick', () => {
+      const onItemClick = vi.fn();
+      const data = {
+        items: [
+          { key: '1', title: '可点击任务', status: 'success' as const },
+        ],
+      };
+
+      const { container } = render(
+        <ConfigProvider>
+          <TaskList data={data} onItemClick={onItemClick} />
+        </ConfigProvider>,
+      );
+
+      const taskItem = container.querySelector(
+        '.ant-agentic-workspace-task-item',
+      ) as HTMLElement;
+      expect(taskItem).toBeInTheDocument();
+      fireEvent.keyDown(taskItem, { key: 'Enter' });
+
+      expect(onItemClick).toHaveBeenCalledWith(data.items[0]);
+    });
+
+    it('应按 Space 触发 onItemClick', () => {
+      const onItemClick = vi.fn();
+      const data = {
+        items: [
+          { key: '1', title: '空格任务', status: 'pending' as const },
+        ],
+      };
+
+      const { container } = render(
+        <ConfigProvider>
+          <TaskList data={data} onItemClick={onItemClick} />
+        </ConfigProvider>,
+      );
+
+      const taskItem = container.querySelector(
+        '.ant-agentic-workspace-task-item',
+      ) as HTMLElement;
+      expect(taskItem).toBeInTheDocument();
+      fireEvent.keyDown(taskItem, { key: ' ' });
+
+      expect(onItemClick).toHaveBeenCalledWith(data.items[0]);
     });
   });
 

@@ -5,9 +5,33 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeNode } from '../../../../src/MarkdownEditor/el';
-import { ThinkBlock } from '../../../../src/Plugins/code/components/ThinkBlock';
+import {
+  ThinkBlock,
+  ThinkBlockProvider,
+} from '../../../../src/Plugins/code/components/ThinkBlock';
+
+const mockFindPath = vi.fn();
+const mockCheckSelEnd = vi.fn();
+const mockUseEditorStore = vi.fn(() => ({
+  markdownEditorRef: { current: {} },
+}));
+
+vi.mock('../../../../src/MarkdownEditor/editor/store', async () => {
+  const React = await import('react');
+  return {
+    useEditorStore: (...args: any[]) => mockUseEditorStore(...args),
+    EditorStoreContext: React.createContext({}),
+  };
+});
+
+vi.mock('../../../../src/MarkdownEditor/editor/utils/editorUtils', () => ({
+  EditorUtils: {
+    findPath: (...args: any[]) => mockFindPath(...args),
+    checkSelEnd: (...args: any[]) => mockCheckSelEnd(...args),
+  },
+}));
 
 describe('ThinkBlock', () => {
   const mockCodeNode: CodeNode = {
@@ -27,8 +51,9 @@ describe('ThinkBlock', () => {
   };
 
   beforeEach(() => {
-    // 清理 DOM
     document.body.innerHTML = '';
+    mockFindPath.mockReturnValue([0]);
+    mockCheckSelEnd.mockReturnValue(true);
   });
 
   describe('基本渲染', () => {
@@ -243,6 +268,98 @@ describe('ThinkBlock', () => {
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
       expect(thinkBlock).toHaveTextContent('这是正常的思考内容');
+    });
+  });
+
+  describe('ThinkBlockProvider（行 58）', () => {
+    it('应渲染子节点', () => {
+      render(
+        <ThinkBlockProvider expanded={false} onExpandedChange={() => {}}>
+          <div data-testid="provider-child">child</div>
+        </ThinkBlockProvider>,
+      );
+      expect(screen.getByTestId('provider-child')).toBeInTheDocument();
+      expect(screen.getByText('child')).toBeInTheDocument();
+    });
+  });
+
+  describe('restoreCodeBlocks（行 81）', () => {
+    it('应将【CODE_BLOCK:lang】格式恢复为 ```lang 代码块', () => {
+      const marker = '\u200B';
+      const value = `${marker}【CODE_BLOCK:js】\nconst x = 1\n【/CODE_BLOCK】${marker}`;
+      const codeNode: CodeNode = {
+        ...mockCodeNode,
+        value,
+        children: [{ text: value }],
+      };
+      render(<ThinkBlock {...mockProps} element={codeNode} />);
+      const text = screen.getByTestId('think-block').textContent || '';
+      expect(text).toContain('```js');
+      expect(text).toContain('const x = 1');
+      expect(text).toContain('```');
+    });
+  });
+
+  describe('elementPath 与 isLastNode 分支', () => {
+    it('markdownEditorRef.current 为 null 时 elementPath 为 null（行 102-103）', () => {
+      mockUseEditorStore.mockReturnValueOnce({
+        markdownEditorRef: { current: null },
+      });
+      render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+    });
+
+    it('findPath 抛错时捕获并返回 null（行 105-106）', () => {
+      mockFindPath.mockImplementationOnce(() => {
+        throw new Error('findPath error');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+      consoleSpy.mockRestore();
+    });
+
+    it('无 elementPath 时 isLastNode 为 false（行 115-116）', () => {
+      mockUseEditorStore.mockReturnValueOnce({
+        markdownEditorRef: { current: null },
+      });
+      render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+    });
+
+    it('checkSelEnd 抛错时捕获并返回 false（行 118-119）', () => {
+      mockCheckSelEnd.mockImplementationOnce(() => {
+        throw new Error('checkSelEnd error');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('非最后一个节点时自动收起（行 141）', () => {
+    it('isLastNode 为 false 时应调用 setExpanded(false)', () => {
+      mockCheckSelEnd.mockReturnValueOnce(false);
+      render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+    });
+  });
+
+  describe('context expanded 从有值变为 undefined 时收起（行 164）', () => {
+    it('ThinkBlockProvider expanded 从 true 变为 undefined 时应收起', () => {
+      const { rerender } = render(
+        <ThinkBlockProvider expanded onExpandedChange={() => {}}>
+          <ThinkBlock {...mockProps} />
+        </ThinkBlockProvider>,
+      );
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+      rerender(
+        <ThinkBlockProvider onExpandedChange={() => {}}>
+          <ThinkBlock {...mockProps} />
+        </ThinkBlockProvider>,
+      );
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
     });
   });
 });

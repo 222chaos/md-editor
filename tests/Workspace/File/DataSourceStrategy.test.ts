@@ -119,6 +119,17 @@ describe('DataSourceStrategy', () => {
       expect(result.mimeType).toBe('application/octet-stream');
     });
 
+    it('应该处理 URL 路径末尾无扩展名时返回 Other 与默认 MIME', () => {
+      const file = {
+        id: 'f1',
+        name: 'file',
+        url: 'https://example.com/',
+      };
+      const result = strategy.process(file);
+      expect(result.previewCapability).toBe(PreviewCapability.NONE);
+      expect(result.mimeType).toBe('application/octet-stream');
+    });
+
     it('应该在URL不存在时抛出错误', () => {
       const file = { id: 'f1', name: 'file.txt' };
       expect(() => strategy.process(file)).toThrow('URL not provided');
