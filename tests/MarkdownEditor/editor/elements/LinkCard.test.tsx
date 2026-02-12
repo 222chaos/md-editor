@@ -323,5 +323,13 @@ describe('LinkCard', () => {
       fireEvent.click(container!);
       expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com');
     });
+
+    it('点击标题链接应调用 window.open（覆盖 134）', () => {
+      render(<LinkCard {...defaultProps} />);
+      const link = screen.getByText('Example Title').closest('a');
+      expect(link).toBeInTheDocument();
+      fireEvent.click(link!);
+      expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com');
+    });
   });
 });

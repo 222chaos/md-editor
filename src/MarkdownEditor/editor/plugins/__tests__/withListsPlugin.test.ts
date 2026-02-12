@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { withListsPlugin } from '../withListsPlugin';
 
 describe('withListsPlugin', () => {
-  it('should convert non list-item child of list to list-item (lines 48-49)', () => {
+  it('should convert non list-item child of list to list-item', () => {
     const editor = withListsPlugin(createEditor());
     editor.children = [
       {
@@ -25,7 +25,7 @@ describe('withListsPlugin', () => {
     setNodesSpy.mockRestore();
   });
 
-  it('should insert paragraph when list-item has no children (lines 58, 63)', () => {
+  it('should insert paragraph when list-item has no children', () => {
     const editor = withListsPlugin(createEditor());
     editor.children = [
       {
@@ -45,7 +45,7 @@ describe('withListsPlugin', () => {
     insertNodesSpy.mockRestore();
   });
 
-  it('should wrap non-block first child of list-item in paragraph (lines 74, 79)', () => {
+  it('should wrap non-block first child of list-item in paragraph', () => {
     const editor = withListsPlugin(createEditor());
     const firstChild = { type: 'link', children: [{ text: 'x' }], url: '' };
     editor.children = [
@@ -70,7 +70,7 @@ describe('withListsPlugin', () => {
     isBlockSpy.mockRestore();
   });
 
-  it('should wrap block non-list child at index 1 in list-item and list (lines 91-112)', () => {
+  it('should wrap block non-list child at index 1 in list-item and list', () => {
     const editor = withListsPlugin(createEditor());
     editor.children = [
       {
@@ -89,7 +89,7 @@ describe('withListsPlugin', () => {
     wrapNodesSpy.mockRestore();
   });
 
-  it('should convert legacy list type to bulleted-list and unset order (lines 121-127)', () => {
+  it('should convert legacy list type to bulleted-list and unset order', () => {
     const editor = withListsPlugin(createEditor());
     editor.children = [
       {
@@ -113,7 +113,7 @@ describe('withListsPlugin', () => {
     unsetNodesSpy.mockRestore();
   });
 
-  it('should convert legacy list without order to bulleted-list (line 121, 124)', () => {
+  it('should convert legacy list without order to bulleted-list', () => {
     const editor = withListsPlugin(createEditor());
     editor.children = [
       {

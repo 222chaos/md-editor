@@ -154,6 +154,14 @@ describe('MarkdownEditor Utils', () => {
         expect.any(Function),
       );
 
+      // 触发 click 监听器，断言 stopPropagation 被调用
+      const clickHandler = mockLink.addEventListener.mock.calls.find(
+        (c: [string, Function]) => c[0] === 'click',
+      )?.[1];
+      const mockEvent = { stopPropagation: vi.fn() };
+      clickHandler(mockEvent);
+      expect(mockEvent.stopPropagation).toHaveBeenCalled();
+
       // 清理模拟
       mockCreateElement.mockRestore();
       mockAppendChild.mockRestore();
@@ -467,7 +475,30 @@ describe('MarkdownEditor Utils', () => {
       expect(getByTestId('count')).toHaveTextContent('1');
     });
 
-    it('set 传入非对象时在开发环境报错（覆盖 239）', () => {
+    it('set 传入 null/undefined 时直接返回不更新状态（覆盖 239）', () => {
+      const TestComp = () => {
+        const [get, set] = utils.useGetSetState({ a: 1 });
+        return (
+          <div>
+            <span data-testid="val">{get().a}</span>
+            <button type="button" onClick={() => set(null as any)} data-testid="set-null">
+              set null
+            </button>
+            <button type="button" onClick={() => set(undefined as any)} data-testid="set-undefined">
+              set undefined
+            </button>
+          </div>
+        );
+      };
+      const { getByTestId } = render(<TestComp />);
+      expect(getByTestId('val')).toHaveTextContent('1');
+      fireEvent.click(getByTestId('set-null'));
+      expect(getByTestId('val')).toHaveTextContent('1');
+      fireEvent.click(getByTestId('set-undefined'));
+      expect(getByTestId('val')).toHaveTextContent('1');
+    });
+
+    it('set 传入非对象时在开发环境报错', () => {
       const err = vi.spyOn(console, 'error').mockImplementation(() => {});
       const TestComp = () => {
         const [, set] = utils.useGetSetState({ a: 1 });

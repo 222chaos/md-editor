@@ -87,7 +87,7 @@ describe('SuggestionList 组件', () => {
     expect(screen.queryByText('建议5')).not.toBeInTheDocument();
   });
 
-  it('应创建 MutationObserver 并 observe 文本节点（覆盖 70、71 行）', () => {
+  it('应创建 MutationObserver 并 observe 文本节点', () => {
     const observeSpy = vi.spyOn(MutationObserver.prototype, 'observe');
     render(
       <SuggestionList
@@ -96,6 +96,16 @@ describe('SuggestionList 组件', () => {
     );
     expect(observeSpy).toHaveBeenCalled();
     observeSpy.mockRestore();
+  });
+
+  it('MutationObserver 不存在时 useEffect 提前 return', () => {
+    const origMO = global.MutationObserver;
+    (global as any).MutationObserver = undefined;
+    render(
+      <SuggestionList items={[{ key: '1', text: 'text' }]} />,
+    );
+    expect(screen.getByText('text')).toBeInTheDocument();
+    (global as any).MutationObserver = origMO;
   });
 
   it('应该支持垂直布局', () => {

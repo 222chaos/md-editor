@@ -287,6 +287,33 @@ describe('SchemaEditorBridgeManager', () => {
       manager.unregister('test-id');
       expect(mockCleanup).toHaveBeenCalled();
     });
+
+    it('stopBridge 时 cleanup 抛出应捕获并 console.warn', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const { createSchemaElementEditorBridge } = await import(
+        '@schema-element-editor/host-sdk/core'
+      );
+      vi.mocked(createSchemaElementEditorBridge).mockReturnValue({
+        cleanup: () => {
+          throw new Error('cleanup fail');
+        },
+        recording: { push: vi.fn() },
+      });
+
+      const manager = SchemaEditorBridgeManager.getInstance();
+      manager.setEnabled(true);
+      manager.register('test-id', {
+        getContent: () => 'content',
+        setContent: vi.fn(),
+      });
+      manager.setEnabled(false);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[SchemaEditorBridge] cleanup failed during stopBridge:',
+        expect.any(Error),
+      );
+      warnSpy.mockRestore();
+    });
   });
 
   describe('renderPreview 配置', () => {

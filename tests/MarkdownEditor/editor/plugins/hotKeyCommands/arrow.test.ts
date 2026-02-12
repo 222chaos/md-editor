@@ -241,7 +241,7 @@ describe('arrow.ts', () => {
   });
 
   describe('右箭头处理', () => {
-    it('应该正确处理右箭头键 - Editor.nodes 返回 media 时选中下一节点起点（覆盖 88 行）', () => {
+    it('应该正确处理右箭头键 - Editor.nodes 返回 media 时选中下一节点起点', () => {
       mockEvent.key = 'ArrowRight';
       mockEditor.selection = { focus: { path: [0, 0], offset: 4 } };
       vi.spyOn(Range, 'isCollapsed').mockReturnValue(true);
@@ -263,7 +263,7 @@ describe('arrow.ts', () => {
       expect(selectSpy).toHaveBeenCalledWith(mockEditor, { path: [0, 2], offset: 0 });
     });
 
-    it('应该正确处理右箭头键 - Editor.nodes 返回非 media/attach 时调用 moveAfterSpace（覆盖 89、91 行）', () => {
+    it('应该正确处理右箭头键 - Editor.nodes 返回非 media/attach 时调用 moveAfterSpace', () => {
       mockEvent.key = 'ArrowRight';
       mockEditor.selection = { focus: { path: [0, 0], offset: 2 } };
       vi.spyOn(Range, 'isCollapsed').mockReturnValue(true);
@@ -465,7 +465,7 @@ describe('arrow.ts', () => {
   });
 
   describe('上箭头处理', () => {
-    it('应该正确处理上箭头键 - media/attach元素的向上移动（覆盖 144-146 行）', () => {
+    it('应该正确处理上箭头键 - media/attach元素的向上移动', () => {
       mockEvent.key = 'ArrowUp';
       mockEditor.selection = { focus: { path: [1, 0], offset: 0 } };
       vi.spyOn(Range, 'isCollapsed').mockReturnValue(true);
@@ -513,7 +513,7 @@ describe('arrow.ts', () => {
   });
 
   describe('下箭头处理', () => {
-    it('应该正确处理下箭头键 - media/attach元素的向下移动（覆盖 165-168 行）', () => {
+    it('应该正确处理下箭头键 - media/attach元素的向下移动', () => {
       mockEvent.key = 'ArrowDown';
       mockEditor.selection = { focus: { path: [0, 0], offset: 0 } };
       vi.spyOn(Range, 'isCollapsed').mockReturnValue(true);
@@ -533,7 +533,7 @@ describe('arrow.ts', () => {
       expect(selectSpy).toHaveBeenCalledWith(mockEditor, [1, 0]);
     });
 
-    it('应该正确处理下箭头键 - 当前为 media 且下一节点非 media 时选中下一节点起点（覆盖 166-168 行）', () => {
+    it('应该正确处理下箭头键 - 当前为 media 且下一节点非 media 时选中下一节点起点', () => {
       mockEvent.key = 'ArrowDown';
       mockEditor.selection = { focus: { path: [0, 0], offset: 0 } };
       vi.spyOn(Range, 'isCollapsed').mockReturnValue(true);

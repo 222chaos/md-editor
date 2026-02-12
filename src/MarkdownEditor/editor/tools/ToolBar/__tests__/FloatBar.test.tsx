@@ -1,5 +1,5 @@
 /**
- * FloatBar 组件测试 - 覆盖 resize、Escape、resize 事件、onMouseDown 等未覆盖行
+ * FloatBar 组件测试
  */
 
 import { act, fireEvent, render } from '@testing-library/react';
@@ -126,6 +126,34 @@ describe('FloatBar', () => {
 
     expect(getSelRect).toHaveBeenCalled();
     expect(mockSetDomRect).toHaveBeenCalled();
+  });
+
+  it('resize 时未 mock getSelRect 返回值时使用默认实现', async () => {
+    const { getSelRect } = await import('../../../utils/dom');
+    vi.mocked(getSelRect).mockReset();
+    vi.mocked(getSelRect).mockImplementation(() => ({
+      x: 100,
+      y: 50,
+      width: 100,
+      height: 20,
+      top: 50,
+      right: 200,
+      bottom: 70,
+      left: 100,
+    }));
+    render(<FloatBar readonly={false} />);
+
+    await act(async () => {
+      fireEvent(window, new Event('resize'));
+    });
+
+    expect(getSelRect).toHaveBeenCalled();
+    const ret = vi.mocked(getSelRect).mock.results[0]?.value;
+    expect(ret).toBeDefined();
+    expect(ret?.x).toBe(100);
+    expect(ret?.y).toBe(50);
+    expect(ret?.width).toBe(100);
+    expect(ret?.height).toBe(20);
   });
 
   it('应在 div onMouseDown 时 preventDefault 和 stopPropagation（145-146）', () => {

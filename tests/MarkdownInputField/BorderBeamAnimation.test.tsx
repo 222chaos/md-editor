@@ -35,7 +35,15 @@ describe('BorderBeamAnimation', () => {
     expect(container.querySelector('svg')).not.toBeInTheDocument();
   });
 
-  it('在非 test 环境下运行 ResizeObserver 并设置 dimensions（覆盖 69,72-74,81-82,86-87）', () => {
+  it('test 环境下 effect 命中 NODE_ENV 分支提前 return', () => {
+    expect(process.env.NODE_ENV).toBe('test');
+    const { container } = render(
+      <BorderBeamAnimation isVisible={true} borderRadius={16} />,
+    );
+    expect(container.querySelector('[style*="position: absolute"]')).toBeInTheDocument();
+  });
+
+  it('在非 test 环境下运行 ResizeObserver 并设置 dimensions（覆盖 72-74,81-82,86-87）', () => {
     const origNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
 

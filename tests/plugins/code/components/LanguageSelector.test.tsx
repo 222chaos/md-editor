@@ -347,8 +347,8 @@ describe('LanguageSelector Component', () => {
     });
   });
 
-  describe('覆盖 81、139、140、142 行', () => {
-    it('当语言从有值变为空且非 katex 时应重置 hasUserClosedRef（覆盖 81 行）', () => {
+  describe('keyword 与弹层关闭', () => {
+    it('当语言从有值变为空且非 katex 时应重置 hasUserClosedRef', () => {
       const { rerender } = render(
         <LanguageSelector
           {...defaultProps}
@@ -364,7 +364,7 @@ describe('LanguageSelector Component', () => {
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
-    it('弹层关闭时应清空 keyword 并标记用户已关闭（覆盖 139、140、142 行）', async () => {
+    it('弹层关闭时应清空 keyword 并标记用户已关闭', async () => {
       const user = userEvent.setup();
       render(<LanguageSelector {...defaultProps} />);
       const button = screen.getByRole('button');

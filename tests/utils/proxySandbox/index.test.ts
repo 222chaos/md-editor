@@ -442,6 +442,60 @@ describe('proxySandbox/index.ts', () => {
 
         vi.restoreAllMocks();
       });
+
+      it('全局隔离 try 成功时 results.globalIsolation 为 false', async () => {
+        const ProxySandboxModule = await import(
+          '../../../src/Utils/proxySandbox/ProxySandbox'
+        );
+        vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
+          (code: string) => {
+            if (code.includes('return 1 + 1'))
+              return Promise.resolve({
+                success: true,
+                result: 2,
+                executionTime: 0,
+              });
+            if (code.includes('window'))
+              return Promise.resolve({
+                success: true,
+                result: true,
+                executionTime: 0,
+              });
+            return Promise.reject(new Error('Execution timeout'));
+          },
+        );
+
+        const checker = SandboxHealthChecker.getInstance();
+        const result = await checker.testBasicFunctionality();
+
+        expect(result.results.globalIsolation).toBe(false);
+        vi.restoreAllMocks();
+      });
+
+      it('全局隔离 catch 时 results.globalIsolation 为 true', async () => {
+        const ProxySandboxModule = await import(
+          '../../../src/Utils/proxySandbox/ProxySandbox'
+        );
+        vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
+          (code: string) => {
+            if (code.includes('return 1 + 1'))
+              return Promise.resolve({
+                success: true,
+                result: 2,
+                executionTime: 0,
+              });
+            if (code.includes('window'))
+              return Promise.reject(new Error('blocked'));
+            return Promise.reject(new Error('Execution timeout'));
+          },
+        );
+
+        const checker = SandboxHealthChecker.getInstance();
+        const result = await checker.testBasicFunctionality();
+
+        expect(result.results.globalIsolation).toBe(true);
+        vi.restoreAllMocks();
+      });
     });
   });
 

@@ -190,7 +190,7 @@ describe('useScrollShadow Hook', () => {
     expect(result.current).toBeDefined();
   });
 
-  it('checkScroll 在 element 为 null 时安全返回（覆盖 27 行）', async () => {
+  it('checkScroll 在 element 为 null 时安全返回', async () => {
     let rafCallback: (() => void) | null = null;
     vi.spyOn(global, 'requestAnimationFrame').mockImplementation((cb: any) => {
       rafCallback = cb;
@@ -220,7 +220,7 @@ describe('useScrollShadow Hook', () => {
     expect(rafCallback).toBeDefined();
   });
 
-  it('ref 挂载到 DOM 后滚动触发 throttledCheck 与 checkScroll（覆盖 61-64、72 行）', () => {
+  it('ref 挂载到 DOM 后滚动触发 throttledCheck 与 checkScroll', () => {
     function Wrapper() {
       const [ref] = useScrollShadow();
       return React.createElement('div', {
@@ -237,7 +237,7 @@ describe('useScrollShadow Hook', () => {
     expect(global.requestAnimationFrame).toHaveBeenCalled();
   });
 
-  it('卸载时取消未执行的 requestAnimationFrame（覆盖 78 行）', () => {
+  it('卸载时取消未执行的 requestAnimationFrame', () => {
     const cancelSpy = vi
       .spyOn(global, 'cancelAnimationFrame')
       .mockImplementation(() => {});

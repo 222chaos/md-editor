@@ -11,7 +11,7 @@
  * - 性能测试
  * - 与其他功能的集成测试
  *
- * 测试覆盖率：针对 useKeyboard.ts 中的核心逻辑进行了全面测试
+ * useKeyboard 核心逻辑测试
  *
  * @author AI Assistant
  * @created 2025-01-07
@@ -68,6 +68,13 @@ vi.mock('../../src/MarkdownEditor/utils/native-table', () => ({
   NativeTableKeyboard: {
     shouldHandle: (editor: any) => mockNativeTableShouldHandle(editor),
     handleKeyDown: (editor: any, e: any) => mockNativeTableHandleKeyDown(editor, e),
+  },
+}));
+
+const mockMatchKeyRun = vi.fn(() => false);
+vi.mock('../../src/MarkdownEditor/editor/plugins/hotKeyCommands/match', () => ({
+  MatchKey: class {
+    run = mockMatchKeyRun;
   },
 }));
 
@@ -581,6 +588,23 @@ describe('useKeyboard Hook Tests', () => {
 
       // 当启用 matchInputToNode 时，应该提前返回
       // 这个测试验证流程被正确截断
+    });
+
+    it('match.run(e) 返回 true 时应提前 return', () => {
+      mockMatchKeyRun.mockReturnValueOnce(true);
+      const propsWithMatch = {
+        markdown: { matchInputToNode: true },
+      } as MarkdownEditorProps;
+
+      const { result } = renderHook(() =>
+        useKeyboard(store, editorRef, propsWithMatch),
+      );
+      const keyEvent = createKeyboardEvent('a');
+      act(() => {
+        result.current(keyEvent);
+      });
+
+      expect(mockMatchKeyRun).toHaveBeenCalledWith(keyEvent);
     });
   });
 

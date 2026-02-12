@@ -46,7 +46,7 @@ describe('useMermaidRender', () => {
   });
 
   describe('基本功能', () => {
-    it('应该在 code 为空时不渲染（覆盖 26、30-34、36 行）', async () => {
+    it('应该在 code 为空时不渲染', async () => {
       const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
       const { result } = renderHook(() =>
         useMermaidRender('', divRef, 'test-id', true),
@@ -191,7 +191,7 @@ describe('useMermaidRender', () => {
       expect(mockRender).toHaveBeenCalledWith('test-id', 'graph LR');
     });
 
-    it('应在 setTimeout 回调内 code 变化时提前返回（覆盖 42、43 行）', async () => {
+    it('应在 setTimeout 回调内 code 变化时提前返回', async () => {
       const mockRender = vi.fn().mockImplementation(() => {
         return new Promise<{ svg: string }>((resolve) => {
           setTimeout(() => resolve({ svg: '<svg></svg>' }), 50);

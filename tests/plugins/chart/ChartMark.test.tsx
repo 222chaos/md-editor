@@ -3,6 +3,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Mock chart env（覆盖 Area/Bar/Column/Line/Pie 的 SSR 分支）
+vi.mock('../../../src/Plugins/chart/env', () => ({
+  isWindowDefined: vi.fn(() => true),
+}));
+
 // Mock Chart.js with all required components
 vi.mock('chart.js', () => ({
   Chart: {
@@ -135,9 +140,6 @@ describe('ChartMark Components', () => {
     chartRef: { current: null } as any,
   } as any;
 
-  const mockChartRef = { current: null } as any;
-  const mockHtmlRef = { current: null } as any;
-
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock clientWidth for container
@@ -149,6 +151,48 @@ describe('ChartMark Components', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe('SSR / isWindowDefined 分支覆盖', () => {
+    it('Area: isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } =
+        await import('../../../src/Plugins/chart/env');
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+      render(<Area {...defaultProps} />);
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    it('Bar: isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } =
+        await import('../../../src/Plugins/chart/env');
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+      render(<Bar {...defaultProps} />);
+      expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+    });
+
+    it('Column: isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } =
+        await import('../../../src/Plugins/chart/env');
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+      render(<Column {...defaultProps} />);
+      expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+    });
+
+    it('Line: isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } =
+        await import('../../../src/Plugins/chart/env');
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+      render(<Line {...defaultProps} />);
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    it('Pie: isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } =
+        await import('../../../src/Plugins/chart/env');
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+      render(<Pie {...defaultProps} />);
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
   });
 
   describe('Line Chart Component', () => {

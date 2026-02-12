@@ -2,6 +2,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SendButton } from '../src/MarkdownInputField/SendButton';
 
@@ -18,6 +19,21 @@ vi.mock('framer-motion', () => ({
 describe('SendButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('SSR', () => {
+    it('在 window 缺失时（SSR）应 return null', () => {
+      const origWindow = global.window;
+      try {
+        (global as any).window = undefined;
+        const html = ReactDOMServer.renderToStaticMarkup(
+          <SendButton isSendable={true} typing={false} onClick={() => {}} />,
+        );
+        expect(html).toBe('');
+      } finally {
+        (global as any).window = origWindow;
+      }
+    });
   });
 
   describe('Basic Rendering', () => {
@@ -201,6 +217,7 @@ describe('SendButton', () => {
       fireEvent.keyDown(button!, { key: ' ' });
       expect(onClick).toHaveBeenCalled();
     });
+
 
     it('应应用 style 和 className（覆盖 276,277）', () => {
       const { container } = render(

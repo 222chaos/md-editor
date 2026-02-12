@@ -51,6 +51,14 @@ describe('SlateMarkdownEditor', () => {
     };
   });
 
+  it('beforeEach 应正确初始化 mockInstance', () => {
+    expect(mockInstance).toBeDefined();
+    expect(mockInstance.store).toBe(mockStore);
+    expect(mockInstance.markdownContainerRef).toBe(mockContainerRef);
+    expect(mockInstance.markdownEditorRef).toBe(mockEditorRef);
+    expect(typeof mockInstance.exportHtml).toBe('function');
+  });
+
   // Test plugin that handles code blocks
   const codeBlockPlugin = {
     elements: {
@@ -304,7 +312,7 @@ describe('SlateMarkdownEditor', () => {
     expect(screen.getByText('★')).toBeDefined();
   });
 
-  it('eleItemRender 对非 code/paragraph 元素应返回 defaultDom（覆盖 124 行）', () => {
+  it('eleItemRender 对非 code/paragraph 元素应返回 defaultDom', () => {
     const initValue: Elements[] = [
       {
         type: 'heading',

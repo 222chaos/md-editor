@@ -150,6 +150,34 @@ describe('HistorySearch', () => {
     expect(screen.getByPlaceholderText('搜索话题')).toBeInTheDocument();
   });
 
+  it('点击清空按钮应触发 onClear', async () => {
+    const onSearch = vi.fn();
+    const { container } = render(
+      <TestWrapper>
+        <HistorySearch onSearch={onSearch} />
+      </TestWrapper>,
+    );
+
+    fireEvent.click(screen.getByTestId('action-icon-box'));
+    const input = screen.getByPlaceholderText('搜索话题');
+    fireEvent.change(input, { target: { value: 'keyword' } });
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 360));
+    });
+    await waitFor(() => {
+      expect(onSearch).toHaveBeenCalledWith('keyword');
+    });
+
+    const clearBtn = container.querySelector('.ant-input-clear-icon');
+    expect(clearBtn).toBeInTheDocument();
+    fireEvent.click(clearBtn as HTMLElement);
+    expect(input).toHaveValue('');
+    await waitFor(() => {
+      expect(onSearch).toHaveBeenCalledWith('');
+    });
+  });
+
   it('应该使用自定义默认文本', () => {
     const onSearch = vi.fn();
     render(

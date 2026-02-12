@@ -26,23 +26,23 @@ describe('areCommentLeafPropsEqual', () => {
     comment: {},
   };
 
-  it('returns true when leaf, children, comment all same reference (lines 23-27)', () => {
+  it('returns true when leaf, children, comment all same reference', () => {
     expect(areCommentLeafPropsEqual(base, base)).toBe(true);
   });
 
-  it('returns false when children differ (lines 31-36)', () => {
+  it('returns false when children differ', () => {
     expect(
       areCommentLeafPropsEqual(base, { ...base, children: <span>y</span> }),
     ).toBe(false);
   });
 
-  it('returns false when comment differs (lines 31-36)', () => {
+  it('returns false when comment differs', () => {
     expect(
       areCommentLeafPropsEqual(base, { ...base, comment: { x: 1 } }),
     ).toBe(false);
   });
 
-  it('returns false when leaf differs by comment/id/selection/data (lines 40-51)', () => {
+  it('returns false when leaf differs by comment/id/selection/data', () => {
     expect(
       areCommentLeafPropsEqual(base, {
         ...base,
@@ -57,7 +57,7 @@ describe('areCommentLeafPropsEqual', () => {
     ).toBe(false);
   });
 
-  it('returns true when leaf is different reference but same keys (line 55)', () => {
+  it('returns true when leaf is different reference but same keys', () => {
     const sameChild = <span>x</span>;
     const sameData = {};
     const leafA = { comment: true as const, id: '1', selection: undefined, data: sameData };
@@ -85,7 +85,7 @@ describe('CommentLeaf', () => {
     expect(screen.queryByTestId('comment-view')).not.toBeInTheDocument();
   });
 
-  it('renders CommentView when leaf.comment is true (covers line 78)', () => {
+  it('renders CommentView when leaf.comment is true', () => {
     render(
       <CommentLeaf
         leaf={{ comment: true, id: 'c1', data: {} }}

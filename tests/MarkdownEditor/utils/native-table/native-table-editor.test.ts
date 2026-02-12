@@ -452,7 +452,7 @@ describe('NativeTableEditor', () => {
       expect(Transforms.removeNodes).not.toHaveBeenCalled();
     });
 
-    it('findTable 返回 null 时应提前 return（覆盖 201 行）', () => {
+    it('findTable 返回 null 时应提前 return', () => {
       const mockRowEntry = [{ type: 'table-row' }, [0, 1]];
       (Editor.above as any)
         .mockReturnValueOnce(mockRowEntry)
@@ -563,7 +563,7 @@ describe('NativeTableEditor', () => {
       expect(Transforms.removeNodes).toHaveBeenCalledTimes(2);
     });
 
-    it('应该在最后一列时删除整个表格（覆盖 266 行）', () => {
+    it('应该在最后一列时删除整个表格', () => {
       const mockCellEntry = [{}, [0, 0, 0]];
       const mockTableEntry = [
         {
@@ -634,7 +634,7 @@ describe('NativeTableEditor', () => {
       });
     });
 
-    it('应执行 Transforms.select 到下一格（覆盖 297 行）', () => {
+    it('应执行 Transforms.select 到下一格', () => {
       const mockCellEntry = [{}, [0, 0, 0]];
       const mockTableEntry = [
         {
@@ -750,7 +750,7 @@ describe('NativeTableEditor', () => {
       });
     });
 
-    it('应执行 Transforms.select 到上一格（覆盖 331 行）', () => {
+    it('应执行 Transforms.select 到上一格', () => {
       const mockCellEntry = [{}, [0, 0, 1]];
       const mockTableEntry = [
         {

@@ -129,20 +129,17 @@ describe('QuickActions', () => {
       expect(screen.getByTestId('refine-prompt-button')).toBeInTheDocument();
     });
 
-    it('应该在未启用提示词优化时不渲染优化按钮', () => {
+    it('应在 enable 为 false 时仍渲染按钮但点击不调用 onRefine', () => {
+      const onRefine = vi.fn();
       render(
         <QuickActions
           {...defaultProps}
-          refinePrompt={{
-            enable: false,
-            onRefine: vi.fn(),
-          }}
+          refinePrompt={{ enable: false, onRefine }}
         />,
       );
-
-      expect(
-        screen.queryByTestId('refine-prompt-button'),
-      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('refine-prompt-button')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('refine-prompt-button'));
+      expect(onRefine).not.toHaveBeenCalled();
     });
 
     it('应该在没有提示词优化配置时不渲染优化按钮', () => {

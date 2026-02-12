@@ -610,6 +610,19 @@ describe('CodeToolbar', () => {
       expect(message.success).toHaveBeenCalled();
     });
 
+    it('复制失败时静默处理并输出 console.error', () => {
+      const mockCopy = copy as any;
+      mockCopy.mockImplementation(() => {
+        throw new Error('clipboard unavailable');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      render(<CodeToolbar {...defaultProps} isSelected={true} />);
+      const copyButton = screen.getByTitle('复制');
+      fireEvent.click(copyButton);
+      expect(consoleSpy).toHaveBeenCalledWith('复制失败:', expect.any(Error));
+      consoleSpy.mockRestore();
+    });
+
     it('点击展开/收起按钮时调用 onExpandToggle（覆盖 328）', () => {
       const onExpandToggle = vi.fn();
       render(

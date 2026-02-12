@@ -310,6 +310,33 @@ describe('ReadonlyTableComponent', () => {
   });
 
   describe('模态框测试', () => {
+    it('全屏模态内 ConfigProvider 的 getPopupContainer/getTargetContainer 被调用时返回 modelTargetRef 或 body（覆盖 219,222）', async () => {
+      renderComponent();
+      const fullscreenButton = screen
+        .getAllByTestId('action-icon')
+        .find((el) => el.getAttribute('title') === '全屏');
+      fireEvent.click(fullscreenButton!);
+      await waitFor(() => {
+        expect(document.querySelector('.ant-modal-wrap')).toBeInTheDocument();
+      });
+      const modalBody = document.querySelector(
+        '.ant-modal-content .ant-agentic-md-editor-content-table',
+      ) as HTMLElement;
+      expect(modalBody).toBeInTheDocument();
+      const fiberKey = Object.keys(modalBody).find((k) =>
+        k.startsWith('__reactFiber'),
+      );
+      expect(fiberKey).toBeDefined();
+      const divFiber = (modalBody as any)[fiberKey!];
+      const configProviderFiber = divFiber?.child;
+      expect(configProviderFiber?.memoizedProps?.getPopupContainer).toBeDefined();
+      expect(configProviderFiber?.memoizedProps?.getTargetContainer).toBeDefined();
+      const container = configProviderFiber.memoizedProps.getPopupContainer();
+      const target = configProviderFiber.memoizedProps.getTargetContainer();
+      expect(container === modalBody || container === document.body).toBe(true);
+      expect(target === modalBody || target === document.body).toBe(true);
+    });
+
     it('应该在点击全屏后显示模态框', async () => {
       renderComponent();
       const fullscreenButton = screen

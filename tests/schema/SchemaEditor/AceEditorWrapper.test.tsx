@@ -615,10 +615,29 @@ describe('AceEditorWrapper', () => {
 
       window.ResizeObserver = originalResizeObserver;
     });
+
+    it('应在无 ResizeObserver 时安装 polyfill 并执行 constructor', async () => {
+      vi.resetModules();
+      const origRO = window.ResizeObserver;
+      delete (window as any).ResizeObserver;
+
+      const mod = await import(
+        '../../../src/Schema/SchemaEditor/AceEditorWrapper'
+      );
+      expect(window.ResizeObserver).toBeDefined();
+      const ro = new window.ResizeObserver(() => {});
+      expect(typeof ro.observe).toBe('function');
+      expect(typeof ro.unobserve).toBe('function');
+      expect(typeof ro.disconnect).toBe('function');
+
+      (window as any).ResizeObserver = origRO;
+      vi.resetModules();
+      await import('../../../src/Schema/SchemaEditor/AceEditorWrapper');
+    });
   });
 
   describe('错误处理', () => {
-    it('应在 loadAceEditor 失败时设置 aceLoaded 并静默处理（覆盖 65、66 行）', async () => {
+    it('应在 loadAceEditor 失败时设置 aceLoaded 并静默处理', async () => {
       const { loadAceEditor } = await import(
         '../../../src/Plugins/code/loadAceEditor'
       );

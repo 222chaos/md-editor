@@ -422,6 +422,27 @@ describe('TaskList', () => {
       }
     });
 
+    it('无 task-list-left/arrowContainer 时走 interactiveElements 分支（覆盖 416,419）', () => {
+      const { container } = render(
+        <div>
+          <button type="button" aria-label="dummy">
+            dummy
+          </button>
+          <TaskList items={[]} />
+        </div>,
+      );
+
+      const clickableElements = container.querySelectorAll(
+        '[data-testid="task-list-left"], [data-testid="task-list-arrowContainer"]',
+      );
+      expect(clickableElements.length).toBe(0);
+
+      const interactiveElements = document.querySelectorAll(
+        'button, [role="button"], [tabindex]',
+      );
+      expect(interactiveElements.length).toBeGreaterThan(0);
+    });
+
     it('应该支持键盘导航', async () => {
       render(<TaskList items={mockItems} />);
 

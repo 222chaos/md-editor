@@ -65,7 +65,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(trimmedMarkdown === '' || trimmedMarkdown === '\n').toBe(true);
     });
 
-    it('删除最后一个空列表项且列表还有前一项时在删除位置插入段落（覆盖 115 行）', () => {
+    it('删除最后一个空列表项且列表还有前一项时在删除位置插入段落', () => {
       editor.children = [
         {
           type: 'bulleted-list',
@@ -91,7 +91,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(getMarkdown()).toContain('A');
     });
 
-    it('删除第一个空列表项且仅两项时列表变空并插入段落（覆盖 142 行）', () => {
+    it('删除第一个空列表项且仅两项时列表变空并插入段落', () => {
       editor.children = [
         {
           type: 'bulleted-list',
@@ -117,7 +117,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(markdown === '' || markdown === '\n').toBe(true);
     });
 
-    it('删除非最后一项空列表项且前面还有项时在列表后插入段落（覆盖 144 行）', () => {
+    it('删除非最后一项空列表项且前面还有项时在列表后插入段落', () => {
       editor.children = [
         {
           type: 'bulleted-list',
@@ -144,6 +144,45 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       const result = backspaceKey.run();
       expect(result).toBe(true);
       expect(getMarkdown()).toContain('A');
+    });
+
+    it('嵌套列表仅一项时退格提升后删除空列表', () => {
+      // 嵌套项需有内容，否则会走“删除空列表项”分支而非“提升”分支
+      editor.children = [
+        {
+          type: 'bulleted-list',
+          children: [
+            {
+              type: 'list-item',
+              children: [{ type: 'paragraph', children: [{ text: 'A' }] }],
+            },
+            {
+              type: 'list-item',
+              children: [
+                { type: 'paragraph', children: [{ text: 'B' }] },
+                {
+                  type: 'bulleted-list',
+                  children: [
+                    {
+                      type: 'list-item',
+                      children: [
+                        { type: 'paragraph', children: [{ text: 'nested' }] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      Transforms.select(editor, {
+        anchor: { path: [0, 1, 1, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 1, 1, 0, 0, 0], offset: 0 },
+      });
+      const result = backspaceKey.run();
+      expect(result).toBe(true);
+      expect(getMarkdown()).toContain('nested');
     });
 
     it('应该删除非最后一个空列表项及其后续列表项', () => {
@@ -402,7 +441,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(result).toBe(false);
     });
 
-    it('表格首个单元格无前路径时退格应阻止并返回 true（覆盖 204-206 行）', () => {
+    it('表格首个单元格无前路径时退格应阻止并返回 true', () => {
       const rawEditor = withHistory(
         withReact(createEditor()),
       ) as BaseEditor & ReactEditor & HistoryEditor;
@@ -628,7 +667,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(result).toBe(true);
     });
 
-    it('嵌套列表首项退格时提升并删除空列表（覆盖 188 行）', () => {
+    it('嵌套列表首项退格时提升并删除空列表', () => {
       editor.children = [
         {
           type: 'bulleted-list',
@@ -684,7 +723,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(typeof result).toBe('boolean');
     });
 
-    it('非 paragraph 且单字符脏叶时调用 clearMarks（覆盖 28 行）', () => {
+    it('非 paragraph 且单字符脏叶时调用 clearMarks', () => {
       const isDirtLeafSpy = vi.spyOn(EditorUtils, 'isDirtLeaf').mockReturnValueOnce(true);
       const clearMarksSpy = vi.spyOn(EditorUtils, 'clearMarks').mockImplementation(() => {});
       editor.children = [

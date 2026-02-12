@@ -10,6 +10,56 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 describe('VoiceButton', () => {
+  it('无 text 或未支持时点击播放区域不调用 start/stop', () => {
+    const start = vi.fn();
+    const stop = vi.fn();
+    const useSpeech: UseSpeechAdapter = () => ({
+      isSupported: true,
+      isPlaying: false,
+      rate: 1,
+      setRate: vi.fn(),
+      start,
+      stop,
+      pause: vi.fn(),
+      resume: vi.fn(),
+    });
+
+    render(
+      <TestWrapper>
+        <VoiceButton text="" useSpeech={useSpeech} />
+      </TestWrapper>,
+    );
+
+    const playRegion = screen.getByLabelText('语音播报');
+    fireEvent.click(playRegion);
+    expect(start).not.toHaveBeenCalled();
+    expect(stop).not.toHaveBeenCalled();
+  });
+
+  it('播放中点击停止区域应调用 stop（handleStop 与 handleClick 内 stop 覆盖 65）', () => {
+    const stop = vi.fn();
+    const useSpeech: UseSpeechAdapter = () => ({
+      isSupported: true,
+      isPlaying: true,
+      rate: 1,
+      setRate: vi.fn(),
+      start: vi.fn(),
+      stop,
+      pause: vi.fn(),
+      resume: vi.fn(),
+    });
+
+    render(
+      <TestWrapper>
+        <VoiceButton text="朗读内容" useSpeech={useSpeech} />
+      </TestWrapper>,
+    );
+
+    const stopRegion = screen.getByLabelText('停止播报');
+    fireEvent.click(stopRegion);
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
+
   it('点击播放区域时调用 start（覆盖 handleClick !isPlaying 分支）', () => {
     const start = vi.fn();
     const stop = vi.fn();

@@ -188,7 +188,7 @@ describe('FileMapView', () => {
       );
     });
 
-    it('should expand all files when onViewAll returns true (覆盖 111 行)', async () => {
+    it('should expand all files when onViewAll returns true', async () => {
       const fileMap = new Map();
       for (let i = 1; i <= 5; i++) {
         fileMap.set(
@@ -215,7 +215,7 @@ describe('FileMapView', () => {
       });
     });
 
-    it('should expand all files when no onViewAll provided (覆盖 115 行)', async () => {
+    it('should expand all files when no onViewAll provided', async () => {
       const fileMap = new Map();
       for (let i = 1; i <= 5; i++) {
         fileMap.set(
@@ -237,7 +237,7 @@ describe('FileMapView', () => {
       });
     });
 
-    it('should call onDownload with file when download button clicked (覆盖 218 行)', () => {
+    it('should call onDownload with file when download button clicked', () => {
       const onDownload = vi.fn();
       const fileMap = new Map();
       const file = createMockFile('test.pdf', 'application/pdf');

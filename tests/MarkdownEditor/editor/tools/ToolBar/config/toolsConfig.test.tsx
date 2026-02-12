@@ -348,6 +348,17 @@ describe('toolsConfig', () => {
         mode: 'lowest',
       });
     });
+
+    it('isCodeNode 传入有效 editor 时执行 Editor.nodes 的 mode: lowest 分支', async () => {
+      const { Editor } = await import('slate');
+      vi.mocked(Editor.nodes).mockReturnValue([] as any);
+
+      isCodeNode(mockEditor);
+
+      const call = vi.mocked(Editor.nodes).mock.calls[0];
+      expect(call[0]).toBe(mockEditor);
+      expect(call[1]).toHaveProperty('mode', 'lowest');
+    });
   });
 
   describe('ToolsKeyType 类型定义', () => {

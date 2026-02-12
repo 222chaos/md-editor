@@ -145,6 +145,22 @@ describe('AttachmentButton', () => {
       expect(message.success).toHaveBeenCalledWith('Upload success');
     });
 
+    it('无 upload 时使用 file.previewUrl 作为 url', async () => {
+      // 使用非图片文件，避免 prepareFile 用 createObjectURL 覆盖 previewUrl
+      const fileWithPreview = new File(['test'], 'test.txt', {
+        type: 'text/plain',
+      }) as AttachmentFile;
+      fileWithPreview.previewUrl = 'blob:preview-url';
+
+      await upLoadFileToServer([fileWithPreview], {
+        onFileMapChange: mockOnFileMapChange,
+      });
+
+      expect(fileWithPreview.url).toBe('blob:preview-url');
+      expect(fileWithPreview.status).toBe('done');
+      expect(message.success).toHaveBeenCalled();
+    });
+
     it('should handle upload errors', async () => {
       const mockFiles = [
         new File(['test'], 'test.txt', {
@@ -160,6 +176,21 @@ describe('AttachmentButton', () => {
       });
 
       expect(message.error).toHaveBeenCalledWith('Upload failed');
+    });
+
+    it('上传失败时 handleUploadError 应调用 message.error(msg)', async () => {
+      const mockFiles = [
+        new File(['test'], 'test.txt', { type: 'text/plain' }) as AttachmentFile,
+      ];
+      const customErrorMsg = 'Custom upload error message';
+      mockUpload.mockRejectedValue(new Error(customErrorMsg));
+
+      await upLoadFileToServer(mockFiles, {
+        upload: mockUpload,
+        onFileMapChange: mockOnFileMapChange,
+      });
+
+      expect(message.error).toHaveBeenCalledWith(customErrorMsg);
     });
 
     it('should handle processFile throw and hit outer catch', async () => {

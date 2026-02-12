@@ -299,7 +299,7 @@ describe('InsertLink Component', () => {
     expect(mockSetState).toHaveBeenCalled();
   });
 
-  it('应该处理 openInsertLink 事件（有 URL）（覆盖 76、81、85 行 addEventListener wheel）', () => {
+  it('应该处理 openInsertLink 事件（有 URL）', () => {
     vi.mocked(EditorUtils.getUrl).mockReturnValue('https://example.com');
     const addEventListenerSpy = vi.spyOn(
       mockParentElement,

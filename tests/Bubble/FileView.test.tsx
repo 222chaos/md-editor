@@ -137,6 +137,21 @@ describe('BubbleFileView', () => {
       expect(container.firstChild).toBeNull();
     });
 
+    it('renderFileMoreAction 为非函数非元素时应走 cfg 分支返回 ReactNode', () => {
+      const props = {
+        ...defaultProps,
+        bubble: {
+          ...defaultProps.bubble,
+          originData: defaultProps.bubble.originData,
+          fileViewConfig: { renderFileMoreAction: 'extra' as any },
+        },
+      };
+
+      const { getByTestId } = render(<BubbleFileView {...props} />);
+      const moreAction = getByTestId('more-action');
+      expect(moreAction).toHaveTextContent('extra');
+    });
+
     it('应该在 fileMap 为空时返回 null', () => {
       const props = {
         ...defaultProps,

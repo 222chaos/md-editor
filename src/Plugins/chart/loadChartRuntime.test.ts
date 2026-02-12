@@ -38,4 +38,12 @@ describe('loadChartRuntime', () => {
     const r2 = await loadChartRuntime();
     expect(r1).toBe(r2);
   });
+
+  it('import 失败时 catch 中重置 runtimeLoader 并抛出', async () => {
+    vi.resetModules();
+    vi.spyOn(Promise, 'all').mockRejectedValueOnce(new Error('chart load fail'));
+    const { loadChartRuntime } = await import('./loadChartRuntime');
+    await expect(loadChartRuntime()).rejects.toThrow('chart load fail');
+    vi.restoreAllMocks();
+  });
 });

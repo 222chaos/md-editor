@@ -154,7 +154,7 @@ describe('Bubble', () => {
     expect(customTitleRender).toHaveBeenCalled();
   });
 
-  it('UserBubble 在 bubbleRenderConfig.render === false 时应不渲染（覆盖 273 行）', () => {
+  it('UserBubble 在 bubbleRenderConfig.render === false 时应不渲染', () => {
     const userProps = {
       ...defaultProps,
       originData: {
@@ -174,7 +174,7 @@ describe('Bubble', () => {
     expect(screen.queryByText('Test message content')).not.toBeInTheDocument();
   });
 
-  it('UserBubble 内 setMessage 应调用 bubbleRef.setMessageItem（覆盖 281 行）', async () => {
+  it('UserBubble 内 setMessage 应调用 bubbleRef.setMessageItem', async () => {
     const setMessageItem = vi.fn();
     const bubbleRef = { current: { setMessageItem } };
     const userProps = {

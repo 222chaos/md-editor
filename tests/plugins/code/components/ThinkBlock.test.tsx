@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeNode } from '../../../../src/MarkdownEditor/el';
+import { MessagesContext } from '../../../../src/Bubble/MessagesContent/BubbleContext';
 import {
   ThinkBlock,
   ThinkBlockProvider,
@@ -342,6 +343,15 @@ describe('ThinkBlock', () => {
     it('isLastNode 为 false 时应调用 setExpanded(false)', () => {
       mockCheckSelEnd.mockReturnValueOnce(false);
       render(<ThinkBlock {...mockProps} />);
+      expect(screen.getByTestId('think-block')).toBeInTheDocument();
+    });
+
+    it('bubbleIsFinished 为 true 时自动收起', () => {
+      render(
+        <MessagesContext.Provider value={{ message: { isFinished: true } }}>
+          <ThinkBlock {...mockProps} />
+        </MessagesContext.Provider>,
+      );
       expect(screen.getByTestId('think-block')).toBeInTheDocument();
     });
   });

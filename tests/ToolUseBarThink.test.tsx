@@ -16,7 +16,7 @@ const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 describe('ToolUseBarThink', () => {
-  it('should render with time and show time element (lines 164, 170)', () => {
+  it('should render with time and show time element', () => {
     render(
       <Wrapper>
         <ToolUseBarThink
@@ -28,7 +28,7 @@ describe('ToolUseBarThink', () => {
     expect(screen.getByText('10:00')).toBeInTheDocument();
   });
 
-  it('should not render time element when time is undefined (line 162 return null)', () => {
+  it('should not render time element when time is undefined', () => {
     const { container } = render(
       <Wrapper>
         <ToolUseBarThink toolName="Test" />
@@ -37,7 +37,7 @@ describe('ToolUseBarThink', () => {
     expect(container.querySelector('[class*="time"]')).toBeFalsy();
   });
 
-  it('should render light mode and toggle hover/expand (lines 15, 85, 91, 92, 94)', () => {
+  it('should render light mode and toggle hover/expand', () => {
     render(
       <Wrapper>
         <ToolUseBarThink toolName="Test" light defaultExpanded={false} />
@@ -51,7 +51,7 @@ describe('ToolUseBarThink', () => {
     expect(header).toBeInTheDocument();
   });
 
-  it('should set hover and call handleToggleFloatingExpand (lines 485, 489, 572, 573)', () => {
+  it('should set hover and call handleToggleFloatingExpand', () => {
     render(
       <Wrapper>
         <ToolUseBarThink

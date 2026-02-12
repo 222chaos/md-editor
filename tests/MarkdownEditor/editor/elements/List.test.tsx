@@ -210,14 +210,14 @@ describe('List Components', () => {
       });
     });
 
-    describe('ReadonlyListItem（覆盖 47、61、64 行）', () => {
+    describe('ReadonlyListItem', () => {
       const readonlyProps = (element: any) => ({
         element,
         attributes: { 'data-slate-node': 'element' as const, ref: { current: null } },
         children: [<div key="1">Content</div>],
       });
 
-      it('非任务项时 checkbox 为 null（覆盖 47 行）', () => {
+      it('非任务项时 checkbox 为 null', () => {
         const { container } = render(
           <ConfigProvider>
             <ReadonlyListItem
@@ -233,7 +233,7 @@ describe('List Components', () => {
         expect(container.querySelector('[data-check-item]')).toBeNull();
       });
 
-      it('任务项带 mentions 时应渲染 mentionsUser（覆盖 61、64 行）', () => {
+      it('任务项带 mentions 时应渲染 mentionsUser', () => {
         const { container } = render(
           <ConfigProvider>
             <ReadonlyListItem
@@ -272,7 +272,7 @@ describe('List Components', () => {
         expect(li).toBeInTheDocument();
       });
 
-      it('点击提及下拉区域应阻止冒泡和默认行为（覆盖 79、80 行）', async () => {
+      it('点击提及下拉区域应阻止冒泡和默认行为', async () => {
         const loadMentions = vi.fn().mockResolvedValue([
           { id: '1', name: 'Alice', avatar: 'http://example.com/a.png' },
         ]);
@@ -307,7 +307,7 @@ describe('List Components', () => {
         expect(preventSpy).toHaveBeenCalled();
       });
 
-      it('应渲染带 http avatar 的菜单项并支持选择（覆盖 88、109 行）', async () => {
+      it('应渲染带 http avatar 的菜单项并支持选择', async () => {
         const users = [
           { id: '1', name: 'Alice', avatar: 'http://example.com/a.png' },
           { id: '2', name: 'Bob', avatar: 'https://x.com/b.jpg' },
@@ -366,7 +366,7 @@ describe('List Components', () => {
         expect(li).toBeInTheDocument();
       });
 
-      it('使用 listItemRender 时应渲染自定义内容并触发拖拽时调用 store.dragStart（覆盖 231、236、243 行）', () => {
+      it('使用 listItemRender 时应渲染自定义内容并触发拖拽时调用 store.dragStart', () => {
         const dragStart = vi.fn();
         const listItemRender = vi.fn((_props: any, _ctx: any) => (
           <span data-custom="list-item-inner">Custom</span>

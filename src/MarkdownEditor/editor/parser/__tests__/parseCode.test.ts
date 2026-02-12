@@ -10,7 +10,7 @@ describe('parseCode handleCode', () => {
     vi.clearAllMocks();
   });
 
-  it('should use katex handler and return type katex (line 63)', () => {
+  it('should use katex handler and return type katex', () => {
     const result = handleCode(
       { value: 'x^2', lang: 'katex', meta: undefined },
       undefined,
@@ -19,7 +19,7 @@ describe('parseCode handleCode', () => {
     expect(result.language).toBe('katex');
   });
 
-  it('should set streamStatus loading when isCodeBlockLikelyComplete returns false (line 125)', () => {
+  it('should set streamStatus loading when isCodeBlockLikelyComplete returns false', () => {
     const result = handleCode({
       value: 'graph\n',
       lang: 'mermaid',
@@ -28,7 +28,7 @@ describe('parseCode handleCode', () => {
     expect(result.otherProps).toBeDefined();
   });
 
-  it('should merge otherProps when both base and result have otherProps (line 178)', () => {
+  it('should merge otherProps when both base and result have otherProps', () => {
     const result = handleCode(
       {
         value: 'graph TD\n',
@@ -43,7 +43,7 @@ describe('parseCode handleCode', () => {
     );
   });
 
-  it('should pass config to otherProps when config has keys (line 188-189)', () => {
+  it('should pass config to otherProps when config has keys', () => {
     const result = handleCode(
       {
         value: 'code',

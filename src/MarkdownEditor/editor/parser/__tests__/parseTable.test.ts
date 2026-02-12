@@ -1,5 +1,5 @@
 /**
- * parseTable 未覆盖行测试：80, 97, 203, 204, 223, 262, 263, 306, 307, 309, 315-318
+ * parseTable 测试
  */
 
 import type { RootContent, Table } from 'mdast';
@@ -52,10 +52,16 @@ describe('parseTable', () => {
   });
 
   describe('getColumnAlignment / hasIncompleteNumericInput', () => {
-    it('列值含非字符串时走 return false 分支（80）', () => {
+    it('列值含非字符串时走 return false 分支', () => {
       const data = [{ col: 'x' }, { col: 42 }];
       const columns = [{ dataIndex: 'col' }];
       const result = getColumnAlignment(data, columns);
+      expect(result).toEqual([null]);
+    });
+
+    it('列值含单数字字符时应走 hasIncompleteNumericInput 单数字分支', () => {
+      const data = [{ a: '5' }, { a: '6' }];
+      const result = getColumnAlignment(data, [{ dataIndex: 'a' }]);
       expect(result).toEqual([null]);
     });
 

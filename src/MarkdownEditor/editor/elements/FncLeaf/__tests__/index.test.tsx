@@ -69,4 +69,21 @@ describe('FncLeaf', () => {
     expect(openSpy).not.toHaveBeenCalled();
     openSpy.mockRestore();
   });
+
+  it('ConfigProvider 包装下 openInNewTab false 点击不打开新窗口', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(
+      <ConfigProvider>
+        <FncLeaf
+          {...defaultProps}
+          leaf={{ ...defaultProps.leaf, url: 'https://a.com' }}
+          linkConfig={{ openInNewTab: false }}
+        />
+      </ConfigProvider>,
+    );
+    const span = document.querySelector('[data-fnc="fnc"]');
+    fireEvent.click(span!);
+    expect(openSpy).not.toHaveBeenCalled();
+    openSpy.mockRestore();
+  });
 });

@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import ChartFilter from '../../../../src/Plugins/chart/components/ChartFilter/ChartFilter';
 
-// Mock Ant Design components（Dropdown 渲染时调用 getPopupContainer 以覆盖 111 行）
+// Mock Ant Design components
 vi.mock('antd', async () => {
   const actual = await vi.importActual('antd');
   return {
@@ -97,7 +97,7 @@ describe('ChartFilter', () => {
     }, 1000);
   });
 
-  it('点击分段应调用 onFilterChange（覆盖 54、55 行）', () => {
+  it('点击分段应调用 onFilterChange', () => {
     const onFilterChange = vi.fn();
     render(
       <ChartFilter
@@ -114,7 +114,7 @@ describe('ChartFilter', () => {
     expect(onFilterChange).toHaveBeenCalledWith('b');
   });
 
-  it('点击地区下拉项应调用 onSelectionChange（覆盖 108 行）', () => {
+  it('点击地区下拉项应调用 onSelectionChange', () => {
     const onSelectionChange = vi.fn();
     render(<ChartFilter {...defaultProps} onSelectionChange={onSelectionChange} />);
     screen.getByTestId('dropdown-item-region2').click();

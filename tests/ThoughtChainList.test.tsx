@@ -399,7 +399,7 @@ describe('ThoughtChainList', () => {
       expect(screen.getByText(/任务完成.*共耗时.*s/)).toBeInTheDocument();
     });
 
-    it('应显示 taskAborted 当 bubble.isAborted 且 time<=0（覆盖 427 行）', () => {
+    it('应显示 taskAborted 当 bubble.isAborted 且 time<=0', () => {
       const bubble = {
         isAborted: true,
         createAt: 1000,
@@ -417,7 +417,7 @@ describe('ThoughtChainList', () => {
       expect(screen.getByText(/任务已取消|任务已中止|已中止/)).toBeInTheDocument();
     });
 
-    it('应显示 taskComplete 与耗时当 bubble.isFinished 且 time>0（覆盖 435 行）', () => {
+    it('应显示 taskComplete 与耗时当 bubble.isFinished 且 time>0', () => {
       const bubble = {
         isFinished: true,
         createAt: 1000,

@@ -130,6 +130,23 @@ describe('DataSourceStrategy', () => {
       expect(result.mimeType).toBe('application/octet-stream');
     });
 
+    it('url 无扩展名时 getFileCategory 返回 Other', () => {
+      const file = { id: 'f1', name: 'x', url: 'http://a.' };
+      const result = strategy.process(file);
+      expect(result.previewCapability).toBe(PreviewCapability.NONE);
+      expect(result.mimeType).toBe('application/octet-stream');
+    });
+
+    it('扩展名不在 FILE_TYPES 时 inferMimeType 返回默认', () => {
+      const file = {
+        id: 'f1',
+        name: 'file.xyz',
+        url: 'https://example.com/file.xyz',
+      };
+      const result = strategy.process(file);
+      expect(result.mimeType).toBe('application/octet-stream');
+    });
+
     it('应该在URL不存在时抛出错误', () => {
       const file = { id: 'f1', name: 'file.txt' };
       expect(() => strategy.process(file)).toThrow('URL not provided');

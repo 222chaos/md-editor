@@ -54,14 +54,14 @@ vi.mock('../../../../src/MarkdownEditor', () => ({
   ),
 }));
 
-// Mock ThinkBlock 以覆盖行 217（shouldRenderAsThinkBlock 分支）
+// Mock ThinkBlock
 vi.mock('../../../../src/Plugins/code/components/ThinkBlock', () => ({
   ThinkBlock: (props: any) => (
     <div data-testid="think-block-mock">{props.element?.value}</div>
   ),
 }));
 
-// Mock hooks（使用顶层 hoisted 的 mockUpdate 以覆盖 5 秒超时逻辑 172-173）
+// Mock hooks
 vi.mock('../../../../src/Plugins/code/hooks', () => ({
   useCodeEditorState: () => ({
     state: {
@@ -109,7 +109,7 @@ vi.mock('../../../../src/Plugins/code/components/AceEditor', () => ({
   }),
 }));
 
-// Mock CodeToolbar 组件（支持 onViewModeToggle 以覆盖 handleViewModeToggle 行 146-150）
+// Mock CodeToolbar 组件
 vi.mock('../../../../src/Plugins/code/components/CodeToolbar', () => ({
   CodeToolbar: ({
     element,
@@ -580,8 +580,8 @@ describe('CodeRenderer Component', () => {
     });
   });
 
-  describe('handleViewModeToggle 与 useEffect 覆盖', () => {
-    it('当 disableHtmlPreview 且为 HTML 时点击切换仍保持 code 模式（行 146-148）', () => {
+  describe('handleViewModeToggle 与 useEffect', () => {
+    it('当 disableHtmlPreview 且为 HTML 时点击切换仍保持 code 模式', () => {
       mockEditorStore.editorProps.codeProps.disableHtmlPreview = true;
       const props = {
         ...defaultProps,

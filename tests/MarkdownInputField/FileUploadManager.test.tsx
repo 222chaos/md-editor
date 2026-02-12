@@ -880,6 +880,43 @@ describe('useFileUploadManager', () => {
       vi.restoreAllMocks();
     });
 
+    it('应在 upLoadFileToServer 成功时调用 onFileMapChange', async () => {
+      const { upLoadFileToServer } = await import(
+        '../../src/MarkdownInputField/AttachmentButton'
+      );
+      vi.mocked(upLoadFileToServer).mockImplementation(
+        async (_files: File[], options: any) => {
+          options?.onFileMapChange?.(new Map());
+        },
+      );
+
+      const { result } = renderHook(() => useFileUploadManager(defaultProps), {
+        wrapper,
+      });
+
+      const mockInput = document.createElement('input');
+      mockInput.type = 'file';
+      const createElementSpy = vi
+        .spyOn(document, 'createElement')
+        .mockReturnValue(mockInput);
+      vi.spyOn(document.body, 'appendChild').mockImplementation((node) => node);
+      vi.spyOn(HTMLInputElement.prototype, 'remove').mockImplementation(
+        vi.fn(),
+      );
+
+      await result.current.uploadImage();
+      const changeEvent = {
+        target: {
+          files: [new File(['x'], 'x.png', { type: 'image/png' })],
+        },
+      } as any;
+      await mockInput.onchange?.(changeEvent);
+
+      expect(upLoadFileToServer).toHaveBeenCalled();
+      createElementSpy.mockRestore();
+      vi.restoreAllMocks();
+    });
+
     it('应该处理上传异常', async () => {
       const consoleErrorSpy = vi
         .spyOn(console, 'error')
@@ -965,7 +1002,7 @@ describe('useFileUploadManager', () => {
     });
   });
 
-  describe('getAcceptValue 设备类型处理（覆盖 110、115、120 行）', () => {
+  describe('getAcceptValue 设备类型处理', () => {
     const originalCreateElement = document.createElement.bind(document);
 
     it.each([

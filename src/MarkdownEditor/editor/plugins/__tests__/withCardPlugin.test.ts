@@ -41,7 +41,7 @@ describe('withCardPlugin', () => {
     expect(textAfter).toBe(textBefore);
   });
 
-  it('insert_node 父节点为 card-after 且 grandParent 为 card 时插入到卡片后（覆盖 138,141）', () => {
+  it('insert_node 父节点为 card-after 且 grandParent 为 card 时插入到卡片后（覆盖 138）', () => {
     const editor = withCardPlugin(createEditor());
     editor.children = [
       {
@@ -63,6 +63,23 @@ describe('withCardPlugin', () => {
       editor,
       expect.any(Object),
       expect.objectContaining({ at: [1] }),
+    );
+    insertNodesSpy.mockRestore();
+  });
+
+  it('insert_node 父节点为 card-after 且 grandParent 非 card 时插入到 parent path（覆盖 141）', () => {
+    const editor = withCardPlugin(createEditor());
+    editor.children = [{ type: 'card-after', children: [] }];
+    const insertNodesSpy = vi.spyOn(Transforms, 'insertNodes');
+    editor.apply({
+      type: 'insert_node',
+      path: [0, 0],
+      node: { type: 'paragraph', children: [{ text: 'new' }] },
+    });
+    expect(insertNodesSpy).toHaveBeenCalledWith(
+      editor,
+      expect.any(Object),
+      expect.objectContaining({ at: [0] }),
     );
     insertNodesSpy.mockRestore();
   });

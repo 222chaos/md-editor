@@ -1721,6 +1721,20 @@ const y = 2;
       expect(result1.schema.length).toBe(result2.schema.length);
     });
 
+    it('插件 match 为 true 且 convert 返回 null 时应调用 convert', () => {
+      const convertFn = vi.fn(() => null as any);
+      const plugin: import('../../../plugin').MarkdownEditorPlugin = {
+        parseMarkdown: [
+          {
+            match: () => true,
+            convert: convertFn,
+          },
+        ],
+      };
+      parserMarkdownToSlateNode('# a', [plugin]);
+      expect(convertFn).toHaveBeenCalled();
+    });
+
     it('应在插件 match 为 true 时调用 convert', () => {
       const convertFn = vi.fn(() => null as any);
       const plugin: import('../../../plugin').MarkdownEditorPlugin = {
@@ -1802,6 +1816,24 @@ const y = 2;
         (s: any) => s.language === 'html' && s.isConfig,
       );
       expect(htmlConfigNodes).toHaveLength(0);
+    });
+
+    it('parserMdToSchema 应过滤掉无 type 且无 text 的节点', () => {
+      const convertFn = vi.fn(() => ({}) as any);
+      const plugin: import('../../../plugin').MarkdownEditorPlugin = {
+        parseMarkdown: [
+          {
+            match: () => true,
+            convert: convertFn,
+          },
+        ],
+      };
+      const result = parserMdToSchema('x', [plugin]);
+      expect(convertFn).toHaveBeenCalled();
+      const withoutTypeOrText = result.schema.filter(
+        (s: any) => s.type == null && s.text == null,
+      );
+      expect(withoutTypeOrText).toHaveLength(0);
     });
 
     it('应该限制缓存大小为 100 个条目', () => {

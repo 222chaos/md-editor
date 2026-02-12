@@ -153,7 +153,7 @@ describe('Suggestion', () => {
       expect(onOpenChange).toHaveBeenCalled();
     });
 
-    it('should call setOpen(false) when onOpenChange(false) (line 217)', () => {
+    it('should call setOpen(false) when onOpenChange(false)', () => {
       const onOpenChange = vi.fn();
       render(
         <Suggestion
@@ -188,7 +188,7 @@ describe('Suggestion', () => {
       // Items should be available in the suggestion context
     });
 
-    it('should use empty initial state when items is function (lines 118-119)', () => {
+    it('should use empty initial state when items is function', () => {
       const itemsFn = vi.fn().mockResolvedValue([]);
       const { container } = render(
         <Suggestion tagInputProps={{ items: itemsFn, open: false }}>
@@ -198,7 +198,7 @@ describe('Suggestion', () => {
       expect(container).toBeInTheDocument();
     });
 
-    it('should call item onClick and onSelectRef when clicking item (line 119)', async () => {
+    it('should call item onClick and onSelectRef when clicking item', async () => {
       const onSelect = vi.fn();
       const CaptureRef = () => {
         const ctx = React.useContext(SuggestionConnext);
@@ -222,7 +222,7 @@ describe('Suggestion', () => {
       expect(onSelect).toHaveBeenCalledWith('k1');
     });
 
-    it('should load items when items is function and open (lines 137-138)', async () => {
+    it('should load items when items is function and open', async () => {
       const loaded = [
         { key: 'loaded1', label: 'Loaded 1' },
         { key: 'loaded2', label: 'Loaded 2' },
@@ -301,7 +301,7 @@ describe('Suggestion', () => {
       // Custom dropdown render should be applied
     });
 
-    it('should call dropdownRender onSelect and close (lines 171-172)', async () => {
+    it('should call dropdownRender onSelect and close', async () => {
       const onSelect = vi.fn();
       const CaptureRef = () => {
         const ctx = React.useContext(SuggestionConnext);
@@ -334,7 +334,7 @@ describe('Suggestion', () => {
       expect(onSelect).toHaveBeenCalledWith('selected-value', [0, 1]);
     });
 
-    it('should pass items and onKeyDown when menu is not provided (lines 207-208)', () => {
+    it('should pass items and onKeyDown when menu is not provided', () => {
       render(
         <Suggestion
           tagInputProps={{

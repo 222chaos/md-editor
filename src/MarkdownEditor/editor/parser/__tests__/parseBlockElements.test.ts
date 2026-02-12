@@ -23,6 +23,24 @@ describe('parseBlockElements', () => {
       expect(result.type).toBe('numbered-list');
       expect(result.start).toBe(5);
     });
+
+    it('should set el.task when list has task item', () => {
+      const parseNodes = vi.fn((nodes: any[]) =>
+        nodes.map(() => ({
+          type: 'list-item',
+          checked: true,
+          children: [{ type: 'paragraph', children: [{ text: 'task' }] }],
+        })),
+      );
+      const currentElement = {
+        ordered: false,
+        children: [{ type: 'listItem', checked: true, children: [] }],
+      };
+
+      const result = handleList(currentElement, parseNodes);
+
+      expect(result.task).toBe(true);
+    });
   });
 
   describe('handleListItem', () => {

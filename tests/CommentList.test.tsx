@@ -198,7 +198,7 @@ describe('CommentList Component', () => {
     );
   });
 
-  it('should handle delete button click（覆盖 262-264 行 onConfirm）', () => {
+  it('should handle delete button click', () => {
     renderWithProvider(
       <CommentList
         commentList={[mockCommentData[0]]}
@@ -221,7 +221,7 @@ describe('CommentList Component', () => {
     );
   });
 
-  it('onDelete 抛出时静默捕获（覆盖 267、268 行）', () => {
+  it('onDelete 抛出时静默捕获', () => {
     const onDeleteReject = vi.fn().mockRejectedValue(new Error('delete failed'));
     renderWithProvider(
       <CommentList
@@ -379,7 +379,7 @@ describe('CommentList Component', () => {
     expect(screen.getByLabelText('close')).toBeInTheDocument();
   });
 
-  it('点击关闭按钮应调用 setShowComment([])（覆盖 134 行）', () => {
+  it('点击关闭按钮应调用 setShowComment([])', () => {
     renderWithProvider(
       <CommentList
         commentList={mockCommentData}

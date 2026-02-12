@@ -68,7 +68,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.handleHideChange).toBeDefined();
   });
 
-  it('update 应调用 Transforms.setNodes（覆盖 36 行）', () => {
+  it('update 应调用 Transforms.setNodes', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.update({ language: 'typescript' });
@@ -80,7 +80,7 @@ describe('useCodeEditorState', () => {
     );
   });
 
-  it('selected 且 focus 时设置 showBorder，取消选中时清除（覆盖 44、46 行）', () => {
+  it('selected 且 focus 时设置 showBorder，取消选中时清除', () => {
     mockIsFocused.mockReturnValue(true);
     mockUseSelStatus.mockReturnValue([true, [0, 0]]);
 
@@ -99,7 +99,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.state.showBorder).toBe(false);
   });
 
-  it('handleCloseClick 应设置 hide 为 false（覆盖 52 行）', () => {
+  it('handleCloseClick 应设置 hide 为 false', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.handleHideChange(true);
@@ -111,7 +111,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.state.hide).toBe(false);
   });
 
-  it('handleRunHtml 应设置 htmlStr 为 element.value（覆盖 56、57 行）', () => {
+  it('handleRunHtml 应设置 htmlStr 为 element.value', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.handleRunHtml();
@@ -128,7 +128,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.state.htmlStr).toBe('');
   });
 
-  it('handleHtmlPreviewClose 应清空 htmlStr（覆盖 64 行）', () => {
+  it('handleHtmlPreviewClose 应清空 htmlStr', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.handleRunHtml();
@@ -140,7 +140,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.state.htmlStr).toBe('');
   });
 
-  it('handleShowBorderChange 应更新 showBorder（覆盖 69 行）', () => {
+  it('handleShowBorderChange 应更新 showBorder', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.handleShowBorderChange(true);
@@ -152,7 +152,7 @@ describe('useCodeEditorState', () => {
     expect(result.current.state.showBorder).toBe(false);
   });
 
-  it('handleHideChange 应更新 hide（覆盖 76 行）', () => {
+  it('handleHideChange 应更新 hide', () => {
     const { result } = renderHook(() => useCodeEditorState(defaultElement));
     act(() => {
       result.current.handleHideChange(true);

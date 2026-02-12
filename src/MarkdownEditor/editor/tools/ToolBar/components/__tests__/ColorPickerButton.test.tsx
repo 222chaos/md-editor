@@ -31,7 +31,7 @@ describe('ColorPickerButton', () => {
     onToggleHighColor: vi.fn(),
   };
 
-  it('onColorChange 应在 ColorPicker 变更时被调用（覆盖 40 行）', () => {
+  it('onColorChange 应在 ColorPicker 变更时被调用', () => {
     const onColorChange = vi.fn();
     render(
       <ColorPickerButton
@@ -44,7 +44,7 @@ describe('ColorPickerButton', () => {
     expect(onColorChange).toHaveBeenCalledWith('#ff0000');
   });
 
-  it('点击高亮按钮应调用 onToggleHighColor，mouseEnter 应 stopPropagation（覆盖 83 行）', () => {
+  it('点击高亮按钮应调用 onToggleHighColor，mouseEnter 应 stopPropagation', () => {
     const onToggleHighColor = vi.fn();
     render(
       <ColorPickerButton

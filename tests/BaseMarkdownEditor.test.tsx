@@ -430,7 +430,7 @@ describe('BaseMarkdownEditor', () => {
     });
   });
 
-  describe('initSchemaValue 过滤（覆盖 257、265、268、271、284、285 行）', () => {
+  describe('initSchemaValue 过滤', () => {
     it('应过滤掉空 paragraph、空 list、空 listItem、空 heading', async () => {
       const schemaWithEmpties = [
         { type: 'paragraph', children: [] },

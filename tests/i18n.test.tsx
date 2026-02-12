@@ -184,7 +184,7 @@ describe('detectUserLanguage', () => {
     vi.unstubAllGlobals();
   });
 
-  it('测试环境且前序未命中时应返回 en-US (71)', () => {
+  it('测试环境且前序未命中时应返回 en-US', () => {
     vi.spyOn(originalLocalStorage, 'getItem').mockReturnValue(null);
     const origQuery = document.querySelector.bind(document);
     const querySpy = vi
@@ -196,6 +196,22 @@ describe('detectUserLanguage', () => {
     vi.stubGlobal('navigator', { languages: ['fr-FR'], language: 'fr' });
     expect(detectUserLanguage()).toBe('en-US');
     querySpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it('非测试环境且前序未命中时应返回 zh-CN', () => {
+    const origEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    vi.spyOn(originalLocalStorage, 'getItem').mockReturnValue(null);
+    const origQuery = document.querySelector.bind(document);
+    vi.spyOn(document, 'querySelector').mockImplementation((sel: string) => {
+      if (sel === '[data-antd-locale]') return null;
+      return origQuery(sel);
+    });
+    vi.stubGlobal('navigator', { languages: ['fr-FR'], language: 'fr' });
+    expect(detectUserLanguage()).toBe('zh-CN');
+    process.env.NODE_ENV = origEnv;
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 });

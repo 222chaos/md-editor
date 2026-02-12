@@ -811,7 +811,7 @@ describe('PreviewComponent', () => {
       vi.restoreAllMocks();
     });
 
-    it('processFile 抛出时设置 contentState.error 为 err.message（覆盖 231）', async () => {
+    it('processFile 抛出时设置 contentState.error 为 err.message', async () => {
       const { fileTypeProcessor } = await import(
         '../../../src/Workspace/File/FileTypeProcessor'
       );
@@ -837,7 +837,65 @@ describe('PreviewComponent', () => {
       expect(container.querySelector('.ant-spin')).toBeInTheDocument();
     });
 
-    it('contentState 为 loading 时显示加载文案（覆盖 504）', async () => {
+    it('HTML 文件且 contentState 为 ready 时 getContentStatus 返回 done', async () => {
+      const { fileTypeProcessor } = await import(
+        '../../../src/Workspace/File/FileTypeProcessor'
+      );
+      vi.spyOn(fileTypeProcessor, 'processFile').mockReturnValue({
+        typeInference: {
+          fileType: 'html',
+          category: 'text',
+        },
+        dataSource: {
+          content: '<p>hello</p>',
+          mimeType: 'text/html',
+        },
+        canPreview: true,
+        previewMode: 'inline',
+      } as any);
+
+      const file: FileNode = {
+        id: 'f1',
+        name: 'page.html',
+        content: '<p>hello</p>',
+      };
+
+      render(
+        <TestWrapper>
+          <PreviewComponent file={file} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('预览')).toBeInTheDocument();
+      });
+    });
+
+    it('点击下载按钮时应调用 onDownload', async () => {
+      const handleDownload = vi.fn();
+      const file: FileNode = {
+        id: 'f1',
+        name: 'data.bin',
+        type: 'archive',
+        url: 'https://example.com/data.bin',
+      };
+
+      render(
+        <TestWrapper>
+          <PreviewComponent file={file} onDownload={handleDownload} />
+        </TestWrapper>,
+      );
+
+      await waitFor(() => {
+        const downloadBtns = screen.getAllByRole('button', { name: '下载' });
+        expect(downloadBtns.length).toBeGreaterThan(0);
+        fireEvent.click(downloadBtns[0]);
+      });
+
+      expect(handleDownload).toHaveBeenCalledWith(file);
+    });
+
+    it('contentState 为 loading 时显示加载文案', async () => {
       const { fileTypeProcessor } = await import(
         '../../../src/Workspace/File/FileTypeProcessor'
       );
@@ -871,7 +929,7 @@ describe('PreviewComponent', () => {
       });
     });
 
-    it('媒体无 previewUrl 时显示 getPreviewErrorMessage（覆盖 528,541,548）', async () => {
+    it('媒体无 previewUrl 时显示 getPreviewErrorMessage', async () => {
       const { fileTypeProcessor } = await import(
         '../../../src/Workspace/File/FileTypeProcessor'
       );
@@ -900,7 +958,7 @@ describe('PreviewComponent', () => {
       });
     });
 
-    it('未知文件类型走 default 分支显示未知类型提示（覆盖 614）', async () => {
+    it('未知文件类型走 default 分支显示未知类型提示', async () => {
       const { fileTypeProcessor } = await import(
         '../../../src/Workspace/File/FileTypeProcessor'
       );

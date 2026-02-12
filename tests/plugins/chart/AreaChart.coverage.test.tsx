@@ -9,7 +9,7 @@ const mockRegisterLineChartComponents = vi.fn();
 
 vi.mock('react-chartjs-2', () => ({
   Line: ({ data, options }: any) => {
-    // 覆盖行 322-333：调用 backgroundColor（chartArea 无/有）
+    // 调用 backgroundColor（chartArea 无/有）
     const datasets = data?.datasets ?? [];
     datasets.forEach((ds: any) => {
       if (typeof ds.backgroundColor === 'function') {
@@ -25,7 +25,7 @@ vi.mock('react-chartjs-2', () => ({
         });
       }
     });
-    // 覆盖行 378-380：调用 tooltip callbacks.label
+    // 调用 tooltip callbacks.label
     const labelCb = options?.plugins?.tooltip?.callbacks?.label;
     if (typeof labelCb === 'function') {
       labelCb({

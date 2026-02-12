@@ -41,6 +41,23 @@ describe('BubbleList', () => {
     updateAt: Date.now(),
   });
 
+  describe('loading 状态', () => {
+    it('loading 为 true 时应渲染加载骨架', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'msg'),
+      ];
+
+      const { container } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} loading={true} />
+        </BubbleConfigProvide>,
+      );
+
+      const loadingEl = container.querySelector('[class*="-loading"]');
+      expect(loadingEl).toBeInTheDocument();
+    });
+  });
+
   describe('isLast property', () => {
     it('should set isLast to true only for the last bubble in the list', () => {
       const bubbleList: MessageBubbleData[] = [

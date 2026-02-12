@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { useStyle } from '../../../../src/Plugins/chart/AreaChart/style';
 
-describe('AreaChart style（覆盖 8、77、78、83 行）', () => {
+describe('AreaChart style', () => {
   it('useStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(() => useStyle('area-chart'));
 

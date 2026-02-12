@@ -1,5 +1,5 @@
 /**
- * 覆盖 ThoughtChainList index.tsx 第 274 行：ErrorBoundary fallback 中 thoughtChainList.at(index)
+ * ThoughtChainList ErrorBoundary fallback 测试
  */
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -21,7 +21,7 @@ const mockItem: WhiteBoxProcessInterface = {
   output: { type: 'TABLE', tableData: {}, columns: [] },
 };
 
-describe('ThoughtChainList ErrorBoundary fallback（覆盖 274 行）', () => {
+describe('ThoughtChainList ErrorBoundary fallback', () => {
   it('应在子组件抛出时显示 fallback 并渲染 thoughtChainList.at(index)', () => {
     render(
       <ThoughtChainList thoughtChainList={[mockItem]} />,

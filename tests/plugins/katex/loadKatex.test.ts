@@ -78,7 +78,7 @@ describe('loadKatex', () => {
     }
   });
 
-  it('应在 import 失败时重置 katexLoader 并抛出（覆盖 33、34 行）', async () => {
+  it('应在 import 失败时重置 katexLoader 并抛出', async () => {
     const result = loadKatex();
     try {
       await result;
@@ -122,7 +122,7 @@ describe('preloadKatex', () => {
     }
   });
 
-  it('应在 loadKatex 失败时静默处理不抛出（覆盖 50 行）', async () => {
+  it('应在 loadKatex 失败时静默处理不抛出', async () => {
     // 先触发一次 loadKatex 失败使 katexLoader 为 null，再调用 preloadKatex 会走 .catch(() => {})
     expect(() => preloadKatex()).not.toThrow();
     await new Promise((r) => setTimeout(r, 50));

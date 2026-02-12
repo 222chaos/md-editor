@@ -10,6 +10,7 @@ import {
   clearInlineKatex,
   useHighlight,
 } from '../useHighlight';
+import { EditorUtils } from '../../utils/editorUtils';
 
 vi.mock('../../utils/editorUtils', () => ({
   EditorUtils: {
@@ -58,6 +59,16 @@ describe('useHighlight', () => {
   });
 
   describe('useHighlight 装饰器', () => {
+    it('调用 useHighlight 时应调用 EditorUtils.isDirtLeaf', () => {
+      const high = useHighlight(store);
+      const node = {
+        type: 'paragraph',
+        children: [{ text: 'plain text' }],
+      } as any;
+      high([node, [0]]);
+      expect(EditorUtils.isDirtLeaf).toHaveBeenCalled();
+    });
+
     it('paragraph 中含 URL 文本时应匹配链接范围 (103-105)', () => {
       const high = useHighlight(store);
       const node = {

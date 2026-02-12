@@ -172,7 +172,7 @@ describe('loadCSS.ts', () => {
       expect(result).toBeUndefined();
     }, 10000);
 
-    it('字符串路径加载失败时应触发 onerror（覆盖 85、87、88 行）', async () => {
+    it('字符串路径加载失败时应触发 onerror', async () => {
       Object.defineProperty(global, 'window', {
         value: originalWindow,
         writable: true,
@@ -250,7 +250,7 @@ describe('loadCSS.ts', () => {
       expect(result).toBeUndefined();
     }, 10000);
 
-    it('preloadCSS 在 loadCSS 失败时应静默捕获（覆盖 115 行）', async () => {
+    it('preloadCSS 在 loadCSS 失败时应静默捕获', async () => {
       Object.defineProperty(global, 'window', {
         value: originalWindow,
         writable: true,

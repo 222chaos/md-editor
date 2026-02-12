@@ -251,7 +251,7 @@ describe('ToolCall Component', () => {
         }),
       );
     });
-    it('仅传 onChangeItem（无 onItemChange）时点击重试应走 onChangeItem 分支（覆盖 216 行）', async () => {
+    it('仅传 onChangeItem（无 onItemChange）时点击重试应走 onChangeItem 分支', async () => {
       const onChangeItem = vi.fn();
       const user = userEvent.setup();
       render(
@@ -434,7 +434,7 @@ describe('ToolCall Component', () => {
     });
   });
 
-  describe('复制失败 catch 分支（覆盖 292、401、487 行）', () => {
+  describe('复制失败 catch 分支', () => {
     it('复制入参失败时应捕获错误并 console.error', async () => {
       const copy = (await import('copy-to-clipboard')).default;
       vi.mocked(copy).mockImplementationOnce(() => {

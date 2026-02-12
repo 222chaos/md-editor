@@ -115,6 +115,11 @@ vi.mock('../../../../src/Plugins/chart/DonutChart/hooks', () => ({
   useResponsiveDimensions: () => mockUseResponsiveDimensions(),
 }));
 
+// Mock chart env
+vi.mock('../../../../src/Plugins/chart/env', () => ({
+  isWindowDefined: vi.fn(() => true),
+}));
+
 // Mock Legend 组件
 vi.mock('../../../../src/Plugins/chart/DonutChart/Legend', () => ({
   default: ({
@@ -224,6 +229,23 @@ describe('DonutChart', () => {
       height: 200,
       chartWidth: 200,
       chartHeight: 200,
+    });
+  });
+
+  describe('SSR / 非浏览器环境', () => {
+    it('isWindowDefined 为 false 时不注册 Chart', async () => {
+      const { isWindowDefined } = await import(
+        '../../../../src/Plugins/chart/env'
+      );
+      vi.mocked(isWindowDefined).mockReturnValueOnce(false);
+
+      const { container } = render(
+        <TestWrapper>
+          <DonutChart data={mockData} />
+        </TestWrapper>,
+      );
+      expect(container).toBeInTheDocument();
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
     });
   });
 

@@ -42,7 +42,7 @@ describe('AgenticLayout', () => {
     const moveEvent = new MouseEvent('mousemove');
     document.dispatchEvent(moveEvent);
   });
-  // 测试窗口大小变化时右侧边栏宽度调整（currentRightWidth > maxWidth 时会 clamp，覆盖 148 行）
+  // 测试窗口大小变化时右侧边栏宽度调整（currentRightWidth > maxWidth 时会 clamp）
   it('should adjust right sidebar width on window resize', () => {
     render(
       <TestWrapper>
@@ -69,6 +69,55 @@ describe('AgenticLayout', () => {
     });
     const rightPanel = screen.getByTestId('right').closest('div');
     expect(rightPanel).toBeInTheDocument();
+  });
+
+  it('getMaxRightWidth 在 window 缺失时返回 Infinity', () => {
+    const resizeHandlers: Array<() => void> = [];
+    const addSpy = vi.spyOn(window, 'addEventListener').mockImplementation((ev, fn) => {
+      if (ev === 'resize') resizeHandlers.push(fn as () => void);
+    });
+    const removeSpy = vi.spyOn(window, 'removeEventListener').mockImplementation(() => {});
+
+    const { unmount } = render(
+      <TestWrapper>
+        <AgenticLayout
+          left={<div data-testid="left">L</div>}
+          center={<div data-testid="center">C</div>}
+          right={<div data-testid="right">R</div>}
+          rightWidth={800}
+        />
+      </TestWrapper>,
+    );
+
+    const origWindow = global.window;
+    try {
+      (global as any).window = undefined;
+      act(() => {
+        resizeHandlers.forEach((fn) => fn());
+      });
+    } finally {
+      (global as any).window = origWindow;
+    }
+
+    unmount();
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+
+  it('unmount 时应移除 resize 监听', () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    const { unmount } = render(
+      <TestWrapper>
+        <AgenticLayout
+          left={<div data-testid="left">L</div>}
+          center={<div data-testid="center">C</div>}
+          right={<div data-testid="right">R</div>}
+        />
+      </TestWrapper>,
+    );
+    unmount();
+    expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+    removeSpy.mockRestore();
   });
 
   // 测试拖拽调整右侧边栏大小

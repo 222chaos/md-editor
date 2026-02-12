@@ -954,7 +954,7 @@ describe('TabKey', () => {
       expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 
-    it('indentListItem 在 targetList 非列表类型时应 return false（覆盖 244 行）', () => {
+    it('indentListItem 在 targetList 非列表类型时应 return false', () => {
       const list = {
         type: 'bulleted-list',
         children: [
@@ -1086,7 +1086,7 @@ describe('TabKey', () => {
       editor.insertText = originalInsertText;
     });
 
-    it('listItem 在 Node.get 返回非 list-item 时应 return false（覆盖 157 行）', () => {
+    it('listItem 在 Node.get 返回非 list-item 时应 return false', () => {
       const list = {
         type: 'bulleted-list',
         children: [
