@@ -27,23 +27,26 @@ describe('parseBlockElements', () => {
 
   describe('handleListItem', () => {
     it('should extract mentions when first child of paragraph is link with multiple children', () => {
-      const parseNodes = vi.fn((nodes: any[], _top: boolean, parent: any) => {
-        if (!nodes?.length) return [{ type: 'paragraph', children: [{ text: '' }] }];
-        const first = nodes[0];
-        if (first.type === 'paragraph' && first.children?.length > 1 && first.children[0]?.type === 'link') {
-          const link = first.children[0];
-          return [
-            {
-              type: 'paragraph',
-              children: [
-                { url: link.url, text: link.text },
-                { text: (first.children[1] as any)?.value ?? '' },
-              ],
-            },
-          ];
-        }
-        return [{ type: 'paragraph', children: [{ text: '' }] }];
-      });
+      const parseNodes = vi.fn(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 签名需与 parseNodes 一致
+        (nodes: any[], _top: boolean, _parent: any) => {
+          if (!nodes?.length) return [{ type: 'paragraph', children: [{ text: '' }] }];
+          const first = nodes[0];
+          if (first.type === 'paragraph' && first.children?.length > 1 && first.children[0]?.type === 'link') {
+            const link = first.children[0];
+            return [
+              {
+                type: 'paragraph',
+                children: [
+                  { url: link.url, text: link.text },
+                  { text: (first.children[1] as any)?.value ?? '' },
+                ],
+              },
+            ];
+          }
+          return [{ type: 'paragraph', children: [{ text: '' }] }];
+        },
+      );
 
       const currentElement = {
         checked: null,

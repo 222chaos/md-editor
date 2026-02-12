@@ -1,4 +1,4 @@
-import { createEditor, Node, Path, Transforms } from 'slate';
+import { createEditor, Node, Transforms } from 'slate';
 import { vi } from 'vitest';
 import { withCardPlugin } from '../withCardPlugin';
 
