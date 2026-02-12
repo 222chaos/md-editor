@@ -1831,7 +1831,7 @@ const y = 2;
       const result = parserMdToSchema('x', [plugin]);
       expect(convertFn).toHaveBeenCalled();
       const withoutTypeOrText = result.schema.filter(
-        (s: any) => s.type == null && s.text == null,
+        (s: any) => s.type === null && s.text === null,
       );
       expect(withoutTypeOrText).toHaveLength(0);
     });

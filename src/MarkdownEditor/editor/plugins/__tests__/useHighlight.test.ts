@@ -10,7 +10,6 @@ import {
   clearInlineKatex,
   useHighlight,
 } from '../useHighlight';
-import { EditorUtils } from '../../utils/editorUtils';
 
 vi.mock('../../utils/editorUtils', () => ({
   EditorUtils: {
