@@ -422,7 +422,7 @@ describe('TaskList', () => {
       }
     });
 
-    it('无 task-list-left/arrowContainer 时走 interactiveElements 分支（覆盖 416,419）', () => {
+    it('无 task-list-left/arrowContainer 时走 interactiveElements 分支', () => {
       const { container } = render(
         <div>
           <button type="button" aria-label="dummy">

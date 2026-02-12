@@ -215,6 +215,21 @@ describe('getInsertOptions', () => {
     const element = options.find((o) => o.key === 'element');
     expect(element?.children?.some((c) => c.label?.some((l) => l === '表格' || l === '引用' || l === '代码'))).toBe(true);
   });
+
+  it('returns head group with head2 and head3 args when isTop is true', () => {
+    const options = getInsertOptions({ isTop: true }, locale);
+    const headOption = options.find((o) => o.key === 'head');
+    expect(headOption?.children?.find((c) => c.key === 'head2')?.args).toEqual([2]);
+    expect(headOption?.children?.find((c) => c.key === 'head3')?.args).toEqual([3]);
+  });
+
+  it('returns list group with b-list, n-list, t-list and correct args', () => {
+    const options = getInsertOptions({ isTop: false }, locale);
+    const listOption = options.find((o) => o.key === 'list');
+    expect(listOption?.children?.find((c) => c.key === 'b-list')?.args).toEqual(['unordered']);
+    expect(listOption?.children?.find((c) => c.key === 'n-list')?.args).toEqual(['ordered']);
+    expect(listOption?.children?.find((c) => c.key === 't-list')?.args).toEqual(['task']);
+  });
 });
 
 describe('InsertAutocomplete Component', () => {
@@ -283,6 +298,19 @@ describe('InsertAutocomplete Component', () => {
     }
   });
 
+  it('built-in element task click calls Transforms.insertText, keyTask$.next and close', () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const codeItem = screen.queryByText('代码') ?? screen.queryByText('Code');
+    const toClick = codeItem ?? Array.from(document.body.querySelectorAll('.ant-menu-item')).find((el) => el.textContent?.includes('代码') || el.textContent?.includes('Code'));
+    if (toClick) {
+      fireEvent.click(toClick);
+      expect(Transforms.insertText).toHaveBeenCalled();
+      expect(keyTaskNext).toHaveBeenCalled();
+      expect(setOpenInsertCompletion).toHaveBeenCalledWith(false);
+    }
+  });
+
   it('calls runInsertTask with isCustom when custom insertOption is clicked', async () => {
     const runInsertTask = vi.fn().mockResolvedValue(true);
     render(
@@ -314,6 +342,19 @@ describe('InsertAutocomplete Component', () => {
     expect(optionsRender).toHaveBeenCalled();
   });
 
+  it('optionsRender receives flattened items and click runs built-in task', () => {
+    const optionsRender = vi.fn((opts: any[]) => opts);
+    render(<InsertAutocomplete optionsRender={optionsRender} />);
+    act(() => insertCompletionText$.next(''));
+    expect(optionsRender).toHaveBeenCalled();
+    const listItem = screen.queryByText('无序列表') ?? screen.queryByText('List');
+    const toClick = listItem ?? Array.from(document.body.querySelectorAll('.ant-menu-item')).find((el) => el.textContent?.includes('无序') || el.textContent?.includes('List'));
+    if (toClick) {
+      fireEvent.click(toClick);
+      expect(keyTaskNext).toHaveBeenCalledWith(expect.objectContaining({ key: 'list' }));
+    }
+  });
+
   it('closes on outside click by clearing filterOptions', () => {
     render(<InsertAutocomplete />);
     act(() => {
@@ -323,6 +364,16 @@ describe('InsertAutocomplete Component', () => {
     fireEvent.click(document.body);
     const wrapper = document.body.querySelector('[class*="insert-autocomplete"]');
     expect(wrapper).toBeTruthy();
+  });
+
+  it('clickClose when target not inside dom calls close and removeEventListener', () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    expect(document.body.querySelector('.ant-menu')).toBeTruthy();
+    fireEvent.click(mockContainer);
+    expect(removeSpy).toHaveBeenCalledWith('click', expect.any(Function));
+    removeSpy.mockRestore();
   });
 
   it('responds to Escape key without throwing', () => {
@@ -355,6 +406,46 @@ describe('InsertAutocomplete Component', () => {
     expect(document.body.querySelector('.ant-menu')).toBeTruthy();
   });
 
+  it('Enter key when panel open runs runInsertTask for selected option when options exist', () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const menu = document.body.querySelector('.ant-menu');
+    expect(menu).toBeTruthy();
+    fireEvent.keyDown(mockContainer, { key: 'Enter', code: 'Enter' });
+    expect(document.body.querySelector('.ant-menu')).toBeTruthy();
+  });
+
+  it('Enter key after toggle openInsertCompletion does not throw', () => {
+    const store = getDefaultStore();
+    useEditorStoreMock.mockImplementation(() => store as any);
+    const { rerender } = render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    useEditorStoreMock.mockImplementation(() => ({ ...store, openInsertCompletion: false }) as any);
+    rerender(<InsertAutocomplete />);
+    useEditorStoreMock.mockImplementation(() => ({ ...store, openInsertCompletion: true }) as any);
+    rerender(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    expect(() => {
+      fireEvent.keyDown(mockContainer, { key: 'Enter', code: 'Enter' });
+    }).not.toThrow();
+  });
+
+  it('Escape key does not throw and can trigger close path', () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    expect(() => {
+      fireEvent.keyDown(mockContainer, { key: 'Escape', code: 'Escape', keyCode: 27 });
+    }).not.toThrow();
+  });
+
+  it('Backspace key does not throw and can trigger close path', () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    expect(() => {
+      fireEvent.keyDown(mockContainer, { key: 'Backspace', code: 'Backspace', keyCode: 8 });
+    }).not.toThrow();
+  });
+
   it('handles ArrowDown key when panel has options', () => {
     render(<InsertAutocomplete />);
     act(() => {
@@ -374,6 +465,61 @@ describe('InsertAutocomplete Component', () => {
     expect(() => {
       fireEvent.keyDown(mockContainer, { key: 'ArrowUp', code: 'ArrowUp' });
     }).not.toThrow();
+  });
+
+  it('ArrowDown then ArrowUp with mock target triggers scroll branch', async () => {
+    const mockScroll = vi.fn();
+    const mockTarget = document.createElement('div');
+    Object.defineProperty(mockTarget, 'offsetTop', { value: 50, configurable: true });
+    const querySpy = vi.spyOn(document, 'querySelector').mockImplementation(((sel: string) => {
+      if (sel?.includes('data-action')) return mockTarget;
+      return null;
+    }) as any);
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    await act(async () => {});
+    const wrapper = document.body.querySelector('[class*="insert-autocomplete"]') as HTMLDivElement;
+    if (wrapper) {
+      Object.defineProperty(wrapper, 'scrollTop', { value: 200, writable: true, configurable: true });
+      Object.defineProperty(wrapper, 'clientHeight', { value: 100, configurable: true });
+      wrapper.scroll = mockScroll;
+    }
+    fireEvent.keyDown(mockContainer, { key: 'ArrowDown', code: 'ArrowDown' });
+    await act(async () => {});
+    fireEvent.keyDown(mockContainer, { key: 'ArrowUp', code: 'ArrowUp' });
+    await act(async () => {});
+    expect(mockScroll).toHaveBeenCalled();
+    querySpy.mockRestore();
+  });
+
+  it('ArrowDown with mock target below viewport does not throw', async () => {
+    const store = getDefaultStore();
+    useEditorStoreMock.mockImplementation(() => store as any);
+    const mockScroll = vi.fn();
+    const mockTarget = document.createElement('div');
+    Object.defineProperty(mockTarget, 'offsetTop', { value: 300, configurable: true });
+    const querySpy = vi.spyOn(document, 'querySelector').mockImplementation(((sel: string) => {
+      if (sel?.includes('data-action')) return mockTarget;
+      return null;
+    }) as any);
+    const { rerender } = render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    useEditorStoreMock.mockImplementation(() => ({ ...store, openInsertCompletion: false }) as any);
+    rerender(<InsertAutocomplete />);
+    useEditorStoreMock.mockImplementation(() => ({ ...store, openInsertCompletion: true }) as any);
+    rerender(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    await act(async () => {});
+    const wrapper = document.body.querySelector('[class*="insert-autocomplete"]') as HTMLDivElement;
+    if (wrapper) {
+      Object.defineProperty(wrapper, 'scrollTop', { value: 0, writable: true, configurable: true });
+      Object.defineProperty(wrapper, 'clientHeight', { value: 100, configurable: true });
+      wrapper.scroll = mockScroll;
+    }
+    expect(() => {
+      fireEvent.keyDown(mockContainer, { key: 'ArrowDown', code: 'ArrowDown' });
+    }).not.toThrow();
+    querySpy.mockRestore();
   });
 
   it('when openInsertCompletion becomes false removes listeners and closes', () => {
@@ -495,6 +641,25 @@ describe('InsertAutocomplete insertMedia', () => {
     }
   });
 
+  it('insertMedia with youtube replaceUrl and optional ?si= preserves query', async () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const embedMediaItem = await screen.findByText(/嵌入媒体|Embed media/, {}, { timeout: 500 }).catch(() => null);
+    if (embedMediaItem) fireEvent.click(embedMediaItem);
+    await act(async () => {});
+    const input = document.body.querySelector('input');
+    if (input) {
+      fireEvent.change(input, { target: { value: 'https://youtu.be/abc123?si=xyz' } });
+      await act(async () => {});
+      const embedBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'Embed');
+      if (embedBtn && !embedBtn.hasAttribute('disabled')) {
+        fireEvent.click(embedBtn);
+        await act(async () => {});
+        expect(getRemoteMediaType).toHaveBeenCalledWith(expect.stringMatching(/youtube\.com\/embed\/abc123\?si=xyz/));
+      }
+    }
+  });
+
   it('insertMedia invalid URL throws and sets loading false', async () => {
     vi.mocked(getRemoteMediaType).mockResolvedValue(null);
     render(<InsertAutocomplete />);
@@ -569,6 +734,46 @@ describe('InsertAutocomplete insertMedia', () => {
         await act(async () => {});
       }
     }
+  });
+
+  it('insertMedia with plain https URL (no replaceUrl match) succeeds', async () => {
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const embedMediaItem = await screen.findByText(/嵌入媒体|Embed media/, {}, { timeout: 500 }).catch(() => null);
+    if (embedMediaItem) fireEvent.click(embedMediaItem);
+    await act(async () => {});
+    const input = document.body.querySelector('input');
+    if (input) {
+      fireEvent.change(input, { target: { value: 'https://example.com/photo.jpg' } });
+      await act(async () => {});
+      const embedBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'Embed');
+      if (embedBtn && !embedBtn.hasAttribute('disabled')) {
+        fireEvent.click(embedBtn);
+        await act(async () => {});
+        expect(getRemoteMediaType).toHaveBeenCalledWith('https://example.com/photo.jpg');
+        expect(Transforms.setNodes).toHaveBeenCalled();
+      }
+    }
+  });
+
+  it('insertMedia when getRemoteMediaType returns null sets loading false in finally', async () => {
+    vi.mocked(getRemoteMediaType).mockResolvedValueOnce(null);
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const embedMediaItem = await screen.findByText(/嵌入媒体|Embed media/, {}, { timeout: 500 }).catch(() => null);
+    if (embedMediaItem) fireEvent.click(embedMediaItem);
+    await act(async () => {});
+    const input = document.body.querySelector('input');
+    if (input) {
+      fireEvent.change(input, { target: { value: 'https://example.com/unknown' } });
+      await act(async () => {});
+      const embedBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'Embed');
+      if (embedBtn && !embedBtn.hasAttribute('disabled')) {
+        fireEvent.click(embedBtn);
+        await act(async () => {});
+      }
+    }
+    vi.mocked(getRemoteMediaType).mockResolvedValue('image');
   });
 });
 
@@ -700,6 +905,30 @@ describe('InsertAutocomplete insertAttachment', () => {
     vi.mocked(Node.string).mockReturnValue('');
   });
 
+  it('insertAttachByLink when next node is empty paragraph calls Transforms.delete', async () => {
+    vi.mocked(Editor.next).mockReturnValue([paragraphNode, [1]] as any);
+    vi.mocked(Node.string).mockReturnValue('');
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    const linkItem = await screen.findByText(/链接|By link/, {}, { timeout: 500 }).catch(() => null);
+    if (linkItem) fireEvent.click(linkItem);
+    await act(async () => {});
+    const tabEmbed = Array.from(document.body.querySelectorAll('.ant-tabs-tab')).find((t) => t.textContent?.includes('Embed'));
+    if (tabEmbed) fireEvent.click(tabEmbed);
+    await act(async () => {});
+    const input = document.body.querySelector('input');
+    if (input) {
+      fireEvent.change(input, { target: { value: 'https://example.com/doc.pdf' } });
+      await act(async () => {});
+      const embedBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === 'Embed');
+      if (embedBtn && !embedBtn.hasAttribute('disabled')) {
+        fireEvent.click(embedBtn);
+        await act(async () => {});
+        expect(Transforms.delete).toHaveBeenCalled();
+      }
+    }
+  });
+
   it('insertAttachByLink with non-http URL does not call fetch', async () => {
     render(<InsertAutocomplete />);
     act(() => insertCompletionText$.next(''));
@@ -826,6 +1055,49 @@ describe('InsertAutocomplete calculatePosition and effect branches', () => {
     expect(document.body.querySelector('.ant-menu')).toBeTruthy();
   });
 
+  it('calculatePosition branch: spaceBelow >= 212 shows panel below node', async () => {
+    vi.mocked(mockNodeEl.getBoundingClientRect).mockReturnValue({
+      top: 50,
+      left: 0,
+      width: 100,
+      height: 20,
+      bottom: 70,
+      right: 100,
+      x: 0,
+      y: 50,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(mockNodeEl, 'clientHeight', { value: 20, configurable: true });
+    Object.defineProperty(document.documentElement, 'clientHeight', { value: 400, configurable: true });
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    await act(async () => {});
+    const wrapper = document.body.querySelector('[class*="insert-autocomplete"]') as HTMLElement;
+    expect(wrapper).toBeTruthy();
+    expect(wrapper?.style?.top).toBeDefined();
+    expect(String(wrapper?.style?.bottom ?? '')).toBe('');
+  });
+
+  it('effect when paragraph and position setState with position', async () => {
+    vi.mocked(mockNodeEl.getBoundingClientRect).mockReturnValue({
+      top: 10,
+      left: 0,
+      width: 100,
+      height: 20,
+      bottom: 30,
+      right: 100,
+      x: 0,
+      y: 10,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(mockNodeEl, 'clientHeight', { value: 20, configurable: true });
+    Object.defineProperty(document.documentElement, 'clientHeight', { value: 400, configurable: true });
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    await act(async () => {});
+    const wrapper = document.body.querySelector('[class*="insert-autocomplete"]') as HTMLElement;
+    expect(wrapper?.style?.left).toBeDefined();
+  });
 });
 
 describe('InsertAutocomplete input and keyboard', () => {

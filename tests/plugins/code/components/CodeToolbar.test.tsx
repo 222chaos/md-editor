@@ -527,7 +527,7 @@ describe('CodeToolbar', () => {
       expect(screen.queryByTestId('segmented')).not.toBeInTheDocument();
     });
 
-    it('当 HTML 代码为空或非字符串时 containsJavaScript 返回 false（覆盖 27）', () => {
+    it('当 HTML 代码为空或非字符串时 containsJavaScript 返回 false', () => {
       const htmlEmpty = { ...defaultElement, language: 'html', value: '' };
       render(
         <CodeToolbar {...defaultProps} element={htmlEmpty} isSelected={true} />,
@@ -535,7 +535,7 @@ describe('CodeToolbar', () => {
       expect(screen.getByTestId('segmented')).toBeInTheDocument();
     });
 
-    it('当 HTML 代码包含 Function() 时，应该隐藏预览/代码切换按钮（覆盖 54）', () => {
+    it('当 HTML 代码包含 Function() 时，应该隐藏预览/代码切换按钮', () => {
       const htmlElement = {
         ...defaultElement,
         language: 'html',
@@ -551,7 +551,7 @@ describe('CodeToolbar', () => {
       expect(screen.queryByTestId('segmented')).not.toBeInTheDocument();
     });
 
-    it('当 HTML 代码包含 setTimeout/setInterval 字符串代码时，应该隐藏预览（覆盖 59）', () => {
+    it('当 HTML 代码包含 setTimeout/setInterval 字符串代码时，应该隐藏预览', () => {
       const htmlElement = {
         ...defaultElement,
         language: 'html',
@@ -568,8 +568,8 @@ describe('CodeToolbar', () => {
     });
   });
 
-  describe('Markdown 视图模式与主题、复制、展开（覆盖 286,294,318,328）', () => {
-    it('Markdown 代码块切换预览/代码时调用 onViewModeToggle（覆盖 286）', () => {
+  describe('Markdown 视图模式与主题、复制、展开', () => {
+    it('Markdown 代码块切换预览/代码时调用 onViewModeToggle', () => {
       const onViewModeToggle = vi.fn();
       const markdownElement = { ...defaultElement, language: 'markdown' };
       render(
@@ -586,7 +586,7 @@ describe('CodeToolbar', () => {
       expect(onViewModeToggle).toHaveBeenCalledWith('code');
     });
 
-    it('点击主题按钮时切换 theme（覆盖 294）', () => {
+    it('点击主题按钮时切换 theme', () => {
       const setTheme = vi.fn();
       render(
         <CodeToolbar
@@ -601,7 +601,7 @@ describe('CodeToolbar', () => {
       expect(setTheme).toHaveBeenCalledWith('chaos');
     });
 
-    it('复制成功时显示 message.success（覆盖 318）', () => {
+    it('复制成功时显示 message.success', () => {
       const mockCopy = copy as any;
       mockCopy.mockReturnValue(true);
       render(<CodeToolbar {...defaultProps} isSelected={true} />);
@@ -623,7 +623,7 @@ describe('CodeToolbar', () => {
       consoleSpy.mockRestore();
     });
 
-    it('点击展开/收起按钮时调用 onExpandToggle（覆盖 328）', () => {
+    it('点击展开/收起按钮时调用 onExpandToggle', () => {
       const onExpandToggle = vi.fn();
       render(
         <CodeToolbar

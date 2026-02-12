@@ -222,7 +222,7 @@ describe('SendActions', () => {
       expect(container).toBeInTheDocument();
     });
 
-    it('折叠且多按钮时附件/语音按钮显示短标题（覆盖 139, 149）', () => {
+    it('折叠且多按钮时附件/语音按钮显示短标题', () => {
       const { container } = render(
         <SendActions
           collapseSendActions={true}
@@ -243,7 +243,7 @@ describe('SendActions', () => {
     });
   });
 
-  describe('isSendable 与 fileMap/recording（覆盖 164,165）', () => {
+  describe('isSendable 与 fileMap/recording', () => {
     it('fileMap 有内容时发送按钮可点', () => {
       const fileMap = new Map();
       fileMap.set('f1', { url: 'u', name: 'n', status: 'done' });
@@ -277,8 +277,8 @@ describe('SendActions', () => {
     });
   });
 
-  describe('自定义 actionsRender 与容器事件（覆盖 237, 247, 248）', () => {
-    it('使用 actionsRender 时传入 defaultActions（覆盖 237）', () => {
+  describe('自定义 actionsRender 与容器事件', () => {
+    it('使用 actionsRender 时传入 defaultActions', () => {
       const actionsRender = vi.fn(
         (ctx: any, defaultActions: React.ReactNode[]) => defaultActions,
       );
@@ -294,7 +294,7 @@ describe('SendActions', () => {
       expect(Array.isArray(actionsRender.mock.calls[0][1])).toBe(true);
     });
 
-    it('点击/按键容器时阻止冒泡（覆盖 247, 248）', () => {
+    it('点击/按键容器时阻止冒泡', () => {
       const { container } = render(<SendActions onSend={vi.fn()} />);
       const wrap = container.querySelector(
         '.ant-agentic-md-input-field-send-actions',

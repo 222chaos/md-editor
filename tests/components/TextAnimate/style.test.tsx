@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { useTextAnimateStyle } from '../../../src/Components/TextAnimate/style';
 
 describe('TextAnimate style', () => {
-  it('useTextAnimateStyle 应返回 wrapSSR 与 hashId（覆盖 8,30,31,36）', () => {
+  it('useTextAnimateStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(
       () => useTextAnimateStyle('ant-agentic-text-animate'),
       {

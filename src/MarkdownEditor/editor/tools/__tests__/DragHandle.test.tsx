@@ -152,7 +152,7 @@ describe('DragHandle Component', () => {
     expect(dragHandle).toHaveAttribute('contenteditable', 'false');
   });
 
-  it('在 list-item 且无 previousSibling 或 previousSibling 有 data-check-item 时应使用 parent.parentElement（覆盖 26、32 行）', () => {
+  it('在 list-item 且无 previousSibling 或 previousSibling 有 data-check-item 时应使用 parent.parentElement', () => {
     const mockStore = { draggedElement: null };
     mockUseEditorStore.mockReturnValue({
       store: mockStore,

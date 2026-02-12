@@ -92,7 +92,7 @@ describe('ReadonlySchema', () => {
     expect(screen.getByTestId('custom-render')).toBeInTheDocument();
   });
 
-  it('codeProps.render 抛出时应回退默认渲染（覆盖 145、148 行）', () => {
+  it('codeProps.render 抛出时应回退默认渲染', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     mockEditorProps.codeProps = {
       render: vi.fn(() => {

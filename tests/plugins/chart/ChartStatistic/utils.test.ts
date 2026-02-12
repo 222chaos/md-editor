@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isValidNumber } from '../../../../src/Plugins/chart/ChartStatistic/utils';
 
-describe('ChartStatistic utils（覆盖 53、54、57、58 行）', () => {
+describe('ChartStatistic utils', () => {
   describe('isValidNumber', () => {
     it('null 应返回 false', () => {
       expect(isValidNumber(null)).toBe(false);

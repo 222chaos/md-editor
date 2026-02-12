@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { useStyle } from '../../../../src/Plugins/chart/RadarChart/style';
 
-describe('RadarChart style（覆盖 9、105、106、111 行）', () => {
+describe('RadarChart style', () => {
   it('useStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(() => useStyle('radar-chart'));
 

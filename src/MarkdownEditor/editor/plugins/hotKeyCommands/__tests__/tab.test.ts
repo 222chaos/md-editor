@@ -1710,7 +1710,7 @@ describe('TabKey', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
       } catch (error: any) {
         // 如果因为深度问题失败，至少验证 preventDefault 被调用
-        // 这说明代码逻辑执行到了 liftNodes 部分（行88-96）
+        // 这说明代码逻辑执行到了 liftNodes 部分
         if (error.message?.includes('depth of less than')) {
           expect(mockEvent.preventDefault).toHaveBeenCalled();
         } else {
@@ -1719,7 +1719,7 @@ describe('TabKey', () => {
       }
     });
 
-    it('Shift+Tab 列表成功时应命中 try 分支（覆盖 1635）', () => {
+    it('Shift+Tab 列表成功时应命中 try 分支', () => {
       const blockquote = {
         type: 'blockquote',
         children: [
@@ -1763,7 +1763,7 @@ describe('TabKey', () => {
       }
     });
 
-    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow（覆盖 1642）', () => {
+    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow', () => {
       const blockquote = {
         type: 'blockquote',
         children: [
@@ -1861,7 +1861,7 @@ describe('TabKey', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
       } catch (error: any) {
         // 如果因为深度问题失败，至少验证 preventDefault 被调用
-        // 这说明代码逻辑执行到了 liftNodes 部分（行88-96）
+        // 这说明代码逻辑执行到了 liftNodes 部分
         if (error.message?.includes('depth of less than')) {
           expect(mockEvent.preventDefault).toHaveBeenCalled();
         } else {
@@ -1870,7 +1870,7 @@ describe('TabKey', () => {
       }
     });
 
-    it('Shift+Tab 列表成功时应命中 try 分支（覆盖 1694）', () => {
+    it('Shift+Tab 列表成功时应命中 try 分支', () => {
       const blockquote = {
         type: 'blockquote',
         children: [
@@ -1917,7 +1917,7 @@ describe('TabKey', () => {
       }
     });
 
-    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow（覆盖 1701）', () => {
+    it('Shift+Tab 列表抛出非 depth 错误时应 rethrow', () => {
       const blockquote = {
         type: 'blockquote',
         children: [

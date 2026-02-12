@@ -124,7 +124,7 @@ describe('useHistory Hook', () => {
       expect(typeof result.current.handleFavorite).toBe('function');
     });
 
-    it('应调用 onFavorite 并更新本地列表的 isFavorite（覆盖 67,69,70,71）', async () => {
+    it('应调用 onFavorite 并更新本地列表的 isFavorite', async () => {
       const onFavorite = vi.fn().mockResolvedValue(undefined);
       const props = {
         ...defaultProps,

@@ -56,7 +56,7 @@ describe('keyArrow', () => {
     store = new EditorStore({ current: editor });
   });
 
-  it('未匹配的热键应不阻止默认行为（覆盖 matchKeyDown return false 20 行）', () => {
+  it('未匹配的热键应不阻止默认行为', () => {
     editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } };
     const mockEvent = {
       key: 'Enter',
@@ -67,7 +67,7 @@ describe('keyArrow', () => {
     expect(mockEvent.preventDefault).not.toHaveBeenCalled();
   });
 
-  it('ArrowDown 时应调用 EditorUtils.findNext（覆盖 mock 32 行）', () => {
+  it('ArrowDown 时应调用 EditorUtils.findNext', () => {
     Transforms.insertText(editor, 'x');
     editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } };
     const findNextSpy = vi.mocked(EditorUtils.findNext);

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { useGradientTextStyle } from '../../../src/Components/GradientText/style';
 
 describe('GradientText style', () => {
-  it('useGradientTextStyle 应返回 wrapSSR 与 hashId（覆盖 18,47,48,53）', () => {
+  it('useGradientTextStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(
       () => useGradientTextStyle('ant-agentic-gradient-text'),
       {

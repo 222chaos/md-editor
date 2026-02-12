@@ -310,7 +310,7 @@ describe('ReadonlyTableComponent', () => {
   });
 
   describe('模态框测试', () => {
-    it('全屏模态内 ConfigProvider 的 getPopupContainer/getTargetContainer 被调用时返回 modelTargetRef 或 body（覆盖 219,222）', async () => {
+    it('全屏模态内 ConfigProvider 的 getPopupContainer/getTargetContainer 被调用时返回 modelTargetRef 或 body', async () => {
       renderComponent();
       const fullscreenButton = screen
         .getAllByTestId('action-icon')
@@ -426,7 +426,7 @@ describe('ReadonlyTableComponent', () => {
       }
     });
 
-    it('应在模态框内容区触发 onMouseDown/onDragStart/onDoubleClick 时调用 preventDefault（覆盖 210,214,219,222）', async () => {
+    it('应在模态框内容区触发 onMouseDown/onDragStart/onDoubleClick 时调用 preventDefault', async () => {
       renderComponent();
       const fullscreenButton = screen
         .getAllByTestId('action-icon')

@@ -23,13 +23,13 @@ describe('getScroll', () => {
   });
 
   describe('getScroll', () => {
-    it('returns target.pageYOffset when target is Window (行 11-12)', () => {
+    it('returns target.pageYOffset when target is Window', () => {
       const win = { pageYOffset: 200, window: null as any };
       (win as any).window = win;
       expect(getScroll(win as any)).toBe(200);
     });
 
-    it('returns documentElement.scrollTop when target is Document (行 13-14)', () => {
+    it('returns documentElement.scrollTop when target is Document', () => {
       const doc = document.implementation.createHTMLDocument('');
       Object.defineProperty(doc.documentElement, 'scrollTop', {
         value: 150,
@@ -39,7 +39,7 @@ describe('getScroll', () => {
       expect(getScroll(doc)).toBe(150);
     });
 
-    it('returns scrollTop when target is HTMLElement (行 15-16)', () => {
+    it('returns scrollTop when target is HTMLElement', () => {
       const el = document.createElement('div');
       Object.defineProperty(el, 'scrollTop', {
         value: 80,
@@ -49,12 +49,12 @@ describe('getScroll', () => {
       expect(getScroll(el)).toBe(80);
     });
 
-    it('returns target["scrollTop"] for object with scrollTop (行 17-24)', () => {
+    it('returns target["scrollTop"] for object with scrollTop', () => {
       const target = { scrollTop: 99 };
       expect(getScroll(target as any)).toBe(99);
     });
 
-    it('falls back to ownerDocument.documentElement.scrollTop when result is not number (行 26-28)', () => {
+    it('falls back to ownerDocument.documentElement.scrollTop when result is not number', () => {
       const doc = document.implementation.createHTMLDocument('');
       Object.defineProperty(doc.documentElement, 'scrollTop', {
         value: 42,
@@ -72,7 +72,7 @@ describe('getScroll', () => {
       expect(getScroll(null)).toBe(0);
     });
 
-    it('returns 0 when typeof window is undefined (行 6-8)', () => {
+    it('returns 0 when typeof window is undefined', () => {
       const originalWindow = globalThis.window;
       vi.stubGlobal('window', undefined);
       try {
@@ -84,7 +84,7 @@ describe('getScroll', () => {
   });
 
   describe('getScrollRailHeight', () => {
-    it('returns 0 when typeof window is undefined (行 35-37)', () => {
+    it('returns 0 when typeof window is undefined', () => {
       const originalWindow = globalThis.window;
       vi.stubGlobal('window', undefined);
       try {
@@ -94,7 +94,7 @@ describe('getScroll', () => {
       }
     });
 
-    it('returns scrollHeight - clientHeight for Window (行 39-43)', () => {
+    it('returns scrollHeight - clientHeight for Window', () => {
       const docEl = {
         scrollHeight: 2000,
         clientHeight: 800,
@@ -107,7 +107,7 @@ describe('getScroll', () => {
       expect(getScrollRailHeight(win as any)).toBe(1200);
     });
 
-    it('returns documentElement scrollHeight - clientHeight for Document (行 45-48)', () => {
+    it('returns documentElement scrollHeight - clientHeight for Document', () => {
       const doc = document;
       const result = getScrollRailHeight(doc);
       expect(typeof result).toBe('number');
@@ -116,14 +116,14 @@ describe('getScroll', () => {
       );
     });
 
-    it('returns scrollHeight - offsetHeight for HTMLElement (行 50-52)', () => {
+    it('returns scrollHeight - offsetHeight for HTMLElement', () => {
       const el = document.createElement('div');
       const result = getScrollRailHeight(el);
       expect(typeof result).toBe('number');
       expect(result).toBe(el.scrollHeight - el.offsetHeight);
     });
 
-    it('returns 0 for other targets (行 54)', () => {
+    it('returns 0 for other targets', () => {
       expect(getScrollRailHeight(null)).toBe(0);
       expect(getScrollRailHeight(undefined)).toBe(0);
       expect(getScrollRailHeight({} as any)).toBe(0);

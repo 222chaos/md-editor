@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ToolUseBarItem } from '../../src/ToolUseBar/BarItem';
 
 const prefixCls = 'ant-agentic-tool-use-bar';
@@ -12,7 +12,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 describe('ToolUseBarItem', () => {
-  it('有内容时点击工具栏非交互元素会切换展开状态（覆盖 99-102）', () => {
+  it('有内容时点击工具栏非交互元素会切换展开状态', () => {
     const tool = {
       id: 't1',
       toolName: 'Tool',
@@ -23,11 +23,7 @@ describe('ToolUseBarItem', () => {
 
     render(
       <TestWrapper>
-        <ToolUseBarItem
-          tool={tool}
-          prefixCls={prefixCls}
-          hashId={hashId}
-        />
+        <ToolUseBarItem tool={tool} prefixCls={prefixCls} hashId={hashId} />
       </TestWrapper>,
     );
 
@@ -38,7 +34,7 @@ describe('ToolUseBarItem', () => {
     expect(toolBar).toBeInTheDocument();
   });
 
-  it('点击展开图标时调用 setExpanded（覆盖 113）', () => {
+  it('点击展开图标时调用 setExpanded', () => {
     const tool = {
       id: 't2',
       toolName: 'Tool',
@@ -49,11 +45,7 @@ describe('ToolUseBarItem', () => {
 
     const { container } = render(
       <TestWrapper>
-        <ToolUseBarItem
-          tool={tool}
-          prefixCls={prefixCls}
-          hashId={hashId}
-        />
+        <ToolUseBarItem tool={tool} prefixCls={prefixCls} hashId={hashId} />
       </TestWrapper>,
     );
 
@@ -63,7 +55,7 @@ describe('ToolUseBarItem', () => {
     expect(expandEl).toBeInTheDocument();
   });
 
-  it('点击工具栏内的 button 时不切换展开（覆盖 95-98）', () => {
+  it('点击工具栏内的 button 时不切换展开', () => {
     const tool = {
       id: 't3',
       toolName: (
@@ -78,11 +70,7 @@ describe('ToolUseBarItem', () => {
 
     render(
       <TestWrapper>
-        <ToolUseBarItem
-          tool={tool}
-          prefixCls={prefixCls}
-          hashId={hashId}
-        />
+        <ToolUseBarItem tool={tool} prefixCls={prefixCls} hashId={hashId} />
       </TestWrapper>,
     );
 

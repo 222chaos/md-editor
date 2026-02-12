@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { useStyle } from '../../../../src/Plugins/chart/ScatterChart/style';
 
-describe('ScatterChart style（覆盖 9、83、84、89 行）', () => {
+describe('ScatterChart style', () => {
   it('useStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(() => useStyle('scatter-chart'));
 

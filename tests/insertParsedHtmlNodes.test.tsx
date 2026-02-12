@@ -594,6 +594,15 @@ describe('insertParsedHtmlNodes', () => {
       expect(ELEMENT_TAGS.H3(el3 as any).align).toBe('left');
     });
 
+    it('H4/H5 应支持 align', () => {
+      const el4 = document.createElement('h4');
+      el4.setAttribute('align', 'center');
+      expect(ELEMENT_TAGS.H4(el4 as any).align).toBe('center');
+      const el5 = document.createElement('h5');
+      el5.style.textAlign = 'right';
+      expect(ELEMENT_TAGS.H5(el5 as any).align).toBe('right');
+    });
+
     it('IMG 无效 URL 应返回 paragraph 节点', () => {
       const el = document.createElement('img');
       (el as any).src = 'https://example.com/page';
@@ -668,6 +677,19 @@ describe('insertParsedHtmlNodes', () => {
     it('文本节点应返回 textContent', () => {
       const text = document.createTextNode('hello');
       expect(deserialize(text as any, '')).toBe('hello');
+    });
+
+    it('非元素节点(nodeType !== 1)应返回 null', () => {
+      const comment = document.createComment('comment');
+      expect(deserialize(comment as any, '')).toBeNull();
+    });
+
+    it('fragment 标签(body/div/figure)应返回 jsx fragment', () => {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode('x'));
+      const result = deserialize(div as any, '');
+      expect(result).toBeDefined();
+      expect(Array.isArray(result) || (result && typeof result === 'object')).toBe(true);
     });
   });
 
@@ -792,6 +814,126 @@ describe('insertParsedHtmlNodes', () => {
         '',
       );
       expect(upload).not.toHaveBeenCalled();
+    });
+
+    it('card 第二子节点为 media 时应排除上传', async () => {
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'card',
+          children: [
+            { type: 'paragraph', children: [{ text: '' }] },
+            { type: 'media', url: 'blob:x', children: [{ text: '' }] },
+          ],
+        },
+      ] as any);
+      const upload = vi.fn();
+      await insertParsedHtmlNodes(editor, 'card', { image: { upload } }, '');
+      expect(upload).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('parseHtmlOptimized 大内容异步路径', () => {
+    it('html 长度 >= MAX_SYNC_SIZE 时应走异步解析', async () => {
+      const longHtml = '<p>' + 'x'.repeat(1200) + '</p>';
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockImplementationOnce(
+        () => [{ type: 'paragraph', children: [{ text: 'long' }] }] as any,
+      );
+      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } };
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      vi.useFakeTimers();
+      const resultPromise = insertParsedHtmlNodes(editor, longHtml, {}, '');
+      await vi.advanceTimersByTimeAsync(100);
+      const result = await resultPromise;
+      vi.useRealTimers();
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('insertParsedHtmlNodes 大批量与错误分支', () => {
+    it('超过 BATCH_SIZE 节点时应分段插入', async () => {
+      editor.selection = null;
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      const manyNodes = Array.from({ length: 15 }, (_, i) => ({
+        type: 'paragraph' as const,
+        children: [{ text: `p${i}` }],
+      }));
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockImplementationOnce(
+        () => manyNodes as any,
+      );
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<p>p0</p>',
+        {},
+        '',
+      );
+      expect(result).toBe(true);
+      expect(editor.children.length).toBeGreaterThanOrEqual(15);
+    });
+
+    it('解析失败时应捕获错误并提示', async () => {
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockRejectedValueOnce(
+        new Error('parse error'),
+      );
+      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } };
+      const result = await insertParsedHtmlNodes(editor, '<p>x</p>', {}, '');
+      expect(result).toBe(false);
+      expect(message.error).toHaveBeenCalledWith('Content parsing failed, please try again');
+    });
+
+    it('标题节点且 fragment 为 paragraph 但无 text 节点时应返回 false', async () => {
+      editor.children = [{ type: 'head', level: 1, children: [{ text: '' }] }];
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { type: 'paragraph', children: [{ text: '' }] },
+      ] as any);
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<p></p>',
+        {},
+        '',
+      );
+      expect(result).toBe(false);
+    });
+
+    it('data-be 且 table-cell 时应直接返回 true', async () => {
+      editor.children = [
+        {
+          type: 'table',
+          children: [
+            {
+              type: 'table-row',
+              children: [
+                {
+                  type: 'table-cell',
+                  children: [{ text: '' }],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      editor.selection = {
+        anchor: { path: [0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { type: 'paragraph', children: [{ text: 'cell' }] },
+      ] as any);
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<div data-be="block"><p>cell</p></div>',
+        {},
+        '',
+      );
+      expect(result).toBe(true);
     });
   });
 });

@@ -14,7 +14,7 @@ vi.mock('react-chartjs-2', () => ({
   Doughnut: React.forwardRef(({ data, options, plugins }: any, ref: any) => {
     React.useEffect(() => {
       if (ref) {
-        // 创建模拟的 Chart.js 实例；测试可设 __donutChartMockNoCanvas 使 canvas 为 null（覆盖 229）
+        // 创建模拟的 Chart.js 实例；测试可设 __donutChartMockNoCanvas 使 canvas 为 null
         const canvas =
           (globalThis as any).__donutChartMockNoCanvas
             ? null
@@ -577,7 +577,7 @@ describe('DonutChart', () => {
       expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
     });
 
-    it('renderFilterInToolbar 且 filterList 含空串时 filterOptions 使用 item||""（覆盖 325）', () => {
+    it('renderFilterInToolbar 且 filterList 含空串时 filterOptions 使用 item||""', () => {
       render(
         <TestWrapper>
           <DonutChart
@@ -1069,7 +1069,7 @@ describe('DonutChart', () => {
       // 验证 canvas 拼接逻辑被调用
     });
 
-    it('应该处理下载异常并回退到单图下载（覆盖 264,265）', async () => {
+    it('应该处理下载异常并回退到单图下载', async () => {
       const chartComponents = await import(
         '../../../../src/Plugins/chart/components'
       );
@@ -1122,7 +1122,7 @@ describe('DonutChart', () => {
       expect(downloadSpy).toHaveBeenCalled();
     });
 
-    it('应该处理多个图表时 canvas 数组为空的情况（覆盖 229）', () => {
+    it('应该处理多个图表时 canvas 数组为空的情况', () => {
       (globalThis as any).__donutChartMockNoCanvas = true;
       try {
         render(

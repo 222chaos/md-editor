@@ -60,7 +60,7 @@ describe('VoiceButton', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  it('点击播放区域时调用 start（覆盖 handleClick !isPlaying 分支）', () => {
+  it('点击播放区域时调用 start', () => {
     const start = vi.fn();
     const stop = vi.fn();
     const setRate = vi.fn();
@@ -88,7 +88,7 @@ describe('VoiceButton', () => {
     expect(stop).not.toHaveBeenCalled();
   });
 
-  it('播放中点击停止区域时调用 stop 并执行 handleStop（覆盖 65、125）', () => {
+  it('播放中点击停止区域时调用 stop 并执行 handleStop', () => {
     const start = vi.fn();
     const stop = vi.fn();
     const useSpeech: UseSpeechAdapter = () => ({
@@ -138,7 +138,7 @@ describe('VoiceButton', () => {
     expect(playRegion).toBeInTheDocument();
   });
 
-  it('播放中点击倍速下拉项时调用 setRate（覆盖 165）', async () => {
+  it('播放中点击倍速下拉项时调用 setRate', async () => {
     const setRate = vi.fn();
     const useSpeech: UseSpeechAdapter = () => ({
       isSupported: true,
@@ -166,7 +166,7 @@ describe('VoiceButton', () => {
     expect(setRate).toHaveBeenCalledWith(1.5);
   });
 
-  it('播放中且 rate !== 1 时显示 rateDisplay（覆盖 166）', () => {
+  it('播放中且 rate !== 1 时显示 rateDisplay', () => {
     const useSpeech: UseSpeechAdapter = () => ({
       isSupported: true,
       isPlaying: true,

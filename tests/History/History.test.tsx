@@ -197,7 +197,7 @@ describe('History 组件', () => {
       expect(onSelected).toBeDefined();
     });
 
-    it('点击组件外部时 useClickAway 关闭 Popover（覆盖 79）', async () => {
+    it('点击组件外部时 useClickAway 关闭 Popover', async () => {
       render(
         <TestWrapper>
           <History {...defaultProps} />
@@ -224,7 +224,7 @@ describe('History 组件', () => {
       );
     });
 
-    it('onDeleteItem 执行后调用 loadHistory（覆盖 95、96）', async () => {
+    it('onDeleteItem 执行后调用 loadHistory', async () => {
       const request = vi.fn().mockResolvedValue(mockHistoryData);
       const onDeleteItem = vi.fn().mockResolvedValue(undefined);
       const { generateHistoryItems } = await import(
@@ -460,7 +460,7 @@ describe('History 组件', () => {
       unmount();
     });
 
-    it('空列表且有搜索关键词时显示 HistoryEmpty（覆盖 118）', async () => {
+    it('空列表且有搜索关键词时显示 HistoryEmpty', async () => {
       const emptyRequest = vi.fn().mockResolvedValue([]);
       const { generateHistoryItems } = await import(
         '../../src/History/components'
@@ -516,7 +516,7 @@ describe('History 组件', () => {
       ]);
     });
 
-    it('空列表且无搜索关键词时使用 emptyRender（覆盖 129）', async () => {
+    it('空列表且无搜索关键词时使用 emptyRender', async () => {
       const emptyRequest = vi.fn().mockResolvedValue([]);
       const { generateHistoryItems } = await import(
         '../../src/History/components'
@@ -554,7 +554,7 @@ describe('History 组件', () => {
       );
     });
 
-    it('下拉打开时 Popover 使用 getPopupContainer 渲染内容（覆盖 230）', async () => {
+    it('下拉打开时 Popover 使用 getPopupContainer 渲染内容', async () => {
       render(
         <TestWrapper>
           <History {...defaultProps} />

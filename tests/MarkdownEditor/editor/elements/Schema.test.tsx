@@ -266,7 +266,7 @@ describe('Schema', () => {
       expect(screen.getByTestId('custom-render')).toBeInTheDocument();
     });
 
-    it('render 抛出异常时应回退默认渲染（覆盖 176,179）', () => {
+    it('render 抛出异常时应回退默认渲染', () => {
       mockEditorProps.codeProps = {
         render: vi.fn(() => {
           throw new Error('render error');
@@ -283,7 +283,7 @@ describe('Schema', () => {
     });
   });
 
-  describe('schema-clickable 事件处理（覆盖 133,136,139）', () => {
+  describe('schema-clickable 事件处理', () => {
     it('点击、鼠标移动、按键时应执行对应 handler 不报错', () => {
       renderWithProvider(
         <Schema element={mockElement} attributes={mockAttributes}>

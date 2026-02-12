@@ -9,7 +9,7 @@ vi.mock('../../parser/parserMdToSchema', () => ({
 }));
 
 describe('parseMarkdownToNodesAndInsert', () => {
-  it('当 schema 为空时应 push 段落节点（覆盖 22）', () => {
+  it('当 schema 为空时应 push 段落节点', () => {
     const editor = createEditor();
     editor.children = [];
     const insertSpy = vi.spyOn(Transforms, 'insertNodes');
@@ -23,7 +23,7 @@ describe('parseMarkdownToNodesAndInsert', () => {
     insertSpy.mockRestore();
   });
 
-  it('有选区且 children 为空时只 insert 不 return true（覆盖 28,29）', () => {
+  it('有选区且 children 为空时只 insert 不 return true', () => {
     const editor = createEditor();
     editor.children = [];
     editor.selection = {
@@ -39,7 +39,7 @@ describe('parseMarkdownToNodesAndInsert', () => {
     insertSpy.mockRestore();
   });
 
-  it('有选区且有选中文本时应 removeNodes 再 insert（覆盖 33,38）', () => {
+  it('有选区且有选中文本时应 removeNodes 再 insert', () => {
     const editor = createEditor();
     editor.children = [
       { type: 'paragraph', children: [{ text: 'hello' }] },
@@ -64,7 +64,7 @@ describe('parseMarkdownToNodesAndInsert', () => {
     insertSpy.mockRestore();
   });
 
-  it('无有效选区时直接 insert 并 return true（覆盖 37,39）', () => {
+  it('无有效选区时直接 insert 并 return true', () => {
     const editor = createEditor();
     editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
     editor.selection = null;

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { withSchemaPlugin } from '../withSchemaPlugin';
 
 describe('withSchemaPlugin', () => {
-  it('split_node 且 type 为 schema 时应在其后插入段落（覆盖 22,23,24）', () => {
+  it('split_node 且 type 为 schema 时应在其后插入段落', () => {
     const editor = withSchemaPlugin(createEditor());
     editor.children = [
       {
@@ -29,7 +29,7 @@ describe('withSchemaPlugin', () => {
     insertNodesSpy.mockRestore();
   });
 
-  it('非 schema 操作时应调用原始 apply（覆盖 38,59）', () => {
+  it('非 schema 操作时应调用原始 apply', () => {
     const baseEditor = createEditor();
     const originalApply = vi.fn();
     const editor = withSchemaPlugin({

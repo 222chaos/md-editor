@@ -70,7 +70,7 @@ describe('Mermaid utils', () => {
       global.window = originalWindow;
     });
 
-    it('应该在加载失败时重置 loader 并抛出（覆盖 30,31）', async () => {
+    it('应该在加载失败时重置 loader 并抛出', async () => {
       (globalThis as any).__MERMAID_LOAD_FAIL__ = true;
       try {
         const { loadMermaid } = await import(
@@ -142,7 +142,7 @@ describe('Mermaid utils', () => {
       expect(svgElement).toBeTruthy();
     });
 
-    it('应该处理没有 SVG 元素的情况（覆盖 83）', async () => {
+    it('应该处理没有 SVG 元素的情况', async () => {
       const svg = '<div>Not SVG</div>';
 
       renderSvgToContainer(svg, container);
@@ -153,7 +153,7 @@ describe('Mermaid utils', () => {
       expect(container.innerHTML).toContain('Not SVG');
     });
 
-    it('当 XML 解析无 svg 时用 tempDiv 提取并设置样式（覆盖 78,82）', async () => {
+    it('当 XML 解析无 svg 时用 tempDiv 提取并设置样式', async () => {
       const OriginalParser = global.DOMParser;
       global.DOMParser = class MockParser {
         parseFromString(str: string, type: string): Document {
@@ -190,7 +190,7 @@ describe('Mermaid utils', () => {
       expect(svgElement?.getAttribute('data-mermaid-svg')).toBe('true');
     });
 
-    it('应该为所有 SVG 子元素设置 data-mermaid-internal（覆盖 68）', async () => {
+    it('应该为所有 SVG 子元素设置 data-mermaid-internal', async () => {
       const svg =
         '<svg xmlns="http://www.w3.org/2000/svg"><rect/><circle/><path/></svg>';
 

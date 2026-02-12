@@ -324,7 +324,7 @@ describe('LinkCard', () => {
       expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com');
     });
 
-    it('点击标题链接应调用 window.open（覆盖 134）', () => {
+    it('点击标题链接应调用 window.open', () => {
       render(<LinkCard {...defaultProps} />);
       const link = screen.getByText('Example Title').closest('a');
       expect(link).toBeInTheDocument();

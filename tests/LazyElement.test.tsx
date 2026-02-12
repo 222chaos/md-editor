@@ -57,7 +57,7 @@ describe('LazyElement', () => {
     let observerCallback: IntersectionObserverCallback;
     const disconnectSpy = vi.fn();
 
-    // Mock IntersectionObserver 来捕获回调和 disconnect（覆盖 104, 111-112）
+    // Mock IntersectionObserver 来捕获回调和 disconnect
     global.IntersectionObserver = class {
       constructor(callback: IntersectionObserverCallback) {
         observerCallback = callback;
@@ -106,7 +106,7 @@ describe('LazyElement', () => {
     });
   });
 
-  it('应该通过 setTimeout 回退检测视口内并渲染（覆盖 157-169）', async () => {
+  it('应该通过 setTimeout 回退检测视口内并渲染', async () => {
     const disconnectSpy = vi.fn();
     vi.useFakeTimers();
     global.IntersectionObserver = class {

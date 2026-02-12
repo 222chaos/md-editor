@@ -2399,7 +2399,7 @@ describe('EditorStore', () => {
       expect(editor.children[0].children[0].text).toBe('x bar foo');
     });
 
-    it('有选区但 searchText 为空时应 return 0（覆盖 options 解构与 early return）', () => {
+    it('有选区但 searchText 为空时应 return 0', () => {
       editor.children = [{ type: 'paragraph', children: [{ text: 'abc' }] }];
       editor.selection = {
         anchor: { path: [0, 0], offset: 0 },

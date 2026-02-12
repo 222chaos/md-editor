@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { useStyle } from '../../../../src/Plugins/chart/LineChart/style';
 
-describe('LineChart style（覆盖 8、78、79、84 行）', () => {
+describe('LineChart style', () => {
   it('useStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(() => useStyle('line-chart'));
 

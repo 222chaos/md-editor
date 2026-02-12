@@ -64,7 +64,7 @@ describe('AIBubble', () => {
     expect(screen.getByText('AI Assistant')).toBeInTheDocument();
   });
 
-  it('shouldRenderBeforeContent returns false when placement is not left (行 46)', () => {
+  it('shouldRenderBeforeContent returns false when placement is not left', () => {
     expect(
       shouldRenderBeforeContent('right', 'assistant', { enable: true }, 1),
     ).toBe(false);
@@ -143,7 +143,7 @@ describe('AIBubble', () => {
     expect(screen.queryByText('AI message content')).not.toBeInTheDocument();
   });
 
-  it('should call bubbleRef.current.setMessageItem when setMessage is called (行 338)', () => {
+  it('should call bubbleRef.current.setMessageItem when setMessage is called', () => {
     const setMessageItem = vi.fn();
     const mockBubbleRef = { current: { setMessageItem } };
 
@@ -187,7 +187,7 @@ describe('AIBubble', () => {
     expect(setMessageItem).toHaveBeenCalledWith('test-id', { content: 'updated' });
   });
 
-  it('should call setMessageItem with thumbsDown when onDisLike succeeds (行 386-388)', async () => {
+  it('should call setMessageItem with thumbsDown when onDisLike succeeds', async () => {
     const setMessageItem = vi.fn();
     const onDisLike = vi.fn().mockResolvedValue(undefined);
 
@@ -217,7 +217,7 @@ describe('AIBubble', () => {
     });
   });
 
-  it('should call setMessageItem with thumbsDown when onDislike succeeds (行 401-403)', async () => {
+  it('should call setMessageItem with thumbsDown when onDislike succeeds', async () => {
     const setMessageItem = vi.fn();
     const onDislike = vi.fn().mockResolvedValue(undefined);
 
@@ -247,7 +247,7 @@ describe('AIBubble', () => {
     });
   });
 
-  it('should call setMessageItem with thumbsUp when onLike succeeds (行 417-419)', async () => {
+  it('should call setMessageItem with thumbsUp when onLike succeeds', async () => {
     const setMessageItem = vi.fn();
     const onLike = vi.fn().mockResolvedValue(undefined);
 
@@ -337,7 +337,7 @@ describe('AIBubble', () => {
     consoleSpy.mockRestore();
   });
 
-  // 测试 thoughtChainConfig.enable === false 的情况 (行48相关的另一种情况)
+  // 测试 thoughtChainConfig.enable === false 的情况
   it('should not render before content when thoughtChain is disabled', () => {
     render(
       <BubbleConfigProvide thoughtChain={{ enable: false }}>
@@ -358,7 +358,7 @@ describe('AIBubble', () => {
     expect(screen.queryByTestId('message-before')).not.toBeInTheDocument();
   });
 
-  // 测试 taskListLength >= 1 的情况 (行50相关的另一种情况)
+  // 测试 taskListLength >= 1 的情况
   it('should render before content when task list has items', () => {
     render(
       <BubbleConfigProvide thoughtChain={{ enable: true }}>
@@ -379,7 +379,7 @@ describe('AIBubble', () => {
     expect(screen.getByTestId('message-before')).toBeInTheDocument();
   });
 
-  // 测试 thoughtChainConfig.alwaysRender === true 的情况 (行50相关的另一种情况)
+  // 测试 thoughtChainConfig.alwaysRender === true 的情况
   it('should render before content when alwaysRender is true even with empty task list', () => {
     render(
       <BubbleConfigProvide thoughtChain={{ enable: true, alwaysRender: true }}>

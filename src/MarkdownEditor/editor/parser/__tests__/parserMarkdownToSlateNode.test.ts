@@ -571,8 +571,8 @@ describe('parserMarkdownToSlateNode', () => {
     });
   });
 
-  describe('parseMedia handleImage / handleAttachmentLink（覆盖 parseMedia 11,16,26,30,46,47）', () => {
-    it('handleImage 应处理图片元素并返回媒体节点（覆盖 11,16,26,30）', () => {
+  describe('parseMedia handleImage / handleAttachmentLink', () => {
+    it('handleImage 应处理图片元素并返回媒体节点', () => {
       const el = {
         url: 'http://example.com/pic.png',
         alt: 'pic',
@@ -584,7 +584,7 @@ describe('parserMarkdownToSlateNode', () => {
       expect(JSON.stringify(result)).toContain('pic');
     });
 
-    it('handleAttachmentLink 在未找到附件时应返回 null（覆盖 46,47）', () => {
+    it('handleAttachmentLink 在未找到附件时应返回 null', () => {
       const el = { children: [{ value: 'not an attachment link' }] };
       const result = handleAttachmentLink(el);
       expect(result).toBeNull();
@@ -1027,12 +1027,12 @@ function hello() {
   });
 
   describe('parseMath', () => {
-    it('shouldTreatInlineMathAsText 空字符串应返回 true（覆盖 19）', () => {
+    it('shouldTreatInlineMathAsText 空字符串应返回 true', () => {
       expect(shouldTreatInlineMathAsText('')).toBe(true);
       expect(shouldTreatInlineMathAsText('   ')).toBe(true);
     });
 
-    it('handleMath 应返回 katex 块节点（覆盖 68,71,78,83）', () => {
+    it('handleMath 应返回 katex 块节点', () => {
       const result = handleMath({ value: 'x^2 + y^2 = z^2' });
       expect(result).toMatchObject({
         type: 'katex',
@@ -1749,7 +1749,7 @@ const y = 2;
       expect(convertFn).toHaveBeenCalled();
     });
 
-    it('parseWithPlugins 当 convert 返回长度为 2 的数组时取 converted[0]（覆盖 343）', () => {
+    it('parseWithPlugins 当 convert 返回长度为 2 的数组时取 converted[0]', () => {
       const plugin: import('../../../plugin').MarkdownEditorPlugin = {
         parseMarkdown: [
           {
@@ -1773,7 +1773,7 @@ const y = 2;
       });
     });
 
-    it('filterTopLevelSchema 应过滤仅含换行或空子节点的段落（覆盖 264）', () => {
+    it('filterTopLevelSchema 应过滤仅含换行或空子节点的段落', () => {
       const plugin: import('../../../plugin').MarkdownEditorPlugin = {
         parseMarkdown: [
           {
@@ -1790,7 +1790,7 @@ const y = 2;
       expect(result.schema).toHaveLength(0);
     });
 
-    it('parseHtmlCommentProps 在 HTML 注释内容非合法 JSON 时返回 null（覆盖 312）', () => {
+    it('parseHtmlCommentProps 在 HTML 注释内容非合法 JSON 时返回 null', () => {
       const markdown = '<!-- invalid json -->';
       const result = parserMarkdownToSlateNode(markdown);
       expect(result.schema.length).toBeGreaterThanOrEqual(0);

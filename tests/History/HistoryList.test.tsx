@@ -320,7 +320,7 @@ describe('HistoryList - generateHistoryItems', () => {
     expect(mockGroupLabelRender).toHaveBeenCalled();
   });
 
-  it('sessionSort 为 false 时排序应返回 0（覆盖 109）', () => {
+  it('sessionSort 为 false 时排序应返回 0', () => {
     const items = generateHistoryItems({
       ...defaultConfig,
       sessionSort: false,
@@ -329,7 +329,7 @@ describe('HistoryList - generateHistoryItems', () => {
     expect(items[0].children!.length).toBe(2);
   });
 
-  it('sessionSort 为函数且返回 number 时应作为排序结果（覆盖 112,113）', () => {
+  it('sessionSort 为函数且返回 number 时应作为排序结果', () => {
     const sessionSort = vi.fn((a: HistoryDataType, b: HistoryDataType) => {
       return dayjs(a.gmtCreate).valueOf() - dayjs(b.gmtCreate).valueOf();
     });
@@ -350,7 +350,7 @@ describe('HistoryList - generateHistoryItems', () => {
     expect(items).toHaveLength(3);
   });
 
-  it('item 无 sessionId 时 onClick 应直接 return（覆盖 123）', () => {
+  it('item 无 sessionId 时 onClick 应直接 return', () => {
     const onClick = vi.fn();
     const listWithNoSessionId = [
       ...mockHistoryData,

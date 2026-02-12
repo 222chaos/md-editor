@@ -427,7 +427,7 @@ describe('MarkdownEditor Utils', () => {
   });
 
   describe('useTimeoutFn', () => {
-    it('应在延时后执行回调（覆盖 152,159,160）', () => {
+    it('应在延时后执行回调', () => {
       vi.useFakeTimers();
       const fn = vi.fn();
       const TestComp = () => {
@@ -453,7 +453,7 @@ describe('MarkdownEditor Utils', () => {
   });
 
   describe('useGetSetState', () => {
-    it('get/set 应更新状态（覆盖 243）', () => {
+    it('get/set 应更新状态', () => {
       const TestComp = () => {
         const [get, set] = utils.useGetSetState({ count: 0 });
         return (
@@ -475,7 +475,7 @@ describe('MarkdownEditor Utils', () => {
       expect(getByTestId('count')).toHaveTextContent('1');
     });
 
-    it('set 传入 null/undefined 时直接返回不更新状态（覆盖 239）', () => {
+    it('set 传入 null/undefined 时直接返回不更新状态', () => {
       const TestComp = () => {
         const [get, set] = utils.useGetSetState({ a: 1 });
         return (
@@ -518,7 +518,7 @@ describe('MarkdownEditor Utils', () => {
       err.mockRestore();
     });
 
-    it('初始状态非对象时在开发环境报错（覆盖 230）', () => {
+    it('初始状态非对象时在开发环境报错', () => {
       const err = vi.spyOn(console, 'error').mockImplementation(() => {});
       const TestComp = () => {
         utils.useGetSetState(1 as any);

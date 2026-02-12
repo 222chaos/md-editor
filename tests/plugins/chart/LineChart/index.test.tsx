@@ -731,7 +731,7 @@ describe('LineChart', () => {
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
     });
 
-    it('processedData 在 findDataPointByXValue 返回有效点时得到数值（覆盖 198-201）', async () => {
+    it('processedData 在 findDataPointByXValue 返回有效点时得到数值', async () => {
       const chartUtils = await import('../../../../src/Plugins/chart/utils');
       const filtered = [
         { x: 1, y: 10, type: 'Series 1' },
@@ -823,7 +823,7 @@ describe('LineChart', () => {
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
     });
 
-    it('tooltip callbacks.label 返回 label 与 y 拼接字符串（覆盖 255-257）', () => {
+    it('tooltip callbacks.label 返回 label 与 y 拼接字符串', () => {
       render(<LineChart data={mockData} />);
       const options = window.__lineChartOptions;
       expect(options).toBeDefined();

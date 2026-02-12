@@ -551,7 +551,7 @@ describe('Formatter Plugin Extended Tests', () => {
     });
   });
 
-  describe('addPanguSpacing 保护逻辑（覆盖 68-71 行）', () => {
+  describe('addPanguSpacing 保护逻辑', () => {
     it('应保护代码块、HTML 注释、含 HTML 的 Markdown 链接', () => {
       const codeBlock = '```a```';
       const comment = '<!-- 注释 -->';

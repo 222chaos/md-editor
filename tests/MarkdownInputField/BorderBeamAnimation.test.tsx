@@ -43,7 +43,7 @@ describe('BorderBeamAnimation', () => {
     expect(container.querySelector('[style*="position: absolute"]')).toBeInTheDocument();
   });
 
-  it('在非 test 环境下运行 ResizeObserver 并设置 dimensions（覆盖 72-74,81-82,86-87）', () => {
+  it('在非 test 环境下运行 ResizeObserver 并设置 dimensions', () => {
     const origNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
 

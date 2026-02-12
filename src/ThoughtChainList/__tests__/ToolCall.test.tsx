@@ -524,7 +524,7 @@ describe('ToolCall Component', () => {
       expect(screen.getByText('执行入参')).toBeInTheDocument();
       expect(screen.getByText('执行结果')).toBeInTheDocument();
     });
-    it('应使用 I18n mock 文案（覆盖 13）', () => {
+    it('应使用 I18n mock 文案', () => {
       render(<ToolCall {...mockProps} />);
       expect(screen.getByText('执行入参')).toBeInTheDocument();
       expect(screen.getByText('执行结果')).toBeInTheDocument();

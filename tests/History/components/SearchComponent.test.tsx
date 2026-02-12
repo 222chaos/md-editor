@@ -77,7 +77,7 @@ describe('HistorySearch', () => {
     expect(screen.getByPlaceholderText('搜索话题')).toBeInTheDocument();
   });
 
-  it('展开后点击外部且 inputValue 为空时应收起（覆盖 101,102）', () => {
+  it('展开后点击外部且 inputValue 为空时应收起', () => {
     const onSearch = vi.fn();
     render(
       <TestWrapper>
@@ -124,7 +124,7 @@ describe('HistorySearch', () => {
     expect(screen.getByPlaceholderText('自定义搜索')).toBeInTheDocument();
   });
 
-  it('无自定义 placeholder 时 type=task 应显示默认 placeholder（覆盖 182）', () => {
+  it('无自定义 placeholder 时 type=task 应显示默认 placeholder', () => {
     const onSearch = vi.fn();
     render(
       <ConfigProvider>
@@ -137,7 +137,7 @@ describe('HistorySearch', () => {
     expect(screen.getByPlaceholderText('搜索任务')).toBeInTheDocument();
   });
 
-  it('无自定义 placeholder 且非 task 时应显示搜索话题（覆盖 183）', () => {
+  it('无自定义 placeholder 且非 task 时应显示搜索话题', () => {
     const onSearch = vi.fn();
     render(
       <ConfigProvider>

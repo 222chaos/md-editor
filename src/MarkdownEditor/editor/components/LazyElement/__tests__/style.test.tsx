@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { useStyle } from '../style';
 
 describe('LazyElement style', () => {
-  it('useStyle 应返回 wrapSSR 与 hashId（覆盖 11,12,23,24,25,29）', () => {
+  it('useStyle 应返回 wrapSSR 与 hashId', () => {
     const { result } = renderHook(
       () => useStyle('ant-agentic-lazy-element'),
       {

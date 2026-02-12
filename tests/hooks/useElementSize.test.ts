@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useElementSize } from '../../src/Hooks/useElementSize';
 
 describe('useElementSize', () => {
-  it('应在 ResizeObserver 回调中更新 size（覆盖 10、11、12 行）', () => {
+  it('应在 ResizeObserver 回调中更新 size', () => {
     const div = document.createElement('div');
     const ref = { current: div };
     const mockObserve = vi.fn();

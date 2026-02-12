@@ -6,7 +6,7 @@ import { HistoryEmpty } from '../../../src/History/components/HistoryEmpty';
 import { I18nContext } from '../../../src/I18n';
 
 describe('HistoryEmpty', () => {
-  it('应渲染默认标题和描述（覆盖 21,24,27,29）', () => {
+  it('应渲染默认标题和描述', () => {
     render(
       <I18nContext.Provider value={{ locale: undefined } as any}>
         <HistoryEmpty />

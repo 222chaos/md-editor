@@ -170,11 +170,6 @@ describe('proxySandbox/index.ts', () => {
     });
 
     it('应该在没有错误对象时抛出默认错误', async () => {
-      // 模拟一个没有 error 的结果
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
-      const originalRunInSandbox = runInSandbox;
       vi.spyOn(
         await import('../../../src/Utils/proxySandbox/ProxySandbox'),
         'runInSandbox',
@@ -237,10 +232,6 @@ describe('proxySandbox/index.ts', () => {
     });
 
     it('应该在结果不是有效数字时抛出错误', async () => {
-      // 模拟返回非数字结果
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
       vi.spyOn(
         await import('../../../src/Utils/proxySandbox/ProxySandbox'),
         'runInSandbox',
@@ -333,7 +324,7 @@ describe('proxySandbox/index.ts', () => {
         expect(Array.isArray(result.recommendations)).toBe(true);
       });
 
-      it('当 Proxy 不可用时应报告 issue 与 recommendation（覆盖 243,244）', () => {
+      it('当 Proxy 不可用时应报告 issue 与 recommendation', () => {
         const origProxy = (global as any).Proxy;
         try {
           (global as any).Proxy = undefined;
@@ -350,15 +341,13 @@ describe('proxySandbox/index.ts', () => {
         }
       });
 
-      it('当 performance 不可用时应报告 issue 与 recommendation（覆盖 249,250）', () => {
+      it('当 performance 不可用时应报告 issue 与 recommendation', () => {
         const origPerf = (global as any).performance;
         try {
           (global as any).performance = undefined;
           const checker = SandboxHealthChecker.getInstance();
           const result = checker.checkEnvironmentSupport();
-          expect(result.issues).toContain(
-            'Performance API is not available',
-          );
+          expect(result.issues).toContain('Performance API is not available');
           expect(result.recommendations).toContain(
             'Performance monitoring will be disabled',
           );
@@ -409,10 +398,9 @@ describe('proxySandbox/index.ts', () => {
         expect(Array.isArray(result.errors)).toBe(true);
       });
 
-      it('全局隔离与超时走 catch 时正确设置 results（覆盖 283,284,292,300）', async () => {
-        const ProxySandboxModule = await import(
-          '../../../src/Utils/proxySandbox/ProxySandbox'
-        );
+      it('全局隔离与超时走 catch 时正确设置 results', async () => {
+        const ProxySandboxModule =
+          await import('../../../src/Utils/proxySandbox/ProxySandbox');
         let callCount = 0;
         vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
           (code: string, opts?: any) => {
@@ -444,9 +432,8 @@ describe('proxySandbox/index.ts', () => {
       });
 
       it('全局隔离 try 成功时 results.globalIsolation 为 false', async () => {
-        const ProxySandboxModule = await import(
-          '../../../src/Utils/proxySandbox/ProxySandbox'
-        );
+        const ProxySandboxModule =
+          await import('../../../src/Utils/proxySandbox/ProxySandbox');
         vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
           (code: string) => {
             if (code.includes('return 1 + 1'))
@@ -473,9 +460,8 @@ describe('proxySandbox/index.ts', () => {
       });
 
       it('全局隔离 catch 时 results.globalIsolation 为 true', async () => {
-        const ProxySandboxModule = await import(
-          '../../../src/Utils/proxySandbox/ProxySandbox'
-        );
+        const ProxySandboxModule =
+          await import('../../../src/Utils/proxySandbox/ProxySandbox');
         vi.spyOn(ProxySandboxModule, 'runInSandbox').mockImplementation(
           (code: string) => {
             if (code.includes('return 1 + 1'))

@@ -202,8 +202,8 @@ describe('SendButton', () => {
     });
   });
 
-  describe('键盘与样式（覆盖 274,275,276,277）', () => {
-    it('按 Enter 或空格应触发 onClick（覆盖 274,275）', () => {
+  describe('键盘与样式', () => {
+    it('按 Enter 或空格应触发 onClick', () => {
       const onClick = vi.fn();
       const { container } = render(
         <SendButton isSendable={true} typing={false} onClick={onClick} />,
@@ -219,7 +219,7 @@ describe('SendButton', () => {
     });
 
 
-    it('应应用 style 和 className（覆盖 276,277）', () => {
+    it('应应用 style 和 className', () => {
       const { container } = render(
         <SendButton
           isSendable={true}

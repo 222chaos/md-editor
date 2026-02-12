@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { withCardPlugin } from '../withCardPlugin';
 
 describe('withCardPlugin', () => {
-  it('insert_text 父节点为 card-before 时阻止输入（覆盖 74）', () => {
+  it('insert_text 父节点为 card-before 时阻止输入', () => {
     const editor = withCardPlugin(createEditor());
     editor.children = [
       {
@@ -26,7 +26,7 @@ describe('withCardPlugin', () => {
     expect((textAfter as any).text).toBe((textBefore as any).text);
   });
 
-  it('insert_text 父节点为 card-after 且 grandParent 非 card 时 return true（覆盖 111）', () => {
+  it('insert_text 父节点为 card-after 且 grandParent 非 card 时 return true', () => {
     const editor = withCardPlugin(createEditor());
     // card-after 作为根子节点，其 grandParent 为根，非 card
     editor.children = [{ type: 'card-after', children: [{ text: '' }] }];
@@ -41,7 +41,7 @@ describe('withCardPlugin', () => {
     expect(textAfter).toBe(textBefore);
   });
 
-  it('insert_node 父节点为 card-after 且 grandParent 为 card 时插入到卡片后（覆盖 138）', () => {
+  it('insert_node 父节点为 card-after 且 grandParent 为 card 时插入到卡片后', () => {
     const editor = withCardPlugin(createEditor());
     editor.children = [
       {
@@ -67,7 +67,7 @@ describe('withCardPlugin', () => {
     insertNodesSpy.mockRestore();
   });
 
-  it('insert_node 父节点为 card-after 且 grandParent 非 card 时插入到 parent path（覆盖 141）', () => {
+  it('insert_node 父节点为 card-after 且 grandParent 非 card 时插入到 parent path', () => {
     const editor = withCardPlugin(createEditor());
     editor.children = [{ type: 'card-after', children: [] }];
     const insertNodesSpy = vi.spyOn(Transforms, 'insertNodes');
@@ -84,7 +84,7 @@ describe('withCardPlugin', () => {
     insertNodesSpy.mockRestore();
   });
 
-  it('insertFragment 在非 card 区域时应调用原始 insertFragment（覆盖 296）', () => {
+  it('insertFragment 在非 card 区域时应调用原始 insertFragment', () => {
     const base = createEditor();
     const origInsertFragment = vi.fn();
     base.insertFragment = origInsertFragment;

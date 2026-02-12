@@ -9,7 +9,7 @@ describe('ActionItemBox 组件', () => {
     vi.clearAllMocks();
   });
 
-  it('在 ConfigProvider 下正确渲染并应用 prefixCls / useStyle / wrapSSR（覆盖 24-26, 32）', () => {
+  it('在 ConfigProvider 下正确渲染并应用 prefixCls / useStyle / wrapSSR', () => {
     const onClick = vi.fn();
 
     render(
@@ -23,7 +23,7 @@ describe('ActionItemBox 组件', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('挂载时调用 onInit 一次（覆盖 28-29）', () => {
+  it('挂载时调用 onInit 一次', () => {
     const onInit = vi.fn();
     const onClick = vi.fn();
 

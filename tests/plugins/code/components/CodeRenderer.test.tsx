@@ -599,7 +599,7 @@ describe('CodeRenderer Component', () => {
       expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
     });
 
-    it('当 disableHtmlPreview 从 false 变为 true 时强制切回 code 模式（行 191）', () => {
+    it('当 disableHtmlPreview 从 false 变为 true 时强制切回 code 模式', () => {
       mockEditorStore.editorProps.codeProps.disableHtmlPreview = false;
       const props = {
         ...defaultProps,
@@ -616,7 +616,7 @@ describe('CodeRenderer Component', () => {
     });
   });
 
-  describe('5 秒未闭合超时（行 172-173）', () => {
+  describe('5 秒未闭合超时', () => {
     it('未闭合代码块 5 秒后应调用 update 将 finished 设为 true', async () => {
       vi.useFakeTimers();
       const props = {
@@ -639,7 +639,7 @@ describe('CodeRenderer Component', () => {
     });
   });
 
-  describe('配置型 HTML Skeleton（行 205）', () => {
+  describe('配置型 HTML Skeleton', () => {
     it('未完成且内容较长的配置型 HTML 应显示 Skeleton', () => {
       const props = {
         ...defaultProps,
@@ -658,7 +658,7 @@ describe('CodeRenderer Component', () => {
     });
   });
 
-  describe('ThinkBlock 分支（行 217）', () => {
+  describe('ThinkBlock 分支', () => {
     it('只读且 language 为 think 时应渲染 ThinkBlock', () => {
       mockEditorStore.readonly = true;
       const props = {
@@ -676,7 +676,7 @@ describe('CodeRenderer Component', () => {
     });
   });
 
-  describe('hideToolBar（行 246）', () => {
+  describe('hideToolBar', () => {
     it('当 hideToolBar 为 true 时不渲染 CodeToolbar', () => {
       mockEditorStore.editorProps.codeProps.hideToolBar = true;
       const props = {

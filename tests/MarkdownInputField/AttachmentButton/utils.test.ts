@@ -106,26 +106,26 @@ describe('AttachmentButton Utils', () => {
   });
 
   describe('getDeviceBrand', () => {
-    it('navigator 未定义且未传 ua 时返回 false（覆盖 216）', () => {
+    it('navigator 未定义且未传 ua 时返回 false', () => {
       const origNavigator = global.navigator;
       vi.stubGlobal('navigator', undefined);
       expect(getDeviceBrand()).toBe(false);
       vi.stubGlobal('navigator', origNavigator);
     });
 
-    it('传入 ua 匹配 UA_MATCH_LIST 时返回品牌名（覆盖 227）', () => {
+    it('传入 ua 匹配 UA_MATCH_LIST 时返回品牌名', () => {
       expect(getDeviceBrand('Mozilla/5.0 iPhone')).toBe('iphone');
       expect(getDeviceBrand('Mozilla/5.0 (Linux; vivo V1981A')).toBe('vivo');
       expect(getDeviceBrand('Mozilla/5.0 OPPO PBCM00')).toBe('oppo');
     });
 
-    it('ua 匹配 Build 正则时返回 Build 中品牌（覆盖 235）', () => {
+    it('ua 匹配 Build 正则时返回 Build 中品牌', () => {
       expect(getDeviceBrand('Mozilla/5.0; SomeBrand Build/123')).toBe(
         'SomeBrand',
       );
     });
 
-    it('无匹配时返回 false（覆盖 300）', () => {
+    it('无匹配时返回 false', () => {
       expect(getDeviceBrand('Mozilla/5.0 UnknownDevice/1.0')).toBe(false);
     });
   });
@@ -167,12 +167,12 @@ describe('AttachmentButton Utils', () => {
       vi.stubGlobal('window', origWindow);
     });
 
-    it('navigator 未定义时返回 false（覆盖 332）', () => {
+    it('navigator 未定义时返回 false', () => {
       vi.stubGlobal('navigator', undefined);
       expect(isMobileDevice()).toBe(false);
     });
 
-    it('ua 匹配移动端正则时返回 true（覆盖 333,337）', () => {
+    it('ua 匹配移动端正则时返回 true', () => {
       vi.stubGlobal('navigator', {
         userAgent: 'Mozilla/5.0 Android',
         maxTouchPoints: 0,
@@ -181,7 +181,7 @@ describe('AttachmentButton Utils', () => {
       expect(isMobileDevice()).toBe(true);
     });
 
-    it('触摸屏且小屏时返回 true（覆盖 336,337）', () => {
+    it('触摸屏且小屏时返回 true', () => {
       vi.stubGlobal('navigator', {
         userAgent: 'Mozilla/5.0 Windows NT 10.0',
         maxTouchPoints: 1,

@@ -301,7 +301,7 @@ describe('toolsConfig', () => {
   });
 
   describe('isCodeNode 函数', () => {
-    it('应该返回 false 当编辑器为空时（覆盖 toolsConfig 30）', () => {
+    it('应该返回 false 当编辑器为空时', () => {
       const result = isCodeNode(null);
       expect(result).toBe(false);
     });
@@ -446,7 +446,7 @@ describe('toolsConfig', () => {
       expect(screen.getByTestId('has-isActive')).toHaveTextContent('true');
     });
 
-    it('align-left onClick 在非代码块时调用 setAlignment（覆盖 70,71）', async () => {
+    it('align-left onClick 在非代码块时调用 setAlignment', async () => {
       const { Editor } = await import('slate');
       const EditorUtils = (await import(
         '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
@@ -479,7 +479,7 @@ describe('toolsConfig', () => {
       );
     });
 
-    it('align-left isActive 调用 isAlignmentActive（覆盖 71）', async () => {
+    it('align-left isActive 调用 isAlignmentActive', async () => {
       const EditorUtils = (await import(
         '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
       )) as any;
@@ -505,7 +505,7 @@ describe('toolsConfig', () => {
       );
     });
 
-    it('align-center onClick 与 isActive 被调用（覆盖 83,84）', async () => {
+    it('align-center onClick 与 isActive 被调用', async () => {
       const EditorUtils = (await import(
         '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
       )) as any;
@@ -544,7 +544,7 @@ describe('toolsConfig', () => {
       );
     });
 
-    it('align-right onClick 与 isActive 被调用（覆盖 96,97）', async () => {
+    it('align-right onClick 与 isActive 被调用', async () => {
       const EditorUtils = (await import(
         '../../../../../../src/MarkdownEditor/editor/utils/editorUtils'
       )) as any;

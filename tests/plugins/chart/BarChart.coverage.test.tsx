@@ -518,6 +518,20 @@ describe('BarChart 额外用例', () => {
       });
     });
 
+    it('borderRadius 垂直柱仅负值时返回下圆角', () => {
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: -2 }];
+      render(<BarChart data={data} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const borderRadius = lastData?.datasets?.[0]?.borderRadius;
+      const result = borderRadius({ raw: -2, chart: null, datasetIndex: 0, dataIndex: 0 } as any);
+      expect(result).toMatchObject({
+        bottomLeft: 6,
+        bottomRight: 6,
+        topLeft: 0,
+        topRight: 0,
+      });
+    });
+
     it('borderRadius 水平柱正值为右侧圆角、负值为左侧圆角', () => {
       const data = [
         { category: 'A', type: 't1', x: 'X1', y: 5 },
@@ -566,5 +580,253 @@ describe('BarChart 额外用例', () => {
         topRight: 6,
       });
     });
+
+    it('borderColor 水平柱 indexAxis y 时按 parsed.x 取正负色', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 10 },
+        { category: 'A', type: 't1', x: 'X2', y: -5 },
+      ];
+      render(<BarChart data={data} indexAxis="y" />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const borderColor = lastData?.datasets?.[0]?.borderColor;
+      const pos = borderColor({ parsed: { x: 10 } } as any);
+      const neg = borderColor({ parsed: { x: -5 } } as any);
+      expect(pos).toBeDefined();
+      expect(neg).toBeDefined();
+    });
+
+    it('borderColor 正负图且传入 color 数组时使用 resolvedProvidedColors', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 10 },
+        { category: 'A', type: 't1', x: 'X2', y: -5 },
+      ];
+      render(<BarChart data={data} color={['#111', '#222']} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const borderColor = lastData?.datasets?.[0]?.borderColor;
+      expect(borderColor({ parsed: { y: 10 } } as any)).toBeDefined();
+      expect(borderColor({ parsed: { y: -5 } } as any)).toBeDefined();
+    });
+
+    it('backgroundColor 有 chartArea 但 scale 缺失或无 getPixelForValue 时返回纯色', () => {
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 10 }];
+      render(<BarChart data={data} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const noScale = {
+        chartArea: { left: 0, right: 100, top: 0, bottom: 50 },
+        scales: {},
+        ctx: {},
+      };
+      expect(backgroundColor({ chart: noScale, parsed: { y: 10 } } as any)).toBeDefined();
+      const scaleNoMethod = {
+        chartArea: { left: 0, right: 100, top: 0, bottom: 50 },
+        scales: { x: {}, y: {} },
+        ctx: {},
+      };
+      expect(backgroundColor({ chart: scaleNoMethod, parsed: { y: 10 } } as any)).toBeDefined();
+    });
+
+    it('backgroundColor 水平柱 indexAxis y 非零值走渐变且正负图用自定义 color', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 10 },
+        { category: 'A', type: 't1', x: 'X2', y: -5 },
+      ];
+      render(<BarChart data={data} indexAxis="y" color={['#a', '#b']} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const gradient = { addColorStop: vi.fn() };
+      const mockChart = {
+        chartArea: {},
+        ctx: { createLinearGradient: () => gradient },
+        scales: {
+          x: { getPixelForValue: (v: number) => v },
+          y: { getPixelForValue: (v: number) => v },
+        },
+      };
+      const r1 = backgroundColor({ chart: mockChart as any, parsed: { x: 10 } } as any);
+      const r2 = backgroundColor({ chart: mockChart as any, parsed: { x: -5 } } as any);
+      expect(r1).toBe(gradient);
+      expect(r2).toBe(gradient);
+    });
+
+    it('backgroundColor 水平柱 getPixelForValue 返回非有限数时返回 endAlpha 纯色', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 1 },
+        { category: 'A', type: 't1', x: 'X2', y: -1 },
+      ];
+      render(<BarChart data={data} indexAxis="y" />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const mockChart = {
+        chartArea: {},
+        ctx: {},
+        scales: {
+          x: { getPixelForValue: () => Number.NaN },
+          y: { getPixelForValue: () => 0 },
+        },
+      };
+      const result = backgroundColor({ chart: mockChart as any, parsed: { x: 1 } } as any);
+      expect(result).toBeDefined();
+    });
+
+    it('backgroundColor 垂直柱 value 为 0 时返回固定透明度', () => {
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 0 }];
+      render(<BarChart data={data} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const mockChart = {
+        chartArea: {},
+        ctx: { createLinearGradient: () => ({ addColorStop: vi.fn() }) },
+        scales: {
+          x: { getPixelForValue: () => 0 },
+          y: { getPixelForValue: () => 0 },
+        },
+      };
+      const result = backgroundColor({ chart: mockChart as any, parsed: { y: 0 } } as any);
+      expect(result).toBeDefined();
+    });
+
+    it('backgroundColor 垂直柱正负图走渐变且 y 非有限时返回 endAlpha', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 10 },
+        { category: 'A', type: 't1', x: 'X2', y: -5 },
+      ];
+      render(<BarChart data={data} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const mockChart = {
+        chartArea: {},
+        ctx: {},
+        scales: {
+          x: { getPixelForValue: () => 0 },
+          y: { getPixelForValue: () => Number.NaN },
+        },
+      };
+      const result = backgroundColor({ chart: mockChart as any, parsed: { y: 10 } } as any);
+      expect(result).toBeDefined();
+    });
+
+    it('backgroundColor 垂直柱正负图走渐变路径', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'X1', y: 10 },
+        { category: 'A', type: 't1', x: 'X2', y: -5 },
+      ];
+      render(<BarChart data={data} />);
+      const lastData = (globalThis as any).__barChartLastData as any;
+      const backgroundColor = lastData?.datasets?.[0]?.backgroundColor;
+      const gradient = { addColorStop: vi.fn() };
+      const mockChart = {
+        chartArea: {},
+        ctx: { createLinearGradient: () => gradient },
+        scales: {
+          x: { getPixelForValue: () => 0 },
+          y: { getPixelForValue: (v: number) => v },
+        },
+      };
+      const r1 = backgroundColor({ chart: mockChart as any, parsed: { y: 10 } } as any);
+      const r2 = backgroundColor({ chart: mockChart as any, parsed: { y: -5 } } as any);
+      expect(r1).toBe(gradient);
+      expect(r2).toBe(gradient);
+    });
   });
+
+  describe('空数据与初始状态', () => {
+    it('空数据时 selectedFilter 初始为空字符串', () => {
+      render(<BarChart data={[]} />);
+      const chart = screen.getByTestId('bar-chart');
+      expect(chart).toBeInTheDocument();
+    });
+
+    it('数据项无 category 时 categories 为空、selectedFilter 为空字符串', () => {
+      const data = [{ x: 'X1', y: 10, type: 't1' }];
+      render(<BarChart data={data} />);
+      const chart = screen.getByTestId('bar-chart');
+      const labels = JSON.parse(chart.getAttribute('data-labels') || '[]');
+      expect(labels).toEqual(['X1']);
+    });
+
+    it('无 chartOptions 时使用 defaultOptions', () => {
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 10 }];
+      render(<BarChart data={data} />);
+      const options = (globalThis as any).__barChartLastOptions as any;
+      expect(options?.indexAxis).toBe('x');
+      expect(options?.responsive).toBe(true);
+    });
+  });
+
+  describe('calculateLabelWidth 分支', () => {
+    it('getContext 返回 null 时使用备用估算', () => {
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as any;
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 10 }];
+      const { container } = render(<BarChart data={data} showDataLabels />);
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+    });
+
+    it('measureText 不可用时走 catch 使用备用估算', () => {
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = vi.fn(function (this: HTMLCanvasElement) {
+        return {
+          measureText: vi.fn(() => {
+            throw new Error('measureText failed');
+          }),
+          fillText: vi.fn(),
+          font: '',
+          canvas: this,
+        };
+      }) as any;
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 10 }];
+      const { container } = render(<BarChart data={data} showDataLabels />);
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+    });
+  });
+
+  describe('deepMerge layout.padding', () => {
+    it('合并 chartOptions 时保留 defaultOptions 的 layout.padding 并合并 source.padding', () => {
+      const data = [{ category: 'A', type: 't1', x: 'X1', y: 10 }];
+      render(
+        <BarChart
+          data={data}
+          showDataLabels
+          chartOptions={{
+            layout: { padding: { top: 20, left: 30 } },
+          }}
+        />,
+      );
+      const options = JSON.parse(
+        screen.getByTestId('bar-chart').getAttribute('data-options') || '{}',
+      );
+      expect(options.layout?.padding?.top).toBe(20);
+      expect(options.layout?.padding?.left).toBe(30);
+    });
+  });
+
+  describe('indexAxis y 时 xValues 保持顺序并过滤空 x', () => {
+    it('水平柱状图过滤掉空 x 后保持顺序', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'B', y: 5 },
+        { category: 'A', type: 't1', x: '', y: 3 },
+        { category: 'A', type: 't1', x: 'A', y: 1 },
+      ];
+      render(<BarChart data={data} indexAxis="y" />);
+      const chart = screen.getByTestId('bar-chart');
+      const labels = JSON.parse(chart.getAttribute('data-labels') || '[]');
+      expect(labels).toEqual(['B', 'A']);
+    });
+
+    it('水平柱状图过滤 null/undefined x 后得到唯一 x 列表', () => {
+      const data = [
+        { category: 'A', type: 't1', x: 'M', y: 1 },
+        { category: 'A', type: 't1', x: null, y: 2 } as any,
+        { category: 'A', type: 't1', x: 'N', y: 3 },
+      ];
+      render(<BarChart data={data} indexAxis="y" />);
+      const chart = screen.getByTestId('bar-chart');
+      const labels = JSON.parse(chart.getAttribute('data-labels') || '[]');
+      expect(labels).toEqual(['M', 'N']);
+    });
+  });
+
 });

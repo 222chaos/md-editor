@@ -228,7 +228,7 @@ describe('SchemaEditorBridgeManager', () => {
       expect(createSchemaElementEditorBridge).not.toHaveBeenCalled();
     });
 
-    it('先注册再 setEnabled(true) 时应启动 bridge（覆盖 setEnabled 内 startBridge 分支）', async () => {
+    it('先注册再 setEnabled(true) 时应启动 bridge', async () => {
       const { createSchemaElementEditorBridge } = await import(
         '@schema-element-editor/host-sdk/core'
       );

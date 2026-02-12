@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { useStyle } from '../../../../src/Plugins/chart/ChartStatistic/style';
 
 describe('ChartStatistic style', () => {
-  describe('useStyle hook（覆盖 9、153、154、159 行）', () => {
+  describe('useStyle hook', () => {
     it('应返回 wrapSSR 与 hashId', () => {
       const { result } = renderHook(() => useStyle('chart-statistic'));
 

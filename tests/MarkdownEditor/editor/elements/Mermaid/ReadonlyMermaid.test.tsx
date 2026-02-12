@@ -22,7 +22,7 @@ describe('ReadonlyMermaid', () => {
       </ConfigProvider>,
     );
 
-  it('应渲染 pre/code 并应用 baseCls（覆盖 37,38,39,41）', () => {
+  it('应渲染 pre/code 并应用 baseCls', () => {
     renderWithConfig();
     const pre = document.querySelector('pre');
     expect(pre).toBeInTheDocument();

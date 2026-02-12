@@ -383,8 +383,8 @@ describe('SchemaEditor', () => {
     });
   });
 
-  describe('Schema 校验错误展示（覆盖 168, 170）', () => {
-    it('校验失败且存在 errors 时展示错误信息拼接（覆盖 168）', async () => {
+  describe('Schema 校验错误展示', () => {
+    it('校验失败且存在 errors 时展示错误信息拼接', async () => {
       vi.mocked(mdDataSchemaValidator.validate).mockReturnValueOnce({
         valid: false,
         errors: [
@@ -412,7 +412,7 @@ describe('SchemaEditor', () => {
       });
     });
 
-    it('校验失败且无 errors 时展示 validationFailed 文案（覆盖 170）', async () => {
+    it('校验失败且无 errors 时展示 validationFailed 文案', async () => {
       vi.mocked(mdDataSchemaValidator.validate).mockReturnValueOnce({
         valid: false,
         errors: [],
@@ -649,7 +649,7 @@ describe('SchemaEditor', () => {
       expect(message.success).toHaveBeenCalled();
     });
 
-    it('复制 HTML 失败时显示 message.error（覆盖 231）', async () => {
+    it('复制 HTML 失败时显示 message.error', async () => {
       const copyModule = await import('copy-to-clipboard');
       const copyFn = copyModule.default as ReturnType<typeof vi.fn>;
       vi.mocked(copyFn).mockReturnValueOnce(false);
@@ -673,7 +673,7 @@ describe('SchemaEditor', () => {
       });
     });
 
-    it('复制抛出异常时显示 message.error（覆盖 241）', async () => {
+    it('复制抛出异常时显示 message.error', async () => {
       const copyModule = await import('copy-to-clipboard');
       const copyFn = copyModule.default as ReturnType<typeof vi.fn>;
       vi.mocked(copyFn).mockImplementationOnce(() => {

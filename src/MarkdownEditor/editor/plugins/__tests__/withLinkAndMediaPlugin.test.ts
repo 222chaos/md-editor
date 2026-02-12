@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { withLinkAndMediaPlugin } from '../withLinkAndMediaPlugin';
 
 describe('withLinkAndMediaPlugin', () => {
-  it('应在 split_node 且节点为 link-card 时插入新段落并返回 true（覆盖 24,25,26,40）', () => {
+  it('应在 split_node 且节点为 link-card 时插入新段落并返回 true', () => {
     const editor = withLinkAndMediaPlugin(createEditor());
     editor.children = [
       {

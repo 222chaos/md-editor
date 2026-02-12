@@ -101,7 +101,7 @@ describe('TagPopup 组件测试', () => {
       expect(screen.getByTestId('child-content')).toBeInTheDocument();
     });
 
-    it('getNodePath 在 toSlateNode 抛错时返回 null 且不导致组件崩溃（行 168）', () => {
+    it('getNodePath 在 toSlateNode 抛错时返回 null 且不导致组件崩溃', () => {
       vi.mocked(ReactEditor.toSlateNode).mockImplementationOnce(() => {
         throw new Error('Cannot resolve Slate node');
       });
@@ -606,7 +606,7 @@ describe('TagPopup 组件测试', () => {
       expect(screen.getByTestId('custom-render')).toBeInTheDocument();
     });
 
-    it('tagRender 内调用 onSelect 时应传入 trim 后的 value 与 path（行 303）', async () => {
+    it('tagRender 内调用 onSelect 时应传入 trim 后的 value 与 path', async () => {
       const onSelect = vi.fn();
       const tagNode = { key: 'tag1' };
       const tagRender = vi.fn((props: any, defaultDom: React.ReactNode) => (
@@ -723,7 +723,7 @@ describe('TagPopup 组件测试', () => {
       ).toBeInTheDocument();
     });
 
-    it('dropdown 类型点击菜单项应调用 onSelect 并 setOpen(false)（行 467-468）', async () => {
+    it('dropdown 类型点击菜单项应调用 onSelect 并 setOpen(false)', async () => {
       const onSelect = vi.fn();
       const items = [
         { label: '选项A', key: 'key-a' },

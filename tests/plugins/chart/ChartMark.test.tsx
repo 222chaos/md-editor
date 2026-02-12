@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock chart env（覆盖 Area/Bar/Column/Line/Pie 的 SSR 分支）
+// Mock chart env
 vi.mock('../../../src/Plugins/chart/env', () => ({
   isWindowDefined: vi.fn(() => true),
 }));
@@ -423,7 +423,7 @@ describe('ChartMark Components', () => {
       expect(screen.getByText('Index 5 Content')).toBeInTheDocument();
     });
 
-    it('inView 为 true 且尺寸变化超过阈值时应调用 chart.resize（行 22, 25-26, 29-32, 38, 42-44, 59）', () => {
+    it('inView 为 true 且尺寸变化超过阈值时应调用 chart.resize', () => {
       vi.useFakeTimers();
       const resizeFn = vi.fn();
       mockChartRef.current = { resize: resizeFn };
@@ -443,7 +443,7 @@ describe('ChartMark Components', () => {
       vi.useRealTimers();
     });
 
-    it('点击容器应触发 onSize（覆盖 ResizeObserver/onClick 路径）', () => {
+    it('点击容器应触发 onSize', () => {
       vi.useFakeTimers();
       const resizeFn = vi.fn();
       mockChartRef.current = { resize: resizeFn };

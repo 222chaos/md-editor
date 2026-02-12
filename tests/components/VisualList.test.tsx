@@ -260,7 +260,7 @@ describe('VisualList 组件', () => {
     });
   });
 
-  it('图片 onError 时应显示默认图标（覆盖 166、167 行）', async () => {
+  it('图片 onError 时应显示默认图标', async () => {
     const dataWithOneImg = [{ id: '1', src: '/valid.jpg', alt: '图' }];
     const { container } = render(
       <VisualListWithErrorHandling data={dataWithOneImg} />,

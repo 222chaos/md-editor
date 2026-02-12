@@ -10,7 +10,7 @@ describe('ReadonlyCode', () => {
     ref: null,
   };
 
-  it('应渲染只读代码块并触发 debugInfo（覆盖 38）', () => {
+  it('应渲染只读代码块并触发 debugInfo', () => {
     const element = {
       type: 'code',
       language: 'javascript',
@@ -26,7 +26,7 @@ describe('ReadonlyCode', () => {
     expect(container.textContent).toContain('const x = 1;');
   });
 
-  it('language 为 html 且 isConfig 时应隐藏并显示空内容（覆盖 46,47,50）', () => {
+  it('language 为 html 且 isConfig 时应隐藏并显示空内容', () => {
     const element = {
       type: 'code',
       language: 'html',
@@ -62,7 +62,7 @@ describe('ReadonlyCode', () => {
     expect(div.textContent).toContain('Safe');
   });
 
-  it('finished 为 false 时应设置 data-is-unclosed（覆盖 65,67）', () => {
+  it('finished 为 false 时应设置 data-is-unclosed', () => {
     const element = {
       type: 'code',
       language: 'javascript',

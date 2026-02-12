@@ -39,7 +39,7 @@ describe('CaseReply 组件', () => {
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('应该在使用 buttonText 时点击按钮触发 onButtonClick（覆盖 172、173 行）', () => {
+  it('应该在使用 buttonText 时点击按钮触发 onButtonClick', () => {
     const onButtonClick = vi.fn();
     render(
       <CaseReply

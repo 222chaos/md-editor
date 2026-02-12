@@ -131,7 +131,7 @@ describe('useSpeechSynthesis Hook', () => {
     expect(result.current.rate).toBe(1.5);
   });
 
-  it('应在播放中改变倍速时重启播报（覆盖 83）', () => {
+  it('应在播放中改变倍速时重启播报', () => {
     const { result } = renderHook(() =>
       useSpeechSynthesis({ text: 'Hello', defaultRate: 1 }),
     );
@@ -182,7 +182,7 @@ describe('useSpeechSynthesis Hook', () => {
     expect(result.current.isPlaying).toBe(false);
   });
 
-  it('第二次 start 时应清除上一次 utterance 的 onend/onerror（覆盖 40,41）', () => {
+  it('第二次 start 时应清除上一次 utterance 的 onend/onerror', () => {
     const { result } = renderHook(() =>
       useSpeechSynthesis({ text: 'Hello', defaultRate: 1 }),
     );
@@ -242,7 +242,7 @@ describe('useSpeechSynthesis Hook', () => {
     expect(mockCancel.mock.calls.length).toBeGreaterThan(callCountBeforeUnmount);
   });
 
-  it('start 时 speak 抛错应进入 catch 并设置 isPlaying 为 false（覆盖 61）', () => {
+  it('start 时 speak 抛错应进入 catch 并设置 isPlaying 为 false', () => {
     mockSpeak.mockImplementationOnce(() => {
       throw new Error('speak failed');
     });

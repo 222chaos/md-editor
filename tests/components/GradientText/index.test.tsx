@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { GradientText } from '../../../src/Components/GradientText';
 
 describe('GradientText', () => {
-  it('应正确渲染并应用 prefixCls、gradientStyle、wrapSSR（覆盖 21,22,23,25,30）', () => {
+  it('应正确渲染并应用 prefixCls、gradientStyle、wrapSSR', () => {
     render(
       <ConfigProvider>
         <GradientText>Hello Gradient</GradientText>

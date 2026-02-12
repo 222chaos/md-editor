@@ -150,7 +150,7 @@ describe('MatchKey', () => {
       expect((elements as any).TextMatchNodes[0].checkAllow).toHaveBeenCalled();
     });
 
-    it('应在 checkAllow 返回 true 且正则匹配时调用第一个节点的 run（覆盖 mock 15,16）', () => {
+    it('应在 checkAllow 返回 true 且正则匹配时调用第一个节点的 run', () => {
       const nodes = (elements as any).TextMatchNodes;
       vi.mocked(nodes[0].checkAllow).mockReturnValueOnce(true);
       Transforms.insertText(editor, '**a**');
@@ -162,7 +162,7 @@ describe('MatchKey', () => {
       expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 
-    it('应在 key 为 * 时调用第二个节点的 checkAllow 与 run（覆盖 mock 21,22）', () => {
+    it('应在 key 为 * 时调用第二个节点的 checkAllow 与 run', () => {
       const nodes = (elements as any).TextMatchNodes;
       vi.mocked(nodes[1].checkAllow).mockReturnValueOnce(true);
       Transforms.insertText(editor, '*a*');
@@ -173,7 +173,7 @@ describe('MatchKey', () => {
       expect(nodes[1].run).toHaveBeenCalled();
     });
 
-    it('应在 key 为 ` 且正则匹配时调用第三个节点的 checkAllow 与 run（覆盖 mock 27,28）', () => {
+    it('应在 key 为 ` 且正则匹配时调用第三个节点的 checkAllow 与 run', () => {
       const nodes = (elements as any).TextMatchNodes;
       Transforms.insertText(editor, '`x`');
       Transforms.select(editor, { path: [0, 0], offset: 3 });

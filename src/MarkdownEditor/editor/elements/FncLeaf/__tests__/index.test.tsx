@@ -24,7 +24,7 @@ describe('FncLeaf', () => {
     vi.mocked(isMobileDevice).mockReturnValue(false);
   });
 
-  it('移动端且 hasFnc 时点击应 preventDefault 并 return（覆盖 82,83）', () => {
+  it('移动端且 hasFnc 时点击应 preventDefault 并 return', () => {
     vi.mocked(isMobileDevice).mockReturnValue(true);
     const { container } = render(
       <ConfigProvider>
@@ -37,7 +37,7 @@ describe('FncLeaf', () => {
     expect(span).toBeInTheDocument();
   });
 
-  it('linkConfig.onClick 返回 false 时应 return false（覆盖 94,95,102）', () => {
+  it('linkConfig.onClick 返回 false 时应 return false', () => {
     const onClick = vi.fn(() => false);
     const { container } = render(
       <ConfigProvider>
@@ -53,7 +53,7 @@ describe('FncLeaf', () => {
     expect(onClick).toHaveBeenCalledWith('https://example.com');
   });
 
-  it('openInNewTab 为 false 时应走 else 分支不调用 window.open（覆盖 96,102）', () => {
+  it('openInNewTab 为 false 时应走 else 分支不调用 window.open', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     const { container } = render(
       <ConfigProvider>

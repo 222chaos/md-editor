@@ -272,7 +272,7 @@ describe('ThinkBlock', () => {
     });
   });
 
-  describe('ThinkBlockProvider（行 58）', () => {
+  describe('ThinkBlockProvider', () => {
     it('应渲染子节点', () => {
       render(
         <ThinkBlockProvider expanded={false} onExpandedChange={() => {}}>
@@ -284,7 +284,7 @@ describe('ThinkBlock', () => {
     });
   });
 
-  describe('restoreCodeBlocks（行 81）', () => {
+  describe('restoreCodeBlocks', () => {
     it('应将【CODE_BLOCK:lang】格式恢复为 ```lang 代码块', () => {
       const marker = '\u200B';
       const value = `${marker}【CODE_BLOCK:js】\nconst x = 1\n【/CODE_BLOCK】${marker}`;
@@ -302,7 +302,7 @@ describe('ThinkBlock', () => {
   });
 
   describe('elementPath 与 isLastNode 分支', () => {
-    it('markdownEditorRef.current 为 null 时 elementPath 为 null（行 102-103）', () => {
+    it('markdownEditorRef.current 为 null 时 elementPath 为 null', () => {
       mockUseEditorStore.mockReturnValueOnce({
         markdownEditorRef: { current: null },
       });
@@ -310,7 +310,7 @@ describe('ThinkBlock', () => {
       expect(screen.getByTestId('think-block')).toBeInTheDocument();
     });
 
-    it('findPath 抛错时捕获并返回 null（行 105-106）', () => {
+    it('findPath 抛错时捕获并返回 null', () => {
       mockFindPath.mockImplementationOnce(() => {
         throw new Error('findPath error');
       });
@@ -320,7 +320,7 @@ describe('ThinkBlock', () => {
       consoleSpy.mockRestore();
     });
 
-    it('无 elementPath 时 isLastNode 为 false（行 115-116）', () => {
+    it('无 elementPath 时 isLastNode 为 false', () => {
       mockUseEditorStore.mockReturnValueOnce({
         markdownEditorRef: { current: null },
       });
@@ -328,7 +328,7 @@ describe('ThinkBlock', () => {
       expect(screen.getByTestId('think-block')).toBeInTheDocument();
     });
 
-    it('checkSelEnd 抛错时捕获并返回 false（行 118-119）', () => {
+    it('checkSelEnd 抛错时捕获并返回 false', () => {
       mockCheckSelEnd.mockImplementationOnce(() => {
         throw new Error('checkSelEnd error');
       });
@@ -339,7 +339,7 @@ describe('ThinkBlock', () => {
     });
   });
 
-  describe('非最后一个节点时自动收起（行 141）', () => {
+  describe('非最后一个节点时自动收起', () => {
     it('isLastNode 为 false 时应调用 setExpanded(false)', () => {
       mockCheckSelEnd.mockReturnValueOnce(false);
       render(<ThinkBlock {...mockProps} />);
@@ -356,7 +356,7 @@ describe('ThinkBlock', () => {
     });
   });
 
-  describe('context expanded 从有值变为 undefined 时收起（行 164）', () => {
+  describe('context expanded 从有值变为 undefined 时收起', () => {
     it('ThinkBlockProvider expanded 从 true 变为 undefined 时应收起', () => {
       const { rerender } = render(
         <ThinkBlockProvider expanded onExpandedChange={() => {}}>

@@ -159,7 +159,7 @@ describe('AreaChart 额外覆盖用例', () => {
     expect(labels).toEqual(['2024-01', '2024-02']);
   });
 
-  it('应执行 backgroundColor 渐变与 tooltip label 回调（行 322-333, 378-380）', () => {
+  it('应执行 backgroundColor 渐变与 tooltip label 回调', () => {
     render(<AreaChart data={[{ x: '2024-01', y: 10, type: 'A' }]} />);
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     expect(hexToRgba).toHaveBeenCalled();

@@ -48,7 +48,7 @@ describe('code plugin index', () => {
       csvToMarkdownTable = module.csvToMarkdownTable;
     });
 
-    it('undefined 时返回空字符串（覆盖 14）', () => {
+    it('undefined 时返回空字符串', () => {
       expect(csvToMarkdownTable(undefined)).toBe('');
     });
 
@@ -56,7 +56,7 @@ describe('code plugin index', () => {
       expect(csvToMarkdownTable('')).toBe('');
     });
 
-    it('跳过空行（覆盖 20）', () => {
+    it('跳过空行', () => {
       const csv = 'A,B\n\nC,D\n  \nE,F';
       const result = csvToMarkdownTable(csv);
       expect(result).toContain('| A | B |');
@@ -64,18 +64,18 @@ describe('code plugin index', () => {
       expect(result).toContain('| E | F |');
     });
 
-    it('双引号内转义双引号 "" 解析为单个 "（覆盖 28,29,30,32）', () => {
+    it('双引号内转义双引号 "" 解析为单个 "', () => {
       const csv = 'Col1,"Say ""Hi""",Col3';
       const result = csvToMarkdownTable(csv);
       expect(result).toContain('Say "Hi"');
     });
 
-    it('仅空行时返回空字符串（覆盖 45）', () => {
+    it('仅空行时返回空字符串', () => {
       const csv = '\n  \n\n';
       expect(csvToMarkdownTable(csv)).toBe('');
     });
 
-    it('列数不一致时用空单元格补齐（覆盖 52）', () => {
+    it('列数不一致时用空单元格补齐', () => {
       const csv = 'A,B,C\nX,Y';
       const result = csvToMarkdownTable(csv);
       expect(result).toContain('| A | B | C |');

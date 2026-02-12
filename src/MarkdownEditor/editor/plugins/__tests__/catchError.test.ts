@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { withErrorReporting } from '../catchError';
 
 describe('catchError / withErrorReporting', () => {
-  it('应包装 editor 方法，抛出时调用 console.error 和 console.log（覆盖 8、9 行）', () => {
+  it('应包装 editor 方法，抛出时调用 console.error 和 console.log', () => {
     const err = new Error('test error');
     const editor = {
       someMethod: vi.fn(() => {

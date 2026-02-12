@@ -5,7 +5,7 @@ describe('loadChartRuntime', () => {
     vi.restoreAllMocks();
   });
 
-  it('在 window 未定义时抛出错误（覆盖 22,23）', async () => {
+  it('在 window 未定义时抛出错误', async () => {
     const origWindow = (global as any).window;
     (global as any).window = undefined;
 
@@ -17,7 +17,7 @@ describe('loadChartRuntime', () => {
     (global as any).window = origWindow;
   });
 
-  it('成功加载时返回包含各图表组件的运行时（覆盖 26,28,46,62）', async () => {
+  it('成功加载时返回包含各图表组件的运行时', async () => {
     const { loadChartRuntime } = await import('./loadChartRuntime');
     const runtime = await loadChartRuntime();
 

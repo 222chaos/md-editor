@@ -126,14 +126,14 @@ describe('FileTypeProcessor', () => {
       expect(result.category).toBe(FileCategory.Text);
     });
 
-    it('文件名无有效扩展名时 getTypeFromFileName 返回 null（覆盖 141）', () => {
+    it('文件名无有效扩展名时 getTypeFromFileName 返回 null', () => {
       const file = { id: 'f1', name: '.' };
       const result = processor.inferFileType(file);
       expect(result.fileType).toBe('plainText');
       expect(result.category).toBe(FileCategory.Text);
     });
 
-    it('URL 无有效扩展名时 getTypeFromUrl 返回 null（覆盖 149）', () => {
+    it('URL 无有效扩展名时 getTypeFromUrl 返回 null', () => {
       const file = { id: 'f1', name: 'x', url: '' };
       const result = processor.inferFileType(file);
       expect(result.fileType).toBe('plainText');
@@ -360,7 +360,7 @@ describe('FileTypeProcessor', () => {
       expect(result.canPreview).toBe(true);
     });
 
-    it('应该处理无预览能力的数据源（覆盖 164）', () => {
+    it('应该处理无预览能力的数据源', () => {
       const file = {
         id: 'f1',
         name: 'test.txt',
@@ -412,7 +412,7 @@ describe('FileTypeProcessor', () => {
       expect(result.previewMode).toBe('none');
     });
 
-    it('有内容的压缩文件应返回 modal 预览模式（覆盖 223）', () => {
+    it('有内容的压缩文件应返回 modal 预览模式', () => {
       const file = {
         id: 'f1',
         name: 'archive.zip',

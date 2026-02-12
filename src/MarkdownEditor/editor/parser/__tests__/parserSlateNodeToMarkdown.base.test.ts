@@ -1090,4 +1090,373 @@ describe('parserSlateNodeToMarkdown - coverage', () => {
     const result = parserSlateNodeToMarkdown([node]);
     expect(result).toBe('');
   });
+
+  it('should handle list with null child (parserNode null path)', () => {
+    const node = {
+      type: 'bulleted-list',
+      children: [
+        null as any,
+        { type: 'list-item', children: [{ type: 'paragraph', children: [{ text: 'Item' }] }] },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('Item');
+  });
+
+  it('should handle plugin convert returning code with empty value (convertCodeNode trim branch)', () => {
+    const plugin = {
+      toMarkdown: [
+        {
+          match: (n: any) => n.type === 'empty-code',
+          convert: () => ({ type: 'code', lang: 'text', value: '   \n  ' }),
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown(
+      [{ type: 'empty-code' }],
+      '',
+      [{ root: true }],
+      [plugin as any],
+    );
+    expect(result).toContain('```');
+    expect(result).toContain('text');
+  });
+
+  it('should handle plugin convert returning code with empty string value', () => {
+    const plugin = {
+      toMarkdown: [
+        {
+          match: (n: any) => n.type === 'blank-code',
+          convert: () => ({ type: 'code', lang: 'js', value: '' }),
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown(
+      [{ type: 'blank-code' }],
+      '',
+      [{ root: true }],
+      [plugin as any],
+    );
+    expect(result).toMatch(/```js\s*```/);
+  });
+
+  it('should handle chart with chartType but no config (use configProps as chartConfig)', () => {
+    const node = {
+      type: 'chart',
+      otherProps: { chartType: 'bar', x: 'a', y: 'b' },
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: 'X' }] },
+            { type: 'table-cell', children: [{ text: 'Y' }] },
+          ],
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('<!--');
+    expect(result).toContain('chartType');
+  });
+
+  it('should handle chart config as non-array object with single numeric key', () => {
+    const node = {
+      type: 'chart',
+      otherProps: {
+        config: { 0: { chartType: 'pie' } },
+      },
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: 'A' }] },
+            { type: 'table-cell', children: [{ text: 'B' }] },
+          ],
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('<!--');
+    expect(result).toContain('config');
+  });
+
+  it('should handle chart config as object with chartType (single config object)', () => {
+    const node = {
+      type: 'chart',
+      otherProps: {
+        config: { chartType: 'line', x: 't', y: 'v' },
+      },
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: 'K' }] },
+            { type: 'table-cell', children: [{ text: 'V' }] },
+          ],
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('<!--');
+  });
+
+  it('should handle non-chart node with otherProps object config (serialize as object)', () => {
+    const node = {
+      type: 'paragraph',
+      children: [{ text: 'P' }],
+      otherProps: { foo: 'bar', num: 1 },
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('P');
+    expect(result).toContain('<!--');
+  });
+
+  it('should handle blockquote with multiple paragraphs (trailing blockquote marker)', () => {
+    const nodes = [
+      {
+        type: 'blockquote',
+        children: [
+          { type: 'paragraph', children: [{ text: 'First' }] },
+          { type: 'paragraph', children: [{ text: 'Second' }] },
+        ],
+      },
+    ];
+    const result = parserSlateNodeToMarkdown(nodes);
+    expect(result).toContain('> First');
+    expect(result).toContain('> Second');
+    expect(result).toContain('\n> ');
+  });
+
+  it('should handle nested blockquote in convertTree', () => {
+    const nodes = [
+      {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'blockquote',
+            children: [{ type: 'paragraph', children: [{ text: 'Nested' }] }],
+          },
+        ],
+      },
+    ];
+    const result = parserSlateNodeToMarkdown(nodes);
+    expect(result).toContain('>');
+    expect(result).toContain('Nested');
+  });
+
+  it('should handle table with header row and data rows', () => {
+    const node = {
+      type: 'table',
+      children: [
+        { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'A' }] }] },
+        { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'B' }] }] },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('|');
+    expect(result).toContain('A');
+    expect(result).toContain('B');
+  });
+
+  it('should handle table with child as table-cell (processRow [c])', () => {
+    const node = {
+      type: 'table',
+      children: [
+        { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'H' }] }] },
+        { type: 'table-cell', children: [{ text: 'Cell' }] } as any,
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('|');
+    expect(result).toContain('H');
+    expect(result).toContain('Cell');
+  });
+
+  it('should handle table with center and right align (separatorStrategies)', () => {
+    const node = {
+      type: 'table',
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: 'L' }], align: 'left' },
+            { type: 'table-cell', children: [{ text: 'C' }], align: 'center' },
+            { type: 'table-cell', children: [{ text: 'R' }], align: 'right' },
+          ],
+        },
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: 'a' }] },
+            { type: 'table-cell', children: [{ text: 'b' }] },
+            { type: 'table-cell', children: [{ text: 'c' }] },
+          ],
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('|');
+    expect(result).toContain('L');
+    expect(result).toContain('C');
+    expect(result).toContain('R');
+  });
+
+  it('should handle code node with value as object (apaasify)', () => {
+    const node = {
+      type: 'code',
+      language: 'json',
+      value: { key: 'value', nested: { a: 1 } },
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('"key"');
+    expect(result).toContain('"value"');
+  });
+
+  it('should handle code node with language html and render true', () => {
+    const node = {
+      type: 'code',
+      language: 'html',
+      value: '<p>Raw HTML</p>',
+      render: true,
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toBe('<p>Raw HTML</p>');
+  });
+
+  it('should handle blockquote with empty children via plugin (handleBlockquote)', () => {
+    const plugin = {
+      toMarkdown: [
+        {
+          match: (n: any) => n.type === 'empty-quote',
+          convert: () => ({ type: 'blockquote', children: [] }),
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown(
+      [{ type: 'empty-quote' }],
+      '',
+      [{ root: true }],
+      [plugin as any],
+    );
+    expect(result).toBe('> ');
+  });
+
+  it('should handle blockquote with nested blockquote child (handleBlockquote)', () => {
+    const node = {
+      type: 'blockquote',
+      children: [
+        {
+          type: 'blockquote',
+          children: [{ type: 'paragraph', children: [{ text: 'Deep' }] }],
+        },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('>');
+    expect(result).toContain('Deep');
+  });
+
+  it('should handle image with width and height (searchParams)', () => {
+    const node = {
+      type: 'image',
+      url: 'https://example.com/img.png',
+      alt: 'Img',
+      width: '100',
+      height: '200',
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('width=100');
+    expect(result).toContain('height=200');
+  });
+
+  it('should handle image with block param', () => {
+    const node = {
+      type: 'image',
+      url: 'https://example.com/img.png',
+      alt: 'Img',
+      block: true,
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('block=true');
+  });
+
+  it('should handle text with highColor and code and url (textHtml branches)', () => {
+    const node = {
+      type: 'paragraph',
+      children: [
+        {
+          text: 'Link',
+          highColor: 'red',
+          code: true,
+          italic: true,
+          bold: true,
+          strikethrough: true,
+          url: 'https://example.com',
+          identifier: true,
+        } as any,
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('span');
+    expect(result).toContain('code');
+    expect(result).toContain('href');
+    expect(result).toContain('[^');
+  });
+
+  it('should handle mixed format text with no space then next word (isMix space)', () => {
+    const node = {
+      type: 'paragraph',
+      children: [
+        { text: 'BoldItalic', bold: true, italic: true },
+        { text: 'Next' },
+      ],
+    };
+    const result = parserSlateNodeToMarkdown([node]);
+    expect(result).toContain('BoldItalic');
+    expect(result).toContain('Next');
+  });
+
+  it('should handle lastNode table trailing newline cleanup', () => {
+    const nodes = [
+      {
+        type: 'table',
+        children: [
+          {
+            type: 'table-row',
+            children: [
+              { type: 'table-cell', children: [{ text: 'A' }] },
+              { type: 'table-cell', children: [{ text: 'B' }] },
+            ],
+          },
+        ],
+      },
+    ];
+    const result = parserSlateNodeToMarkdown(nodes);
+    expect(result).not.toMatch(/\n\n$/);
+  });
+
+  it('should handle card node not adding extra newlines (node.type === card branch)', () => {
+    const nodes = [
+      { type: 'card', children: [{ type: 'paragraph', children: [{ text: 'C' }] }] },
+      { type: 'paragraph', children: [{ text: 'P' }] },
+    ];
+    const result = parserSlateNodeToMarkdown(nodes);
+    expect(result).toContain('C');
+    expect(result).toContain('P');
+  });
+
+  it('should handle list then code newline handling', () => {
+    const nodes = [
+      {
+        type: 'bulleted-list',
+        children: [
+          { type: 'list-item', children: [{ type: 'paragraph', children: [{ text: 'L' }] }] },
+        ],
+      },
+      { type: 'code', language: 'js', value: 'x=1' },
+    ];
+    const result = parserSlateNodeToMarkdown(nodes);
+    expect(result).toContain('```');
+    expect(result).toContain('L');
+  });
 });

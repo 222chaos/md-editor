@@ -249,7 +249,7 @@ describe('FootnoteReference', () => {
     });
   });
 
-  describe('ReadonlyFootnoteReference（覆盖 40、41、45 行）', () => {
+  describe('ReadonlyFootnoteReference', () => {
     it('应渲染只读脚注引用并调用 debugInfo', () => {
       renderWithProvider(
         <ReadonlyFootnoteReference
