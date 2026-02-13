@@ -447,7 +447,7 @@ describe('ThoughtChainList Props API Tests', () => {
     ];
 
     const { container } = render(
-      <ThoughtChainList thoughtChainList={listWithNoInfo} collapse={false} />,
+      <ThoughtChainList thoughtChainList={listWithNoInfo} />,
     );
     expect(container).toBeInTheDocument();
   });

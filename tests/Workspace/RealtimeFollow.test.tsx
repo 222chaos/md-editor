@@ -372,9 +372,13 @@ describe('RealtimeFollow Component', () => {
           />
         </TestWrapper>,
       );
-      const overlay = container.querySelector('.ant-workspace-realtime-overlay');
+      const overlay = container.querySelector(
+        '.ant-workspace-realtime-overlay',
+      );
       expect(overlay).toBeInTheDocument();
-      expect(overlay?.classList.contains('ant-workspace-realtime-overlay--loading')).toBe(true);
+      expect(
+        overlay?.classList.contains('ant-workspace-realtime-overlay--loading'),
+      ).toBe(true);
       expect(container.querySelector('.ant-spin')).toBeInTheDocument();
     });
 
@@ -387,7 +391,9 @@ describe('RealtimeFollow Component', () => {
               type: 'shell',
               content: 'x',
               status: 'loading',
-              loadingRender: () => <div data-testid="custom-loading">加载中</div>,
+              loadingRender: () => (
+                <div data-testid="custom-loading">加载中</div>
+              ),
             }}
           />
         </TestWrapper>,
@@ -409,9 +415,13 @@ describe('RealtimeFollow Component', () => {
           />
         </TestWrapper>,
       );
-      const overlay = container.querySelector('.ant-workspace-realtime-overlay');
+      const overlay = container.querySelector(
+        '.ant-workspace-realtime-overlay',
+      );
       expect(overlay).toBeInTheDocument();
-      expect(overlay?.classList.contains('ant-workspace-realtime-overlay--error')).toBe(true);
+      expect(
+        overlay?.classList.contains('ant-workspace-realtime-overlay--error'),
+      ).toBe(true);
       expect(screen.getByText('页面渲染失败')).toBeInTheDocument();
     });
 
@@ -424,12 +434,16 @@ describe('RealtimeFollow Component', () => {
               type: 'shell',
               content: 'x',
               status: 'error',
-              errorRender: () => <span data-testid="custom-error">自定义错误</span>,
+              errorRender: () => (
+                <span data-testid="custom-error">自定义错误</span>
+              ),
             }}
           />
         </TestWrapper>,
       );
-      expect(screen.getByTestId('custom-error')).toHaveTextContent('自定义错误');
+      expect(screen.getByTestId('custom-error')).toHaveTextContent(
+        '自定义错误',
+      );
     });
 
     it('非测试环境下空内容且 status=done 时显示空状态', () => {
@@ -445,7 +459,9 @@ describe('RealtimeFollow Component', () => {
           />
         </TestWrapper>,
       );
-      expect(container.querySelector('.ant-workspace-realtime-empty')).toBeInTheDocument();
+      expect(
+        container.querySelector('.ant-workspace-realtime-empty'),
+      ).toBeInTheDocument();
       expect(container.querySelector('.ant-empty')).toBeInTheDocument();
     });
 
@@ -1360,8 +1376,6 @@ describe('RealtimeFollow Component', () => {
       expect(screen.getByText('预览')).toBeInTheDocument();
     });
 
-  
-
     it('应该处理 HTML 类型在 code 模式下的内容更新', async () => {
       const { rerender } = render(
         <TestWrapper>
@@ -1452,7 +1466,9 @@ describe('RealtimeFollow Component', () => {
         children,
       }) => (
         <ConfigProvider>
-          <I18nContext.Provider value={{ locale: null as any, language: 'en-US' }}>
+          <I18nContext.Provider
+            value={{ locale: null as any, language: 'en-US' }}
+          >
             {children}
           </I18nContext.Provider>
         </ConfigProvider>
@@ -1795,16 +1811,14 @@ describe('RealtimeFollow Component', () => {
       expect(overlay).not.toBeInTheDocument();
     });
 
-
-
-  
-
     it('应该处理 Overlay 组件中 locale 为空的情况', () => {
       const NoLocaleWrapper: React.FC<{ children: React.ReactNode }> = ({
         children,
       }) => (
         <ConfigProvider>
-          <I18nContext.Provider value={{ locale: null as any, language: 'en-US' }}>
+          <I18nContext.Provider
+            value={{ locale: null as any, language: 'en-US' }}
+          >
             {children}
           </I18nContext.Provider>
         </ConfigProvider>
@@ -1862,7 +1876,18 @@ describe('RealtimeFollow Component', () => {
     });
 
     it('应该处理 getRightContent 中 segmentedItems 为空数组的情况', () => {
-    
+      render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<h1>测试</h1>',
+              status: 'done',
+              segmentedItems: [],
+            }}
+          />
+        </TestWrapper>,
+      );
 
       // 空数组应该使用默认分段选项
       expect(screen.getByText('预览')).toBeInTheDocument();

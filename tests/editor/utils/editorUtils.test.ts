@@ -1,4 +1,4 @@
-import { createEditor, Point, Range } from 'slate';
+import { createEditor, Editor, Point, Range, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -210,18 +210,31 @@ describe('EditorUtils', () => {
         { type: 'head', level: 1, children: [{ text: 'Title' }] },
         { type: 'paragraph', children: [{ text: 'Body' }] },
       ];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 5 } };
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 5 },
+      };
       const result = EditorUtils.findMediaInsertPath(editor);
       expect(result).toBeDefined();
     });
 
     it('should handle paragraph with text', () => {
-      editor.children = [
-        { type: 'paragraph', children: [{ text: 'Hello' }] },
-      ];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 5 } };
+      editor.children = [{ type: 'paragraph', children: [{ text: 'Hello' }] }];
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 5 },
+      };
       const result = EditorUtils.findMediaInsertPath(editor);
       expect(result).toBeDefined();
+    });
+
+    it('should return null when Editor.nodes returns no match', () => {
+      const spy = vi
+        .spyOn(Editor, 'nodes')
+        .mockReturnValue([][Symbol.iterator]());
+      const result = EditorUtils.findMediaInsertPath(editor);
+      expect(result).toBeNull();
+      spy.mockRestore();
     });
   });
 
@@ -238,16 +251,18 @@ describe('EditorUtils', () => {
   });
 
   describe('moveNodes', () => {
-    it('should move nodes with limit', () => {
-      // Create a fresh editor for this test
+    it('should move nodes and call Transforms.moveNodes', () => {
       const testEditor = createEditor();
       testEditor.children = [
         { type: 'paragraph', children: [{ text: 'First' }] },
         { type: 'paragraph', children: [{ text: 'Second' }] },
       ];
-
-      // Skip this test as it's causing issues with Slate's internal state
-      expect(testEditor.children).toBeDefined();
+      const moveSpy = vi
+        .spyOn(Transforms, 'moveNodes')
+        .mockImplementation(() => {});
+      EditorUtils.moveNodes(testEditor, [0], [1], 0);
+      expect(moveSpy).toHaveBeenCalled();
+      moveSpy.mockRestore();
     });
   });
 
@@ -266,6 +281,11 @@ describe('EditorUtils', () => {
       editor.children = [{ type: 'paragraph', children: [{ text: 'x' }] }];
       EditorUtils.moveBeforeSpace(editor, [0, 0]);
       expect(editor.children).toBeDefined();
+    });
+
+    it('moveAfterSpace when next is text node runs without throw', () => {
+      EditorUtils.moveAfterSpace(editor, [0, 0]);
+      expect(editor.selection).toBeDefined();
     });
   });
 
@@ -301,9 +321,7 @@ describe('EditorUtils', () => {
           children: [
             {
               type: 'list-item',
-              children: [
-                { type: 'paragraph', children: [{ text: 'Item 1' }] },
-              ],
+              children: [{ type: 'paragraph', children: [{ text: 'Item 1' }] }],
             },
           ],
         },
@@ -356,7 +374,10 @@ describe('EditorUtils', () => {
                   {
                     type: 'list-item' as const,
                     children: [
-                      { type: 'paragraph' as const, children: [{ text: 'Nested' }] },
+                      {
+                        type: 'paragraph' as const,
+                        children: [{ text: 'Nested' }],
+                      },
                     ],
                   },
                 ],
@@ -382,7 +403,10 @@ describe('EditorUtils', () => {
 
     it('should handle empty text node', () => {
       editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } };
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
       const newNode = [
         { type: 'paragraph' as const, children: [{ text: 'New content' }] },
       ];
@@ -517,9 +541,26 @@ describe('EditorUtils', () => {
       editor.children = [
         { type: 'paragraph', children: [{ text: 'x', color: 'red' }] },
       ];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 1 } };
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 1 },
+      };
       const result = EditorUtils.isFormatActive(editor, 'color', 'red');
       expect(typeof result).toBe('boolean');
+    });
+
+    it('should return false when Editor.nodes throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const nodesSpy = vi.spyOn(Editor, 'nodes').mockImplementation(() => {
+        throw new Error('nodes error');
+      });
+      const result = EditorUtils.isFormatActive(editor, 'bold');
+      expect(result).toBe(false);
+      expect(consoleSpy).toHaveBeenCalled();
+      nodesSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
   });
 
@@ -531,11 +572,30 @@ describe('EditorUtils', () => {
 
     it('should return url when text has url mark', () => {
       editor.children = [
-        { type: 'paragraph', children: [{ text: 'link', url: 'https://example.com' }] },
+        {
+          type: 'paragraph',
+          children: [{ text: 'link', url: 'https://example.com' }],
+        },
       ];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 4 } };
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 4 },
+      };
       const result = EditorUtils.getUrl(editor);
       expect(result).toBe('https://example.com');
+    });
+
+    it('should return empty string when getUrl throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const nodesSpy = vi.spyOn(Editor, 'nodes').mockImplementation(() => {
+        throw new Error('getUrl error');
+      });
+      const result = EditorUtils.getUrl(editor);
+      expect(result).toBe('');
+      nodesSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
   });
 
@@ -568,7 +628,10 @@ describe('EditorUtils', () => {
       editor.children = [
         { type: 'paragraph', children: [{ text: 'Bold', bold: true }] },
       ];
-      editor.selection = { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 4 } };
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 4 },
+      };
       EditorUtils.toggleFormat(editor, 'bold');
       expect(editor.children).toBeDefined();
     });
@@ -610,6 +673,19 @@ describe('EditorUtils', () => {
       const result = EditorUtils.isAlignmentActive(editor, 'left');
       expect(typeof result).toBe('boolean');
     });
+
+    it('should return false when isAlignmentActive throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const nodesSpy = vi.spyOn(Editor, 'nodes').mockImplementation(() => {
+        throw new Error('alignment error');
+      });
+      const result = EditorUtils.isAlignmentActive(editor, 'center');
+      expect(result).toBe(false);
+      nodesSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('checkEnd', () => {
@@ -628,7 +704,18 @@ describe('EditorUtils', () => {
 
     it('should insert paragraph when last node has media child', () => {
       editor.children = [
-        { type: 'paragraph', children: [{ type: 'media', url: 'x', children: [{ text: '' }] }] },
+        {
+          type: 'paragraph',
+          children: [{ type: 'media', url: 'x', children: [{ text: '' }] }],
+        },
+      ];
+      const result = EditorUtils.checkEnd(editor);
+      expect(typeof result).toBe('boolean');
+    });
+
+    it('should insert paragraph when last node is paragraph with text', () => {
+      editor.children = [
+        { type: 'paragraph', children: [{ text: 'has content' }] },
       ];
       const result = EditorUtils.checkEnd(editor);
       expect(typeof result).toBe('boolean');
@@ -644,6 +731,15 @@ describe('EditorUtils', () => {
     it('should return false when path has next sibling', () => {
       const result = EditorUtils.checkSelEnd(editor, [0]);
       expect(result).toBe(false);
+    });
+
+    it('should return false when checkSelEnd throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const result = EditorUtils.checkSelEnd(editor, [999, 0]);
+      expect(result).toBe(false);
+      consoleSpy.mockRestore();
     });
   });
 
@@ -689,9 +785,17 @@ describe('EditorUtils', () => {
     });
 
     it('should create image node with extraPros alt', () => {
-      const result = EditorUtils.createMediaNode('test.jpg', 'image', { alt: 'My alt' });
+      const result = EditorUtils.createMediaNode('test.jpg', 'image', {
+        alt: 'My alt',
+      });
       expect(result).toBeDefined();
       expect((result as any).children?.[1]?.alt).toBe('My alt');
+    });
+
+    it('should normalize relative URL with origin when src does not start with /', () => {
+      const result = EditorUtils.createMediaNode('path/to/img.png', 'image');
+      expect(result).toBeDefined();
+      expect((result as any).children?.[1]?.url).toContain('/');
     });
   });
 
@@ -834,6 +938,34 @@ describe('Utility functions', () => {
       const result = getSelectionFromDomSelection(editor as any, selection);
       expect(result).toBeNull();
     });
+
+    it('should return null when checkText returns false for container', () => {
+      const range = document.createRange();
+      range.setStart(document.body, 0);
+      range.setEnd(document.body, 0);
+      const domSelection = {
+        rangeCount: 1,
+        getRangeAt: () => range,
+      } as unknown as Selection;
+      vi.mocked(ReactEditor.hasDOMNode).mockReturnValue(true);
+      const result = getSelectionFromDomSelection(editor as any, domSelection);
+      expect(result).toBeNull();
+    });
+
+    it('should return null when getSelectionFromDomSelection throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const badSelection = {
+        rangeCount: 1,
+        getRangeAt: () => {
+          throw new Error('getRangeAt error');
+        },
+      } as unknown as Selection;
+      const result = getSelectionFromDomSelection(editor as any, badSelection);
+      expect(result).toBeNull();
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('hasEditableTarget', () => {
@@ -870,6 +1002,11 @@ describe('Utility functions', () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result).toEqual([0, 0, 0]);
     });
+
+    it('should unshift zeros when path is longer than anther', () => {
+      const result = getRelativePath([1, 2, 3], [2, 3]);
+      expect(result).toEqual([1, 0, 0]);
+    });
   });
 
   describe('calcPath', () => {
@@ -881,6 +1018,12 @@ describe('Utility functions', () => {
     it('should handle different length paths', () => {
       const result = calcPath([1, 2], [0, 1, 2]);
       expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should unshift zeros when path is longer than anther', () => {
+      const result = calcPath([1, 2, 3], [0, 2, 3]);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toEqual([1, 4, 6]);
     });
   });
 
@@ -906,7 +1049,9 @@ describe('Utility functions', () => {
 
   describe('escapeRegExp', () => {
     it('should escape regex special characters', () => {
-      expect(escapeRegExp('.*+?^${}()|[]\\')).toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\');
+      expect(escapeRegExp('.*+?^${}()|[]\\')).toBe(
+        '\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\',
+      );
     });
 
     it('should leave plain string unchanged for non-special chars', () => {
@@ -916,25 +1061,87 @@ describe('Utility functions', () => {
 
   describe('createSelectionFromNodes', () => {
     it('should return null when anchorNode is null', () => {
-      const result = createSelectionFromNodes(null, 0, document.createTextNode('x'), 1);
+      const result = createSelectionFromNodes(
+        null,
+        0,
+        document.createTextNode('x'),
+        1,
+      );
       expect(result).toBeNull();
     });
 
     it('should return null when focusNode is null', () => {
-      const result = createSelectionFromNodes(document.createTextNode('x'), 0, null, 1);
+      const result = createSelectionFromNodes(
+        document.createTextNode('x'),
+        0,
+        null,
+        1,
+      );
       expect(result).toBeNull();
+    });
+
+    it('should create selection when given valid DOM nodes in document', () => {
+      const anchor = document.createTextNode('a');
+      const focus = document.createTextNode('b');
+      document.body.appendChild(anchor);
+      document.body.appendChild(focus);
+      const result = createSelectionFromNodes(anchor, 0, focus, 1);
+      expect(result).toBeDefined();
+      anchor.remove();
+      focus.remove();
+    });
+
+    it('should return null when setBaseAndExtent throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const result = createSelectionFromNodes({} as any, 0, {} as any, 1);
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
     });
   });
 
   describe('createDomRangeFromNodes', () => {
     it('should return null when anchorNode is null', () => {
-      const result = createDomRangeFromNodes(null, 0, document.createTextNode('x'), 1);
+      const result = createDomRangeFromNodes(
+        null,
+        0,
+        document.createTextNode('x'),
+        1,
+      );
       expect(result).toBeNull();
     });
 
     it('should return null when focusNode is null', () => {
-      const result = createDomRangeFromNodes(document.createTextNode('x'), 0, null, 1);
+      const result = createDomRangeFromNodes(
+        document.createTextNode('x'),
+        0,
+        null,
+        1,
+      );
       expect(result).toBeNull();
+    });
+
+    it('should create range when given valid DOM nodes', () => {
+      const anchor = document.createTextNode('a');
+      const focus = document.createTextNode('b');
+      document.body.appendChild(anchor);
+      document.body.appendChild(focus);
+      const result = createDomRangeFromNodes(anchor, 0, focus, 1);
+      expect(result).not.toBeNull();
+      expect(result?.startContainer).toBe(anchor);
+      anchor.remove();
+      focus.remove();
+    });
+
+    it('should return null when createRange or setStart/setEnd throws', () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const result = createDomRangeFromNodes({} as any, 0, {} as any, 1);
+      expect(result).toBeNull();
+      consoleSpy.mockRestore();
     });
   });
 
@@ -1383,6 +1590,17 @@ describe('Utility functions', () => {
 
       // Should not throw error and return empty or search whole editor
       expect(Array.isArray(results)).toBe(true);
+    });
+
+    it('should set searchRange to undefined when Editor.hasPath throws', () => {
+      const hasPathSpy = vi.spyOn(Editor, 'hasPath').mockImplementation(() => {
+        throw new Error('invalid path');
+      });
+      const results = findByPathAndText(editor, [0], 'Hello', {
+        maxResults: 5,
+      });
+      expect(Array.isArray(results)).toBe(true);
+      hasPathSpy.mockRestore();
     });
 
     it('should record search variant when different from original', () => {

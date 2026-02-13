@@ -13,7 +13,7 @@ const BubbleConfigProvide: React.FC<{
 }> = ({ children, compact, standalone }) => {
   return (
     <BubbleConfigContext.Provider
-      value={{ standalone: standalone || false, compact, locale: {} as any }}
+      value={{ standalone: standalone || false, compact,}}
     >
       {children}
     </BubbleConfigContext.Provider>

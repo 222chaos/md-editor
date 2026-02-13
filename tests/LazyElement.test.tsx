@@ -110,7 +110,6 @@ describe('LazyElement', () => {
     const disconnectSpy = vi.fn();
     vi.useFakeTimers();
     global.IntersectionObserver = class {
-      constructor(_callback: IntersectionObserverCallback) {}
       observe = vi.fn();
       unobserve = vi.fn();
       disconnect = disconnectSpy;
@@ -126,7 +125,9 @@ describe('LazyElement', () => {
       </LazyElement>,
     );
 
-    const wrapper = container.querySelector('[aria-hidden="true"]') as HTMLElement;
+    const wrapper = container.querySelector(
+      '[aria-hidden="true"]',
+    ) as HTMLElement;
     if (wrapper) {
       Object.defineProperty(wrapper, 'getBoundingClientRect', {
         value: () => ({
@@ -185,7 +186,6 @@ describe('LazyElement', () => {
     const disconnectSpy = vi.fn();
 
     global.IntersectionObserver = class {
-      constructor(callback: IntersectionObserverCallback) {}
       observe = vi.fn();
       unobserve = vi.fn();
       disconnect = disconnectSpy;

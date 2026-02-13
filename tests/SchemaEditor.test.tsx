@@ -4,8 +4,8 @@ import React, { createRef } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvide } from '../src/I18n';
 import { SchemaEditor, SchemaEditorRef } from '../src/Schema/SchemaEditor';
-import { mdDataSchemaValidator } from '../src/Schema/validator';
 import { LowCodeSchema } from '../src/Schema/types';
+import { mdDataSchemaValidator } from '../src/Schema/validator';
 
 // Mock AceEditorWrapper to avoid DOM manipulation issues in tests
 vi.mock('../src/Schema/SchemaEditor/AceEditorWrapper', () => ({
@@ -408,7 +408,9 @@ describe('SchemaEditor', () => {
       ref.current?.setSchema(mockSchema);
 
       await waitFor(() => {
-        expect(screen.getByText(/Error1.*Error2|Error2.*Error1/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Error1.*Error2|Error2.*Error1/),
+        ).toBeInTheDocument();
       });
     });
 
@@ -432,7 +434,11 @@ describe('SchemaEditor', () => {
 
       ref.current?.setSchema(mockSchema);
 
-      const errEl = await screen.findByText(/验证失败|Validation failed/, {}, { timeout: 3000 });
+      const errEl = await screen.findByText(
+        /验证失败|Validation failed/,
+        {},
+        { timeout: 3000 },
+      );
       expect(errEl).toBeInTheDocument();
     });
   });
@@ -932,6 +938,7 @@ describe('SchemaEditor', () => {
       const handleCustomAction = vi.fn();
       const customButton = (
         <button
+          type="button"
           key="custom-action"
           data-testid="custom-action"
           onClick={handleCustomAction}
@@ -962,10 +969,20 @@ describe('SchemaEditor', () => {
       const handleAction2 = vi.fn();
 
       const actions = [
-        <button key="action-1" data-testid="action-1" onClick={handleAction1}>
+        <button
+          type="button"
+          key="action-1"
+          data-testid="action-1"
+          onClick={handleAction1}
+        >
           操作1
         </button>,
-        <button key="action-2" data-testid="action-2" onClick={handleAction2}>
+        <button
+          type="button"
+          key="action-2"
+          data-testid="action-2"
+          onClick={handleAction2}
+        >
           操作2
         </button>,
       ];
@@ -990,6 +1007,7 @@ describe('SchemaEditor', () => {
       const handleCustomAction = vi.fn();
       const customButton = (
         <button
+          type="button"
           key="custom-action"
           data-testid="custom-action"
           onClick={handleCustomAction}
@@ -1037,6 +1055,7 @@ describe('SchemaEditor', () => {
       const handleCustomAction = vi.fn();
       const customButton = (
         <button
+          type="button"
           key="custom-action"
           data-testid="custom-action"
           onClick={handleCustomAction}

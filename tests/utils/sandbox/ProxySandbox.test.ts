@@ -559,6 +559,23 @@ describe('ProxySandbox', () => {
       expect(result.result).toBe('undefined');
     });
 
+    it('removeGlobal 应同时从 sandboxGlobal 和 customGlobals 移除', async () => {
+      const sandbox = new ProxySandbox({
+        customGlobals: { toRemove: 'value' },
+      });
+
+      const before = await sandbox.execute('return toRemove');
+      expect(before.success).toBe(true);
+      expect(before.result).toBe('value');
+
+      sandbox.removeGlobal('toRemove');
+      const after = await sandbox.execute('return typeof toRemove');
+      expect(after.success).toBe(true);
+      expect(after.result).toBe('undefined');
+
+      sandbox.destroy();
+    });
+
     it('应该阻止添加禁止的全局变量', () => {
       expect(() => sandbox.addGlobal('eval', () => {})).toThrow();
     });
@@ -846,9 +863,8 @@ describe('ProxySandbox', () => {
 describe('工厂函数测试', () => {
   describe('createSandbox', () => {
     it('应该创建带有默认配置的沙箱', async () => {
-      const { createSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { createSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       const sandbox = createSandbox();
 
       expect(sandbox).toBeInstanceOf(ProxySandbox);
@@ -858,9 +874,8 @@ describe('工厂函数测试', () => {
     });
 
     it('应该创建带有自定义配置的沙箱', async () => {
-      const { createSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { createSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       const config = {
         allowConsole: false,
         timeout: 1000,
@@ -880,9 +895,8 @@ describe('工厂函数测试', () => {
 
   describe('runInSandbox', () => {
     it('应该能够一次性执行代码', async () => {
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { runInSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       const result = await runInSandbox('return 2 * 3');
 
       expect(result.success).toBe(true);
@@ -890,9 +904,8 @@ describe('工厂函数测试', () => {
     });
 
     it('应该在执行后自动清理资源', async () => {
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { runInSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       // 这个测试验证不会造成内存泄漏
       const promises = Array.from({ length: 10 }, (_, i) =>
         runInSandbox(`return ${i} * 2`),
@@ -907,9 +920,8 @@ describe('工厂函数测试', () => {
     });
 
     it('应该使用自定义配置执行代码', async () => {
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { runInSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       const result = await runInSandbox('return customVar', {
         customGlobals: { customVar: 'test' },
       });
@@ -919,9 +931,8 @@ describe('工厂函数测试', () => {
     });
 
     it('应该支持注入参数', async () => {
-      const { runInSandbox } = await import(
-        '../../../src/Utils/proxySandbox/ProxySandbox'
-      );
+      const { runInSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
       const result = await runInSandbox(
         'return injectedValue',
         {},
@@ -931,14 +942,25 @@ describe('工厂函数测试', () => {
       expect(result.success).toBe(true);
       expect(result.result).toBe('injected');
     });
+
+    it('执行失败时应在 finally 中 destroy 且后续调用正常', async () => {
+      const { runInSandbox } =
+        await import('../../../src/Utils/proxySandbox/ProxySandbox');
+
+      const failResult = await runInSandbox('throw new Error("fail");');
+      expect(failResult.success).toBe(false);
+
+      const okResult = await runInSandbox('return 1');
+      expect(okResult.success).toBe(true);
+      expect(okResult.result).toBe(1);
+    });
   });
 });
 
 describe('边界情况测试', () => {
   it('应该处理空代码', async () => {
-    const { runInSandbox } = await import(
-      '../../../src/Utils/proxySandbox/ProxySandbox'
-    );
+    const { runInSandbox } =
+      await import('../../../src/Utils/proxySandbox/ProxySandbox');
     const result = await runInSandbox('');
 
     expect(result.success).toBe(true);
@@ -946,18 +968,16 @@ describe('边界情况测试', () => {
   });
 
   it('应该处理只有注释的代码', async () => {
-    const { runInSandbox } = await import(
-      '../../../src/Utils/proxySandbox/ProxySandbox'
-    );
+    const { runInSandbox } =
+      await import('../../../src/Utils/proxySandbox/ProxySandbox');
     const result = await runInSandbox('// 这是注释\n/* 这也是注释 */');
 
     expect(result.success).toBe(true);
   });
 
   it('应该处理复杂的嵌套结构', async () => {
-    const { runInSandbox } = await import(
-      '../../../src/Utils/proxySandbox/ProxySandbox'
-    );
+    const { runInSandbox } =
+      await import('../../../src/Utils/proxySandbox/ProxySandbox');
     const code = `
       const obj = {
         nested: {
@@ -975,9 +995,8 @@ describe('边界情况测试', () => {
   });
 
   it('应该处理异步代码（Promise）', async () => {
-    const { runInSandbox } = await import(
-      '../../../src/Utils/proxySandbox/ProxySandbox'
-    );
+    const { runInSandbox } =
+      await import('../../../src/Utils/proxySandbox/ProxySandbox');
     const code = `
       return Promise.resolve(42);
     `;
@@ -1317,9 +1336,7 @@ describe('边界情况测试', () => {
     it('document 未定义属性 get 应返回 undefined', async () => {
       const sandbox = new ProxySandbox();
 
-      const result = await sandbox.execute(
-        'return document.nonExistentProp',
-      );
+      const result = await sandbox.execute('return document.nonExistentProp');
 
       expect(result.success).toBe(true);
       expect(result.result).toBeUndefined();
@@ -1424,13 +1441,27 @@ describe('边界情况测试', () => {
     it('注入不可序列化参数时应回退到同步执行', async () => {
       const sandbox = new ProxySandbox();
       const fn = () => {};
-      const result = await sandbox.execute(
-        'return typeof injectedFn',
-        { injectedFn: fn },
-      );
+      const result = await sandbox.execute('return typeof injectedFn', {
+        injectedFn: fn,
+      });
 
       expect(result.success).toBe(true);
       expect(result.result).toBe('function');
+      sandbox.destroy();
+    });
+
+    it('注入循环引用参数时应回退到同步执行并正常执行代码', async () => {
+      const circular: Record<string, unknown> = {};
+      circular.self = circular;
+
+      const sandbox = new ProxySandbox();
+      const result = await sandbox.execute('return simpleValue', {
+        circular,
+        simpleValue: 42,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.result).toBe(42);
       sandbox.destroy();
     });
   });
@@ -1484,6 +1515,24 @@ describe('边界情况测试', () => {
           origPerf.memory = backupMemory;
         } else {
           delete origPerf.memory;
+        }
+      }
+    });
+
+    it('无 performance.memory 时应返回 0', async () => {
+      const origPerf = globalThis.performance as any;
+      const hadMemory = 'memory' in origPerf;
+      const backupMemory = origPerf.memory;
+      try {
+        delete origPerf.memory;
+
+        const sandbox = new ProxySandbox();
+        const result = await sandbox.execute('return 1');
+        expect(result.memoryUsage).toBe(0);
+        sandbox.destroy();
+      } finally {
+        if (hadMemory) {
+          origPerf.memory = backupMemory;
         }
       }
     });
@@ -1628,6 +1677,28 @@ describe('边界情况测试', () => {
       expect(result.result).toBe(false);
       sandbox.destroy();
     });
+
+    it('window 敏感属性 get 应返回 undefined（external chrome history）', async () => {
+      const sandbox = new ProxySandbox();
+
+      const result = await sandbox.execute(`
+        return {
+          external: window.external,
+          chrome: window.chrome,
+          history: window.history,
+          opener: window.opener,
+          indexedDB: window.indexedDB
+        };
+      `);
+
+      expect(result.success).toBe(true);
+      expect(result.result.external).toBeUndefined();
+      expect(result.result.chrome).toBeUndefined();
+      expect(result.result.history).toBeUndefined();
+      expect(result.result.opener).toBeUndefined();
+      expect(result.result.indexedDB).toBeUndefined();
+      sandbox.destroy();
+    });
   });
 
   describe('覆盖率补充：createGlobalProxy', () => {
@@ -1664,9 +1735,7 @@ describe('边界情况测试', () => {
     it('do-while 死循环应被指令限制中断', async () => {
       const sandbox = new ProxySandbox({ timeout: 50 });
 
-      const result = await sandbox.execute(
-        'do { } while(true);',
-      );
+      const result = await sandbox.execute('do { } while(true);');
 
       expect(result.success).toBe(false);
       expect(result.error?.message).toMatch(/timeout|instruction/i);
@@ -1680,6 +1749,17 @@ describe('边界情况测试', () => {
 
       expect(result.success).toBe(false);
       expect(sandbox.isRunning()).toBe(false);
+      sandbox.destroy();
+    });
+
+    it('execute 捕获非 Error 类型的异常时应包装为 Error', async () => {
+      const sandbox = new ProxySandbox();
+
+      const result = await sandbox.execute('throw "string error";');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeInstanceOf(Error);
+      expect(result.error?.message).toContain('string error');
       sandbox.destroy();
     });
   });
@@ -1696,6 +1776,50 @@ describe('边界情况测试', () => {
         const result = await sandbox.execute('return 1 + 2');
         expect(result.success).toBe(true);
         expect(result.result).toBe(3);
+        sandbox.destroy();
+      } finally {
+        (globalThis as any).Worker = OrigWorker;
+        (globalThis as any).URL = OrigURL;
+      }
+    });
+
+    it('Worker 构造函数抛出时应回退到同步执行', async () => {
+      const OrigWorker = (globalThis as any).Worker;
+      try {
+        (globalThis as any).Worker = function () {
+          throw new Error('Worker not supported');
+        };
+
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const sandbox = new ProxySandbox();
+        const result = await sandbox.execute('return 10 + 20');
+        if (result.success) {
+          expect(result.result).toBe(30);
+          expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/Worker|回退|同步/),
+          );
+        }
+        warnSpy.mockRestore();
+        sandbox.destroy();
+      } finally {
+        (globalThis as any).Worker = OrigWorker;
+      }
+    });
+  });
+
+  describe('覆盖率补充：executeWithTimeout 路径', () => {
+    it('无 Worker 时非死循环代码走 executeWithTimeout 并正常返回', async () => {
+      const OrigWorker = (globalThis as any).Worker;
+      const OrigURL = (globalThis as any).URL;
+      try {
+        (globalThis as any).Worker = undefined;
+        (globalThis as any).URL = undefined;
+
+        const sandbox = new ProxySandbox({ timeout: 5000 });
+        const result = await sandbox.execute('return 100;');
+
+        expect(result.success).toBe(true);
+        expect(result.result).toBe(100);
         sandbox.destroy();
       } finally {
         (globalThis as any).Worker = OrigWorker;

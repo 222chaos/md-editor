@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React, { createRef } from 'react';
 import { Subject } from 'rxjs';
@@ -13,11 +13,12 @@ import {
   MarkdownEditorInstance,
   ParagraphNode,
 } from '../../BaseMarkdownEditor';
-import type { MarkdownEditorProps } from '../../types';
 import { PluginContext } from '../../plugin';
+import type { MarkdownEditorProps } from '../../types';
 import { SlateMarkdownEditor } from '../Editor';
 import { EditorStore, EditorStoreContext } from '../store';
 import type { KeyboardTask, Methods } from '../utils';
+import { EditorUtils } from '../utils/editorUtils';
 
 describe('SlateMarkdownEditor', () => {
   let mockInstance: MarkdownEditorInstance;
@@ -147,7 +148,12 @@ describe('SlateMarkdownEditor', () => {
     fncProps?: MarkdownEditorProps['fncProps'];
     pasteConfig?: { enabled?: boolean; allowedTypes?: string[] };
     onPaste?: (e: any) => boolean | void;
-    lazy?: { enable?: boolean; placeholderHeight?: number; rootMargin?: string; renderPlaceholder?: (info: any) => React.ReactNode };
+    lazy?: {
+      enable?: boolean;
+      placeholderHeight?: number;
+      rootMargin?: string;
+      renderPlaceholder?: (info: any) => React.ReactNode;
+    };
     leafRender?: (props: any, defaultDom: React.ReactNode) => React.ReactNode;
     typewriter?: boolean;
     onFocus?: (markdown: string, children: any[], e: any) => void;
@@ -173,7 +179,8 @@ describe('SlateMarkdownEditor', () => {
       setDomRect: () => {},
       editorProps: {},
       markdownEditorRef: mockEditorRef,
-      markdownContainerRef: (containerRef as React.MutableRefObject<HTMLDivElement | null>),
+      markdownContainerRef:
+        containerRef as React.MutableRefObject<HTMLDivElement | null>,
       setShowComment: () => {},
     };
     return {
@@ -440,7 +447,9 @@ describe('SlateMarkdownEditor', () => {
         },
       ];
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'Hello' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'Hello' }] } as ParagraphNode,
+        ],
         comment: { enable: true, commentList },
       });
       expect(screen.getByText('Hello')).toBeInTheDocument();
@@ -448,7 +457,9 @@ describe('SlateMarkdownEditor', () => {
 
     it('comment.enable 为 false 时 decorate 应直接返回', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
         comment: { enable: false, commentList: [] },
       });
       expect(screen.getByText('x')).toBeInTheDocument();
@@ -470,7 +481,8 @@ describe('SlateMarkdownEditor', () => {
         setDomRect,
         editorProps: {},
         markdownEditorRef: mockEditorRef,
-        markdownContainerRef: containerRef as React.MutableRefObject<HTMLDivElement | null>,
+        markdownContainerRef:
+          containerRef as React.MutableRefObject<HTMLDivElement | null>,
         setShowComment: () => {},
       };
       const { container } = render(
@@ -481,7 +493,12 @@ describe('SlateMarkdownEditor', () => {
                 <SlateMarkdownEditor
                   prefixCls="ant-agentic-md-editor"
                   instance={mockInstance}
-                  initSchemaValue={[{ type: 'paragraph', children: [{ text: 'a' }] } as ParagraphNode]}
+                  initSchemaValue={[
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'a' }],
+                    } as ParagraphNode,
+                  ]}
                   reportMode
                   floatBar={{ enable: false }}
                 />
@@ -493,13 +510,20 @@ describe('SlateMarkdownEditor', () => {
       const slateEditor = container.querySelector('[data-slate-editor="true"]');
       expect(slateEditor).toBeTruthy();
       if (slateEditor) fireEvent.mouseUp(slateEditor);
-      await waitFor(() => expect(setDomRect).toHaveBeenCalledWith(null), { timeout: 100 });
+      await waitFor(() => expect(setDomRect).toHaveBeenCalledWith(null), {
+        timeout: 100,
+      });
     });
 
     it('应传入 onSelectionChange 并在 onSelect 时触发', () => {
       const onSelectionChange = vi.fn();
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'select me' }] } as ParagraphNode],
+        initSchemaValue: [
+          {
+            type: 'paragraph',
+            children: [{ text: 'select me' }],
+          } as ParagraphNode,
+        ],
         onSelectionChange,
       });
       const editable = screen.getByRole('textbox');
@@ -512,7 +536,9 @@ describe('SlateMarkdownEditor', () => {
     it('应支持 placeholder 与 textAreaProps.placeholder', () => {
       renderEditor({
         placeholder: 'Type here',
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: '' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
       });
       expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
@@ -571,7 +597,9 @@ describe('SlateMarkdownEditor', () => {
   describe('pasteConfig 与 onPaste', () => {
     it('pasteConfig.enabled 为 false 时应不处理粘贴', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
         pasteConfig: { enabled: false },
       });
       const editable = screen.getByRole('textbox');
@@ -584,7 +612,9 @@ describe('SlateMarkdownEditor', () => {
     it('onPaste 传入时应在粘贴流程中被调用', () => {
       const onPaste = vi.fn(() => false);
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
         onPaste,
       });
       const editable = screen.getByRole('textbox');
@@ -627,7 +657,9 @@ describe('SlateMarkdownEditor', () => {
         <span data-testid="custom-leaf">{defaultDom}</span>
       ));
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'T' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'T' }] } as ParagraphNode,
+        ],
         leafRender,
       });
       expect(leafRender).toHaveBeenCalled();
@@ -649,7 +681,8 @@ describe('SlateMarkdownEditor', () => {
         setDomRect: () => {},
         editorProps: {},
         markdownEditorRef: mockEditorRef,
-        markdownContainerRef: containerRef as React.MutableRefObject<HTMLDivElement | null>,
+        markdownContainerRef:
+          containerRef as React.MutableRefObject<HTMLDivElement | null>,
         setShowComment: () => {},
       };
       render(
@@ -660,7 +693,12 @@ describe('SlateMarkdownEditor', () => {
                 <SlateMarkdownEditor
                   prefixCls="ant-agentic-md-editor"
                   instance={mockInstance}
-                  initSchemaValue={[{ type: 'paragraph', children: [{ text: 'a' }] } as ParagraphNode]}
+                  initSchemaValue={[
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'a' }],
+                    } as ParagraphNode,
+                  ]}
                   typewriter
                 />
               </PluginContext.Provider>
@@ -677,7 +715,9 @@ describe('SlateMarkdownEditor', () => {
       const onFocus = vi.fn();
       const onBlur = vi.fn();
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
         onFocus,
         onBlur,
       });
@@ -698,7 +738,8 @@ describe('SlateMarkdownEditor', () => {
         setDomRect,
         editorProps: {},
         markdownEditorRef: mockEditorRef,
-        markdownContainerRef: containerRef as React.MutableRefObject<HTMLDivElement | null>,
+        markdownContainerRef:
+          containerRef as React.MutableRefObject<HTMLDivElement | null>,
         setShowComment: () => {},
       };
       const { container } = render(
@@ -709,7 +750,12 @@ describe('SlateMarkdownEditor', () => {
                 <SlateMarkdownEditor
                   prefixCls="ant-agentic-md-editor"
                   instance={mockInstance}
-                  initSchemaValue={[{ type: 'paragraph', children: [{ text: 'a' }] } as ParagraphNode]}
+                  initSchemaValue={[
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'a' }],
+                    } as ParagraphNode,
+                  ]}
                 />
               </PluginContext.Provider>
             </EditorStoreContext.Provider>
@@ -726,11 +772,17 @@ describe('SlateMarkdownEditor', () => {
   describe('tagInputProps 与 handleKeyDown', () => {
     it('tagInputProps.enable 且 key 匹配 prefixCls 时应插入 tag 节点', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: '' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
         tagInputProps: { enable: true, prefixCls: ['$'] },
       });
       const editable = screen.getByRole('textbox');
-      fireEvent.keyDown(editable, { key: '$', preventDefault: vi.fn(), stopPropagation: vi.fn() });
+      fireEvent.keyDown(editable, {
+        key: '$',
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+      });
       expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
   });
@@ -738,7 +790,9 @@ describe('SlateMarkdownEditor', () => {
   describe('Editable 事件与样式', () => {
     it('应应用 reportMode / compact / className / style', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
         reportMode: true,
         compact: true,
         className: 'custom-editor',
@@ -752,21 +806,36 @@ describe('SlateMarkdownEditor', () => {
 
     it('onCopy/onCut 应调用 handleClipboardCopy', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'copy me' }] } as ParagraphNode],
+        initSchemaValue: [
+          {
+            type: 'paragraph',
+            children: [{ text: 'copy me' }],
+          } as ParagraphNode,
+        ],
       });
       const editable = screen.getByRole('textbox');
       fireEvent.copy(editable, {
-        clipboardData: { clearData: vi.fn(), setData: vi.fn(), getData: vi.fn() },
+        clipboardData: {
+          clearData: vi.fn(),
+          setData: vi.fn(),
+          getData: vi.fn(),
+        },
       });
       fireEvent.cut(editable, {
-        clipboardData: { clearData: vi.fn(), setData: vi.fn(), getData: vi.fn() },
+        clipboardData: {
+          clearData: vi.fn(),
+          setData: vi.fn(),
+          getData: vi.fn(),
+        },
       });
       expect(screen.getByText('copy me')).toBeInTheDocument();
     });
 
     it('onCompositionStart/onCompositionEnd 应操作 data-composition', () => {
       const { getByTestId } = renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
       });
       const wrapper = getByTestId('editor-wrapper');
       const editable = screen.getByRole('textbox');
@@ -779,9 +848,321 @@ describe('SlateMarkdownEditor', () => {
   describe('ErrorBoundary 与 elementRenderElement', () => {
     it('MElement 被 ErrorBoundary 包裹时应能渲染', () => {
       renderEditor({
-        initSchemaValue: [{ type: 'paragraph', children: [{ text: 'ok' }] } as ParagraphNode],
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'ok' }] } as ParagraphNode,
+        ],
       });
       expect(screen.getByText('ok')).toBeInTheDocument();
+    });
+  });
+
+  describe('handleSelectionChange readonly 分支', () => {
+    it('readonly 且 window.getSelection() 为 null 时应 setDomRect(null) 并 onSelectionChange(null, "", [])', async () => {
+      const setDomRect = vi.fn();
+      const onSelectionChange = vi.fn();
+      const containerRef = createRef<HTMLDivElement>();
+      const origGetSelection = window.getSelection;
+      window.getSelection = vi.fn(() => null);
+      const contextValue = {
+        store: mockStore,
+        typewriter: false,
+        readonly: true,
+        keyTask$: new Subject<{ key: Methods<KeyboardTask>; args?: any[] }>(),
+        insertCompletionText$: new Subject<string>(),
+        openInsertLink$: new Subject<Selection>(),
+        domRect: null,
+        setDomRect,
+        editorProps: {},
+        markdownEditorRef: mockEditorRef,
+        markdownContainerRef:
+          containerRef as React.MutableRefObject<HTMLDivElement | null>,
+        setShowComment: () => {},
+      };
+      const { container } = render(
+        <ConfigProvider>
+          <div ref={containerRef}>
+            <EditorStoreContext.Provider value={contextValue}>
+              <PluginContext.Provider value={[]}>
+                <SlateMarkdownEditor
+                  prefixCls="ant-agentic-md-editor"
+                  instance={mockInstance}
+                  initSchemaValue={[
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'a' }],
+                    } as ParagraphNode,
+                  ]}
+                  onSelectionChange={onSelectionChange}
+                />
+              </PluginContext.Provider>
+            </EditorStoreContext.Provider>
+          </div>
+        </ConfigProvider>,
+      );
+      const slateEditor = container.querySelector('[data-slate-editor="true"]');
+      if (slateEditor) fireEvent.mouseUp(slateEditor);
+      await waitFor(() => {
+        expect(setDomRect).toHaveBeenCalledWith(null);
+        expect(onSelectionChange).toHaveBeenCalledWith(null, '', []);
+      });
+      window.getSelection = origGetSelection;
+    });
+
+    it('readonly 时点击应清除 setDomRect 且不报错', () => {
+      const { container } = renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
+        readonly: true,
+        onSelectionChange: vi.fn(),
+      });
+      const slateEditor = container.querySelector('[data-slate-editor="true"]');
+      expect(slateEditor).toBeTruthy();
+      if (slateEditor) fireEvent.mouseDown(slateEditor);
+      expect(screen.getByText('x')).toBeInTheDocument();
+    });
+  });
+
+  describe('textAreaProps.enable 与 checkEnd', () => {
+    it('textAreaProps.enable 为 true 时 checkEnd 不处理定位', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
+        textAreaProps: { enable: true },
+      });
+      const editable = screen.getByRole('textbox');
+      fireEvent.mouseDown(editable);
+      expect(screen.getByText('x')).toBeInTheDocument();
+    });
+  });
+
+  describe('initialNote 分支', () => {
+    it('instance 为 undefined 时 nodeRef 置空', () => {
+      const containerRef = createRef<HTMLDivElement>();
+      const contextValue = {
+        store: mockStore,
+        typewriter: false,
+        readonly: false,
+        keyTask$: new Subject<{ key: Methods<KeyboardTask>; args?: any[] }>(),
+        insertCompletionText$: new Subject<string>(),
+        openInsertLink$: new Subject<Selection>(),
+        domRect: null,
+        setDomRect: () => {},
+        editorProps: {},
+        markdownEditorRef: mockEditorRef,
+        markdownContainerRef:
+          containerRef as React.MutableRefObject<HTMLDivElement | null>,
+        setShowComment: () => {},
+      };
+      render(
+        <ConfigProvider>
+          <div ref={containerRef}>
+            <EditorStoreContext.Provider value={contextValue}>
+              <PluginContext.Provider value={[]}>
+                <SlateMarkdownEditor
+                  prefixCls="ant-agentic-md-editor"
+                  instance={undefined as any}
+                  initSchemaValue={[
+                    {
+                      type: 'paragraph',
+                      children: [{ text: '' }],
+                    } as ParagraphNode,
+                  ]}
+                />
+              </PluginContext.Provider>
+            </EditorStoreContext.Provider>
+          </div>
+        </ConfigProvider>,
+      );
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('EditorUtils.reset 抛错时应 fallback 到 deleteAll', () => {
+      const resetSpy = vi.spyOn(EditorUtils, 'reset').mockImplementation(() => {
+        throw new Error('reset error');
+      });
+      const deleteAllSpy = vi
+        .spyOn(EditorUtils, 'deleteAll')
+        .mockImplementation(() => {});
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
+      });
+      expect(deleteAllSpy).toHaveBeenCalled();
+      resetSpy.mockRestore();
+      deleteAllSpy.mockRestore();
+    });
+  });
+
+  describe('粘贴类型分支', () => {
+    it('粘贴 application/x-slate-md-fragment 时应走 handleSlateMarkdownFragment', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
+      });
+      const editable = screen.getByRole('textbox');
+      editable.focus();
+      const fragment = [
+        { type: 'paragraph', children: [{ text: 'from fragment' }] },
+      ];
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['application/x-slate-md-fragment', 'text/plain'],
+          getData: (t: string) =>
+            t === 'application/x-slate-md-fragment'
+              ? JSON.stringify(fragment)
+              : t === 'text/plain'
+                ? 'fallback'
+                : '',
+          setData: vi.fn(),
+        },
+      });
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('粘贴 text/markdown 时应 insertFragment', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
+      });
+      const editable = screen.getByRole('textbox');
+      editable.focus();
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['text/markdown'],
+          getData: (t: string) => (t === 'text/markdown' ? '# Hello' : ''),
+          setData: vi.fn(),
+        },
+      });
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('粘贴 text/plain 时应走纯文本处理', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
+      });
+      const editable = screen.getByRole('textbox');
+      editable.focus();
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['text/plain'],
+          getData: (t: string) => (t === 'text/plain' ? 'plain text' : ''),
+          setData: vi.fn(),
+        },
+      });
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    it('pasteConfig.allowedTypes 不包含某类型时不处理该类型', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
+        pasteConfig: { allowedTypes: ['text/plain'] },
+      });
+      const editable = screen.getByRole('textbox');
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['text/html'],
+          getData: () => '',
+          setData: vi.fn(),
+        },
+      });
+      expect(screen.getByText('x')).toBeInTheDocument();
+    });
+  });
+
+  describe('copy/cut 与 hasEditableTarget', () => {
+    it('onCopy 时无 selection 应不抛错', () => {
+      mockEditorRef.current.selection = null;
+      renderEditor({
+        initSchemaValue: [
+          {
+            type: 'paragraph',
+            children: [{ text: 'copy me' }],
+          } as ParagraphNode,
+        ],
+      });
+      const editable = screen.getByRole('textbox');
+      fireEvent.copy(editable, {
+        clipboardData: {
+          clearData: vi.fn(),
+          setData: vi.fn(),
+          getData: vi.fn(),
+        },
+      });
+      expect(screen.getByText('copy me')).toBeInTheDocument();
+    });
+  });
+
+  describe('commentMap 多 path/selection', () => {
+    it('commentList 多条同 path 不同 selection 时应正确构建 commentMap', () => {
+      const commentList = [
+        {
+          path: [0],
+          selection: {
+            anchor: { path: [0, 0], offset: 0 },
+            focus: { path: [0, 0], offset: 3 },
+          },
+          id: 'c1',
+        },
+        {
+          path: [0],
+          selection: {
+            anchor: { path: [0, 0], offset: 4 },
+            focus: { path: [0, 0], offset: 7 },
+          },
+          id: 'c2',
+        },
+      ];
+      renderEditor({
+        initSchemaValue: [
+          {
+            type: 'paragraph',
+            children: [{ text: 'Hello World' }],
+          } as ParagraphNode,
+        ],
+        comment: { enable: true, commentList },
+      });
+      expect(screen.getAllByTestId('comment-view')).toHaveLength(2);
+    });
+  });
+
+  describe('genTableMinSize 递归', () => {
+    it('initSchemaValue 含嵌套 children 时 genTableMinSize 应递归', () => {
+      const initSchemaValue: Elements[] = [
+        {
+          type: 'table',
+          children: [
+            {
+              type: 'table-row',
+              children: [
+                { type: 'table-cell', children: [{ text: 'A' }] },
+                { type: 'table-cell', children: [{ text: 'B' }] },
+              ],
+            },
+            {
+              type: 'table-row',
+              children: [
+                { type: 'table-cell', children: [{ text: 'C' }] },
+                { type: 'table-cell', children: [{ text: 'D' }] },
+              ],
+            },
+          ],
+        } as any,
+      ];
+      renderEditor({
+        initSchemaValue,
+        tableConfig: { minColumn: 2, minRows: 2 },
+      });
+      expect(screen.getByText('A')).toBeInTheDocument();
+      expect(screen.getByText('D')).toBeInTheDocument();
     });
   });
 });
