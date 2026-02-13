@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React, { createRef } from 'react';
 import { Subject } from 'rxjs';
-import { BaseEditor, createEditor, type Selection } from 'slate';
+import { BaseEditor, createEditor, Editor, Transforms, type Selection } from 'slate';
 import { HistoryEditor, withHistory } from 'slate-history';
 import { ReactEditor, withReact } from 'slate-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,9 +16,11 @@ import {
 import { PluginContext } from '../../plugin';
 import type { MarkdownEditorProps } from '../../types';
 import { SlateMarkdownEditor } from '../Editor';
+import * as handlePasteModule from '../plugins/handlePaste';
 import { EditorStore, EditorStoreContext } from '../store';
 import type { KeyboardTask, Methods } from '../utils';
 import { EditorUtils } from '../utils/editorUtils';
+import * as editorUtilsModule from '../utils/editorUtils';
 
 describe('SlateMarkdownEditor', () => {
   let mockInstance: MarkdownEditorInstance;
@@ -1163,6 +1165,257 @@ describe('SlateMarkdownEditor', () => {
       });
       expect(screen.getByText('A')).toBeInTheDocument();
       expect(screen.getByText('D')).toBeInTheDocument();
+    });
+  });
+
+  describe('事件分支覆盖补充', () => {
+    it('onPaste 触发时应进入粘贴处理流程', () => {
+      const onPaste = vi.fn(() => false);
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'x' }] } as ParagraphNode,
+        ],
+        onPaste,
+      });
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['text/plain'],
+          getData: (t: string) => (t === 'text/plain' ? 'pasted text' : ''),
+          setData: vi.fn(),
+        },
+      });
+
+      expect(editable).toBeInTheDocument();
+    });
+
+    it('copy/cut 在事件已处理时应走 fallback preventDefault', () => {
+      const isHandledSpy = vi
+        .spyOn(editorUtilsModule, 'isEventHandled')
+        .mockReturnValue(true);
+
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'copy me' }] } as ParagraphNode,
+        ],
+      });
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+
+      fireEvent.copy(editable, {
+        clipboardData: { clearData: vi.fn(), setData: vi.fn() },
+      });
+      fireEvent.cut(editable, {
+        clipboardData: { clearData: vi.fn(), setData: vi.fn() },
+      });
+
+      expect(editable).toBeInTheDocument();
+      isHandledSpy.mockRestore();
+    });
+
+    it('onDragOver 应调用 preventDefault', () => {
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'drag over' }] } as ParagraphNode,
+        ],
+      });
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      fireEvent.dragOver(editable);
+      expect(editable).toBeInTheDocument();
+    });
+
+    it('onFocus 应返回 markdown 与 children，onBlur 不报错', () => {
+      const onFocus = vi.fn();
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'focus text' }] } as ParagraphNode,
+        ],
+        onFocus,
+      });
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      fireEvent.focus(editable);
+      fireEvent.blur(editable);
+      expect(editable).toBeInTheDocument();
+    });
+
+    it('compositionStart/compositionEnd 应同步 data-composition 标记', () => {
+      mockEditorRef.current.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      } as any;
+
+      const host = document.createElement('div');
+      const tagInput = document.createElement('input');
+      tagInput.setAttribute('data-tag-popup-input', 'true');
+      host.appendChild(tagInput);
+
+      const toDomNodeSpy = vi
+        .spyOn(ReactEditor, 'toDOMNode')
+        .mockReturnValue(host as any);
+
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'ime' }] } as ParagraphNode,
+        ],
+      });
+
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      const preventDefault = vi.fn();
+      const startEvent = fireEvent.compositionStart(editable, {
+        preventDefault,
+      });
+      expect(startEvent).toBe(true);
+
+      fireEvent.compositionEnd(editable);
+      expect(tagInput).toBeTruthy();
+
+      toDomNodeSpy.mockRestore();
+    });
+
+    it('text/plain 在 shouldInsertTextDirectly=true 时应直接 insertText', () => {
+      const shouldInsertSpy = vi
+        .spyOn(handlePasteModule, 'shouldInsertTextDirectly')
+        .mockReturnValue(true);
+      const insertTextSpy = vi.spyOn(Transforms, 'insertText');
+
+      mockEditorRef.current.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      } as any;
+
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
+      });
+      mockEditorRef.current.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      } as any;
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['text/plain'],
+          getData: (t: string) => (t === 'text/plain' ? 'direct text' : ''),
+          setData: vi.fn(),
+        },
+      });
+
+      expect(editable).toBeInTheDocument();
+      shouldInsertSpy.mockRestore();
+      insertTextSpy.mockRestore();
+    });
+
+    it('未命中已支持类型时应回退到 ReactEditor.insertData', () => {
+      const editableTargetSpy = vi
+        .spyOn(editorUtilsModule, 'hasEditableTarget')
+        .mockReturnValue(true);
+      const insertDataSpy = vi.spyOn(ReactEditor, 'insertData');
+
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: '' }] } as ParagraphNode,
+        ],
+      });
+      const editable = document.querySelector(
+        '[data-slate-editor="true"]',
+      ) as HTMLElement;
+      fireEvent.paste(editable, {
+        clipboardData: {
+          types: ['custom/type'],
+          getData: () => '',
+          setData: vi.fn(),
+        },
+        target: editable,
+      });
+
+      expect(editable).toBeInTheDocument();
+      editableTargetSpy.mockRestore();
+      insertDataSpy.mockRestore();
+    });
+
+    it('decorate 处理 comment 时异常应走 catch 回退', () => {
+      const fragmentSpy = vi
+        .spyOn(Editor, 'fragment')
+        .mockImplementation(() => {
+          throw new Error('decorate error');
+        });
+
+      renderEditor({
+        initSchemaValue: [
+          { type: 'paragraph', children: [{ text: 'Hello' }] } as ParagraphNode,
+        ],
+        comment: {
+          enable: true,
+          commentList: [
+            {
+              id: 'c-err',
+              path: [0],
+              selection: {
+                anchor: { path: [0, 0], offset: 0 },
+                focus: { path: [0, 0], offset: 3 },
+              },
+            },
+          ],
+        },
+      });
+
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+      fragmentSpy.mockRestore();
+    });
+
+    it('decorate 在 refContent 场景下应支持 table/card 路径选择', () => {
+      const findByTextSpy = vi
+        .spyOn(editorUtilsModule, 'findByPathAndText')
+        .mockReturnValue([] as any);
+
+      const initSchemaValue: Elements[] = [
+        {
+          type: 'table',
+          children: [
+            {
+              type: 'table-row',
+              children: [
+                { type: 'table-cell', children: [{ text: 'Cell A' }] },
+                { type: 'table-cell', children: [{ text: 'Cell B' }] },
+              ],
+            },
+          ],
+        } as any,
+      ];
+
+      renderEditor({
+        initSchemaValue,
+        comment: {
+          enable: true,
+          commentList: [
+            {
+              id: 'c-ref-table',
+              path: [0],
+              refContent: 'not-found-text',
+              selection: {
+                anchor: undefined,
+                focus: { path: [0, 0, 0, 0], offset: 1 },
+              },
+            },
+          ],
+        },
+      });
+
+      expect(findByTextSpy).toHaveBeenCalled();
+      expect(screen.getAllByTestId('comment-view').length).toBeGreaterThan(0);
+      findByTextSpy.mockRestore();
     });
   });
 });

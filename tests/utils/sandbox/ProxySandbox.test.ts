@@ -1840,4 +1840,234 @@ describe('边界情况测试', () => {
       expect(() => sandbox.destroy()).not.toThrow();
     });
   });
+
+  describe('覆盖率补充：私有分支直测', () => {
+    it('safeDocument.createDocumentFragment 应包含查询方法', async () => {
+      const sandbox = new ProxySandbox();
+      const result = await sandbox.execute(`
+        const f = document.createDocumentFragment();
+        return {
+          q1: typeof f.querySelector,
+          q2: typeof f.querySelectorAll
+        };
+      `);
+      expect(result.success).toBe(true);
+      expect(result.result.q1).toBe('function');
+      expect(result.result.q2).toBe('function');
+      sandbox.destroy();
+    });
+
+    it('safeWindow has 除敏感属性外应回退 Reflect.has', async () => {
+      const sandbox = new ProxySandbox();
+      const result = await sandbox.execute(`
+        return {
+          hasMath: 'Math' in window,
+          hasConsole: 'console' in window
+        };
+      `);
+      expect(result.success).toBe(true);
+      expect(result.result.hasMath).toBe(true);
+      sandbox.destroy();
+    });
+
+    it('createGlobalProxy traps 应覆盖 forbidden/special/custom/ownKeys/descriptor', () => {
+      const sandbox = new ProxySandbox({
+        allowedGlobals: ['window', 'global', 'globalThis', 'Math'],
+        forbiddenGlobals: ['eval'],
+        customGlobals: { customX: 1 },
+      } as any);
+      const proxy = (sandbox as any).createGlobalProxy();
+      delete (sandbox as any).sandboxGlobal.global;
+      delete (sandbox as any).sandboxGlobal.globalThis;
+
+      expect(() => (proxy as any).eval).toThrow();
+      expect((proxy as any).__checkInstructions).toBeTypeOf('function');
+      expect(typeof (proxy as any).window).toBe('object');
+      expect((proxy as any).global).toBe(proxy);
+      expect((proxy as any).globalThis).toBe(proxy);
+      expect((proxy as any).customX).toBe(1);
+      expect((proxy as any).unknownX).toBeUndefined();
+
+      expect(() => {
+        (proxy as any).eval = 1;
+      }).toThrow();
+      (proxy as any).newVar = 42;
+      expect((sandbox as any).sandboxGlobal.newVar).toBe(42);
+      expect('newVar' in proxy).toBe(true);
+
+      expect('eval' in proxy).toBe(false);
+      expect('Math' in proxy).toBe(true);
+      expect(Reflect.ownKeys(proxy).includes('eval')).toBe(false);
+      expect(Object.getOwnPropertyDescriptor(proxy, 'eval')).toBeUndefined();
+      sandbox.destroy();
+    });
+
+    it('executeWithTimeout 超时分支应 reject', async () => {
+      const sandbox = new ProxySandbox({ timeout: 5 } as any);
+      const originalSetTimeout = globalThis.setTimeout;
+      const originalClearTimeout = globalThis.clearTimeout;
+      const clearSpy = vi.fn();
+      (globalThis as any).setTimeout = ((cb: (...args: any[]) => void) => {
+        cb();
+        return 1;
+      }) as any;
+      (globalThis as any).clearTimeout = clearSpy as any;
+      vi.spyOn(sandbox as any, 'executeCode').mockReturnValue(1);
+
+      await expect(
+        (sandbox as any).executeWithTimeout('return 1'),
+      ).rejects.toThrow(/timeout/i);
+
+      (globalThis as any).setTimeout = originalSetTimeout;
+      (globalThis as any).clearTimeout = originalClearTimeout;
+      sandbox.destroy();
+    });
+
+    it('executeWithInstructionLimit 应覆盖 timeout/cleanup/delete 分支', async () => {
+      const sandbox = new ProxySandbox({ timeout: 5 } as any);
+      (sandbox as any).sandboxGlobal.__checkInstructions = undefined;
+
+      const nowSpy = vi
+        .spyOn(performance, 'now')
+        .mockReturnValueOnce(0)
+        .mockReturnValue(100);
+
+      const originalSetTimeout = globalThis.setTimeout;
+      (globalThis as any).setTimeout = ((cb: (...args: any[]) => void) => {
+        cb();
+        return 1;
+      }) as any;
+
+      await expect(
+        (sandbox as any).executeWithInstructionLimit('while(true){ }'),
+      ).rejects.toThrow(/timeout|instruction/i);
+
+      (globalThis as any).setTimeout = originalSetTimeout;
+      nowSpy.mockRestore();
+      sandbox.destroy();
+    });
+
+    it('trySerializeParams 与 fallbackToSyncExecution 两条路径', async () => {
+      const sandbox = new ProxySandbox();
+      const fallbackSpy = vi.spyOn(sandbox as any, 'fallbackToSyncExecution');
+      const resolve = vi.fn();
+      const reject = vi.fn();
+
+      const bad = { big: BigInt(1) } as any;
+      const s1 = (sandbox as any).trySerializeParams(
+        bad,
+        'return 1',
+        resolve,
+        reject,
+      );
+      expect(s1).toBeNull();
+      expect(fallbackSpy).toHaveBeenCalled();
+
+      const insSpy = vi
+        .spyOn(sandbox as any, 'executeWithInstructionLimit')
+        .mockResolvedValue(1);
+      const timeoutSpy = vi
+        .spyOn(sandbox as any, 'executeWithTimeout')
+        .mockResolvedValue(2);
+
+      (sandbox as any).fallbackToSyncExecution(
+        'while(true){ }',
+        {},
+        resolve,
+        reject,
+      );
+      (sandbox as any).fallbackToSyncExecution('return 1', {}, resolve, reject);
+      expect(insSpy).toHaveBeenCalled();
+      expect(timeoutSpy).toHaveBeenCalled();
+      sandbox.destroy();
+    });
+
+    it('createWorkerInstance 与 setup handlers/timeout/cleanup 分支', async () => {
+      const sandbox = new ProxySandbox({ allowConsole: true } as any);
+      const postMessage = vi.fn();
+      const terminate = vi.fn();
+      const fakeWorker: any = { postMessage, terminate, onmessage: null, onerror: null };
+      const OldWorker = (globalThis as any).Worker;
+      const OldURL = globalThis.URL;
+      const revokeSpy = vi.fn();
+      const createSpy = vi.fn(() => 'blob:mock');
+
+      (globalThis as any).Worker = vi.fn(() => fakeWorker);
+      (globalThis as any).URL = {
+        ...OldURL,
+        createObjectURL: createSpy,
+        revokeObjectURL: revokeSpy,
+      };
+
+      const reject = vi.fn();
+      const resolve = vi.fn();
+
+      const created = (sandbox as any).createWorkerInstance(
+        'return 1',
+        {},
+        resolve,
+        reject,
+      );
+      expect(created.worker).toBeTruthy();
+      expect(postMessage).toHaveBeenCalled();
+
+      const cleanupSpy = vi.spyOn(sandbox as any, 'cleanupWorker');
+      const handleConsoleSpy = vi.spyOn(sandbox as any, 'handleConsoleMessage');
+      (sandbox as any).setupWorkerHandlers(
+        fakeWorker,
+        'blob:mock',
+        1,
+        resolve,
+        reject,
+      );
+      fakeWorker.onmessage({ data: { type: 'result', data: 1 } });
+      fakeWorker.onmessage({ data: { type: 'error', data: { message: 'x' } } });
+      fakeWorker.onmessage({ data: { type: 'log', data: ['m'] } });
+      fakeWorker.onerror({ message: 'boom' });
+      expect(cleanupSpy).toHaveBeenCalled();
+      expect(handleConsoleSpy).toHaveBeenCalled();
+
+      const originalWindowSetTimeout = window.setTimeout;
+      (window as any).setTimeout = ((cb: (...args: any[]) => void) => {
+        cb();
+        return 1;
+      }) as any;
+      (sandbox as any).setupWorkerTimeout(fakeWorker, 'blob:mock', reject);
+      expect(terminate).toHaveBeenCalled();
+      expect(revokeSpy).toHaveBeenCalled();
+      (window as any).setTimeout = originalWindowSetTimeout;
+
+      (sandbox as any).cleanupWorker(fakeWorker, 'blob:mock', 1);
+      expect(terminate).toHaveBeenCalled();
+
+      (globalThis as any).Worker = OldWorker;
+      (globalThis as any).URL = OldURL;
+      sandbox.destroy();
+    });
+
+    it('handleConsoleMessage 在 allowConsole=false 和非法类型时应直接返回', () => {
+      const sandbox = new ProxySandbox({ allowConsole: false } as any);
+      const logSpy = vi.spyOn(console, 'log');
+      (sandbox as any).handleConsoleMessage('log', ['x']);
+      expect(logSpy).not.toHaveBeenCalled();
+
+      const sandbox2 = new ProxySandbox({ allowConsole: true } as any);
+      (sandbox2 as any).handleConsoleMessage('invalid-type', ['x']);
+      expect(logSpy).not.toHaveBeenCalled();
+      logSpy.mockRestore();
+      sandbox.destroy();
+      sandbox2.destroy();
+    });
+
+    it('cleanup timeoutId 分支应清空 timeoutId', () => {
+      const sandbox = new ProxySandbox();
+      (sandbox as any).timeoutId = 123;
+      const clearSpy = vi.spyOn(globalThis, 'clearTimeout');
+      (sandbox as any).cleanup();
+      expect((sandbox as any).timeoutId).toBeNull();
+      expect(clearSpy).toHaveBeenCalled();
+      clearSpy.mockRestore();
+      sandbox.destroy();
+    });
+  });
 });

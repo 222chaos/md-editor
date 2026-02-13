@@ -1169,3 +1169,130 @@ describe('InsertAutocomplete input and keyboard', () => {
     }
   });
 });
+
+describe('InsertAutocomplete callback branch coverage', () => {
+  beforeEach(() => {
+    useEditorStoreMock.mockImplementation(getDefaultStore as any);
+    vi.clearAllMocks();
+  });
+
+  it('optionsRender callback item click should call domEvent stop/prevent and run built-in task', () => {
+    let captured: any[] = [];
+    const optionsRender = vi.fn((opts: any[]) => {
+      captured = opts;
+      return opts;
+    });
+    render(<InsertAutocomplete optionsRender={optionsRender} />);
+    act(() => insertCompletionText$.next(''));
+
+    const codeItem = captured.find((i) => i.key === 'code');
+    expect(codeItem).toBeTruthy();
+    const stopPropagation = vi.fn();
+    const preventDefault = vi.fn();
+    codeItem.onClick({ domEvent: { stopPropagation, preventDefault } });
+
+    expect(stopPropagation).toHaveBeenCalled();
+    expect(preventDefault).toHaveBeenCalled();
+    expect(Transforms.insertText).toHaveBeenCalled();
+    expect(keyTaskNext).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'insertCode' }),
+    );
+  });
+
+  it('custom item click with matchMedia undefined should hit custom return guard', async () => {
+    const originalMatchMedia = window.matchMedia;
+    // @ts-ignore
+    window.matchMedia = undefined;
+    let captured: any[] = [];
+    const optionsRender = vi.fn((opts: any[]) => {
+      captured = opts;
+      return opts;
+    });
+    const runInsertTask = vi.fn().mockResolvedValue(true);
+    const customItem: InsertAutocompleteItem = {
+      label: ['Custom Action', '自定义动作'],
+      key: 'my-custom-task',
+      task: 'my-custom-task',
+      icon: <span />,
+    };
+    render(
+      <InsertAutocomplete
+        optionsRender={optionsRender}
+        insertOptions={[customItem]}
+        runInsertTask={runInsertTask}
+      />,
+    );
+    act(() => insertCompletionText$.next(''));
+
+    const item = captured.find((i) => i.key === 'my-custom-task');
+    expect(item).toBeTruthy();
+    item.onClick({
+      domEvent: { stopPropagation: vi.fn(), preventDefault: vi.fn() },
+    });
+    await act(async () => {});
+    expect(Transforms.delete).toHaveBeenCalled();
+    expect(runInsertTask).toHaveBeenCalledWith(
+      customItem,
+      expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }),
+    );
+    window.matchMedia = originalMatchMedia;
+  });
+
+  it('built-in task click with matchMedia undefined should hit non-custom return guard', () => {
+    const originalMatchMedia = window.matchMedia;
+    // @ts-ignore
+    window.matchMedia = undefined;
+    let captured: any[] = [];
+    const optionsRender = vi.fn((opts: any[]) => {
+      captured = opts;
+      return opts;
+    });
+    render(<InsertAutocomplete optionsRender={optionsRender} />);
+    act(() => insertCompletionText$.next(''));
+
+    const quoteItem = captured.find((i) => i.key === 'quote');
+    expect(quoteItem).toBeTruthy();
+    quoteItem.onClick({
+      domEvent: { stopPropagation: vi.fn(), preventDefault: vi.fn() },
+    });
+    expect(Transforms.insertText).toHaveBeenCalled();
+    expect(keyTaskNext).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'insertQuote' }),
+    );
+    window.matchMedia = originalMatchMedia;
+  });
+
+});
+
+describe('InsertAutocomplete position fallback coverage', () => {
+  beforeEach(() => {
+    useEditorStoreMock.mockImplementation(getDefaultStore as any);
+    vi.clearAllMocks();
+  });
+
+  it('when calculatePosition returns undefined should fallback to top=0 left=0', async () => {
+    vi.mocked(mockNodeEl.getBoundingClientRect).mockReturnValue({
+      top: Number.NaN,
+      left: 0,
+      width: 100,
+      height: 20,
+      bottom: Number.NaN,
+      right: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(mockNodeEl, 'clientHeight', {
+      value: 20,
+      configurable: true,
+    });
+    render(<InsertAutocomplete />);
+    act(() => insertCompletionText$.next(''));
+    await act(async () => {});
+    const wrapper = document.body.querySelector(
+      '[class*="insert-autocomplete"]',
+    ) as HTMLElement;
+    expect(wrapper).toBeTruthy();
+    expect(wrapper.style.top).toBe('0px');
+  });
+});

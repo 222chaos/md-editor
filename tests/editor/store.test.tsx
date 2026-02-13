@@ -2665,4 +2665,463 @@ describe('EditorStore', () => {
       vi.restoreAllMocks();
     });
   });
+
+  describe('覆盖率补充：store 私有分支补齐', () => {
+    it('findLatest 在非 children 节点上直接返回 index', () => {
+      const result = (store as any).findLatest({ text: 'leaf' }, [2, 3]);
+      expect(result).toEqual([2, 3]);
+    });
+
+    it('setMDContent 在 useRAF=true 且 chunks<=10 时走同步长内容分支', () => {
+      const longMd = `${'a'.repeat(5100)}---${'b'.repeat(100)}`;
+      store.setMDContent(longMd, undefined, {
+        separator: '###-not-exist-###',
+        useRAF: true,
+      });
+      expect(editor.children.length).toBeGreaterThan(0);
+    });
+
+    it('setMDContent 同步长内容解析失败应命中 _setLongContentSync catch', () => {
+      const parserSpy = vi.spyOn(parserMdToSchemaModule, 'parserMdToSchema');
+      const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      parserSpy.mockImplementation(() => {
+        throw new Error('sync long parse failed');
+      });
+      expect(() =>
+        store.setMDContent('x'.repeat(6000), undefined, {
+          useRAF: false,
+          separator: /x+/,
+        }),
+      ).toThrow('sync long parse failed');
+      expect(errSpy).toHaveBeenCalledWith(
+        'Failed to set MD content synchronously:',
+        expect.any(Error),
+      );
+      parserSpy.mockRestore();
+      errSpy.mockRestore();
+    });
+
+    it('_splitMarkdown 支持空文本与无匹配分隔符分支', () => {
+      expect((store as any)._splitMarkdown('', '\n\n')).toEqual([]);
+      expect((store as any)._splitMarkdown('abc', '---')).toEqual(['abc']);
+    });
+
+    it('_collectSeparatorMatches 处理零长度正则匹配不死循环', () => {
+      const matches = (store as any)._collectSeparatorMatches('abc', /^/gm);
+      expect(matches.length).toBeGreaterThan(0);
+      expect(matches[0].length).toBe(0);
+    });
+
+    it('_matchFence 与 _findLineEnd 覆盖空格前缀/不足三符/末尾无换行', () => {
+      expect((store as any)._matchFence('   ```js\nx', 0)).toEqual(
+        expect.objectContaining({ marker: '`' }),
+      );
+      expect((store as any)._matchFence('   ', 0)).toBeNull();
+      expect((store as any)._matchFence('``\n', 0)).toBeNull();
+      expect((store as any)._findLineEnd('line-without-newline', 0)).toBe(20);
+    });
+
+    it('_getNodeFinished/_isNodeEqual/_replaceNodeAt 覆盖 hash+finished 分支', () => {
+      expect((store as any)._getNodeFinished({ otherProps: { finished: true } })).toBe(
+        true,
+      );
+      expect(
+        (store as any)._isNodeEqual(
+          { hash: 'h1', otherProps: { finished: true } },
+          { hash: 'h1', otherProps: { finished: true } },
+        ),
+      ).toBe(true);
+      const removeSpy = vi.spyOn(Transforms, 'removeNodes');
+      const insertSpy = vi.spyOn(Transforms, 'insertNodes');
+      (store as any)._replaceNodeAt([0], {
+        type: 'paragraph',
+        children: [{ text: 'replace' }],
+      });
+      expect(removeSpy).toHaveBeenCalled();
+      expect(insertSpy).toHaveBeenCalled();
+      removeSpy.mockRestore();
+      insertSpy.mockRestore();
+    });
+
+    it('_isValidNode 覆盖 listItem/code/image 的无效分支', () => {
+      expect((store as any)._isValidNode(null)).toBe(false);
+      expect(
+        (store as any)._isValidNode({
+          type: 'listItem',
+          children: [],
+        }),
+      ).toBe(false);
+      expect(
+        (store as any)._isValidNode({
+          type: 'code',
+          language: 'code',
+          otherProps: [],
+          children: [{ text: '' }],
+        }),
+      ).toBe(false);
+      expect(
+        (store as any)._isValidNode({
+          type: 'image',
+          children: [{ text: '' }],
+        }),
+      ).toBe(false);
+    });
+
+    it('generateDiffOperationsInternal 与 compareNodes 覆盖 hash 快速返回', () => {
+      const operations: any[] = [];
+      (store as any).generateDiffOperationsInternal(undefined, [], operations);
+      (store as any).generateDiffOperationsInternal(
+        [{ type: 'paragraph', hash: 'same', children: [{ text: 'a' }] }],
+        [{ type: 'paragraph', hash: 'same', children: [{ text: 'b' }] }],
+        operations,
+      );
+      (store as any).compareNodes(
+        { type: 'paragraph', hash: 'x', children: [{ text: 'a' }] },
+        { type: 'paragraph', hash: 'x', children: [{ text: 'b' }] },
+        [0],
+        operations,
+      );
+      expect(operations.length).toBe(0);
+    });
+
+    it('表格差异覆盖大行差替换、行属性更新、单元格增删、表属性更新', () => {
+      const ops: any[] = [];
+      (store as any).compareTableNodes(
+        {
+          type: 'table',
+          children: [
+            { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: '1' }] }] },
+            { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: '2' }] }] },
+            { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: '3' }] }] },
+            { type: 'table-row', children: [{ type: 'table-cell', children: [{ text: '4' }] }] },
+          ],
+        },
+        {
+          type: 'table',
+          children: [{ type: 'table-row', children: [{ type: 'table-cell', children: [{ text: '1' }] }] }],
+        },
+        [0],
+        ops,
+      );
+      (store as any)._updateTableRow(
+        { type: 'table-row', align: 'center', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] },
+        { type: 'table-row', align: 'left', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] },
+        [0, 0],
+        ops,
+      );
+      (store as any)._handleCellCountChanges(
+        [
+          { type: 'table-cell', children: [{ text: 'a' }] },
+          { type: 'table-cell', children: [{ text: 'b' }] },
+        ],
+        [{ type: 'table-cell', children: [{ text: 'a' }] }],
+        [0, 0],
+        ops,
+      );
+      (store as any)._handleCellCountChanges(
+        [{ type: 'table-cell', children: [{ text: 'a' }] }],
+        [
+          { type: 'table-cell', children: [{ text: 'a' }] },
+          { type: 'table-cell', children: [{ text: 'b' }] },
+        ],
+        [0, 0],
+        ops,
+      );
+      (store as any)._updateTableWithRowChanges(
+        {
+          type: 'table',
+          align: 'center',
+          children: [{ type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] }],
+        },
+        {
+          type: 'table',
+          align: 'left',
+          children: [{ type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] }],
+        },
+        [{ type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] }],
+        [{ type: 'table-row', children: [{ type: 'table-cell', children: [{ text: 'a' }] }] }],
+        [0],
+        ops,
+      );
+      expect(ops.some((op) => op.type === 'replace')).toBe(true);
+      expect(ops.some((op) => op.type === 'update')).toBe(true);
+      expect(ops.some((op) => op.type === 'insert')).toBe(true);
+      expect(ops.some((op) => op.type === 'remove')).toBe(true);
+    });
+
+    it('executeOperations 在 editor 为空时直接返回', () => {
+      const origin = (store as any)._editor;
+      (store as any)._editor = { current: null };
+      expect(() => (store as any).executeOperations([])).not.toThrow();
+      (store as any)._editor = origin;
+    });
+
+    it('拖拽私有函数补齐：_findClosestPoint/_updateDragMark/_handleDragEnd/_cleanup', () => {
+      const closest = (store as any)._findClosestPoint(
+        [
+          {
+            el: document.createElement('div'),
+            direction: 'top',
+            top: 10,
+            left: 0,
+          },
+        ],
+        12,
+      );
+      expect(closest).toBeTruthy();
+      const container = document.createElement('div');
+      const parent = document.createElement('div');
+      parent.appendChild(container);
+      container.getBoundingClientRect = () => ({ left: 0, top: 0 }) as DOMRect;
+      Object.defineProperty(container, 'scrollTop', { value: 0 });
+      Object.defineProperty(container, 'scrollLeft', { value: 0 });
+      const mark = document.createElement('div');
+      const pointEl = document.createElement('div');
+      Object.defineProperty(pointEl, 'clientWidth', { value: 90 });
+      expect(
+        (store as any)._updateDragMark(
+          mark,
+          { el: pointEl, direction: 'top', top: 10, left: 0 },
+          container,
+        ),
+      ).toBe(mark);
+
+      store.draggedElement = null;
+      expect(() =>
+        (store as any)._handleDragEnd({
+          el: document.createElement('div'),
+          direction: 'top',
+          top: 0,
+          left: 0,
+        }),
+      ).not.toThrow();
+
+      const deleteSpy = vi
+        .spyOn(Transforms, 'delete')
+        .mockImplementation(() => {});
+      (store as any)._cleanupEmptyParent(
+        { children: [{ text: 'only' }] },
+        [0, 0],
+        [0],
+      );
+      expect(deleteSpy).toHaveBeenCalledWith(editor, { at: [1] });
+      deleteSpy.mockRestore();
+    });
+
+    it('_replaceFirstInNodes 未命中任何文本时返回 0', () => {
+      const count = (store as any)._replaceFirstInNodes(
+        [[{ text: 'abc' }, [0, 0]]],
+        'not-found',
+        'x',
+        false,
+        false,
+      );
+      expect(count).toBe(0);
+    });
+
+    it('insertLink 在 code/head/table 父节点分支应执行父节点匹配函数', () => {
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      } as any;
+      const nodesSpy = vi.spyOn(Editor, 'nodes');
+      nodesSpy.mockImplementation(function* (_e: any, opts: any) {
+        const candidate = { type: 'code', children: [{ text: '' }] };
+        opts?.match?.(candidate);
+        yield [candidate, [0]] as any;
+      });
+      const insertSpy = vi
+        .spyOn(Transforms, 'insertNodes')
+        .mockImplementation(() => {});
+      store.insertLink('/tmp/a.txt');
+      expect(insertSpy).toHaveBeenCalled();
+      nodesSpy.mockRestore();
+      insertSpy.mockRestore();
+    });
+
+    it('dragStart 分支覆盖：执行 onPointFound、dragend remove mark、调用 _handleDragEnd', () => {
+      const parent = document.createElement('div');
+      const container = document.createElement('div');
+      parent.appendChild(container);
+
+      const dragEl = document.createElement('div');
+      dragEl.setAttribute('data-be', 'paragraph');
+      store.draggedElement = dragEl as any;
+
+      const pointEl = document.createElement('div');
+      pointEl.setAttribute('data-be', 'paragraph');
+      const mark = document.createElement('div');
+      parent.appendChild(mark);
+
+      const createSpy = vi
+        .spyOn(store as any, '_createDragOverHandler')
+        .mockImplementation(
+          (_container: any, _points: any, onPointFound: (p: any) => void) => {
+            onPointFound({ el: pointEl, direction: 'top', top: 1, left: 1 });
+            return () => {};
+          },
+        );
+      const updateSpy = vi
+        .spyOn(store as any, '_updateDragMark')
+        .mockReturnValue(mark);
+      const endSpy = vi
+        .spyOn(store as any, '_handleDragEnd')
+        .mockImplementation(() => {});
+
+      let dragendHandler: (() => void) | undefined;
+      const addSpy = vi
+        .spyOn(window, 'addEventListener')
+        .mockImplementation((event, handler) => {
+          if (event === 'dragend') dragendHandler = handler as () => void;
+        });
+      const removeSpy = vi.spyOn(window, 'removeEventListener');
+
+      store.dragStart(
+        { stopPropagation: vi.fn(), dataTransfer: { setDragImage: vi.fn() } } as any,
+        container,
+      );
+      dragendHandler?.();
+
+      expect(updateSpy).toHaveBeenCalled();
+      expect(endSpy).toHaveBeenCalled();
+      expect(removeSpy).toHaveBeenCalledWith('dragover', expect.any(Function));
+
+      createSpy.mockRestore();
+      updateSpy.mockRestore();
+      endSpy.mockRestore();
+      addSpy.mockRestore();
+      removeSpy.mockRestore();
+    });
+
+    it('dragStart dragend 回调抛错时进入 catch 分支', () => {
+      const parent = document.createElement('div');
+      const container = document.createElement('div');
+      parent.appendChild(container);
+      const dragEl = document.createElement('div');
+      dragEl.setAttribute('data-be', 'paragraph');
+      store.draggedElement = dragEl as any;
+
+      vi.spyOn(store as any, '_createDragOverHandler').mockImplementation(
+        (_container: any, _points: any, onPointFound: (p: any) => void) => {
+          onPointFound({
+            el: document.createElement('div'),
+            direction: 'top',
+            top: 1,
+            left: 1,
+          });
+          return () => {};
+        },
+      );
+      vi.spyOn(store as any, '_updateDragMark').mockReturnValue(null);
+      vi.spyOn(store as any, '_handleDragEnd').mockImplementation(() => {
+        throw new Error('drag end failed');
+      });
+
+      let dragendHandler: (() => void) | undefined;
+      vi.spyOn(window, 'addEventListener').mockImplementation((event, handler) => {
+        if (event === 'dragend') dragendHandler = handler as () => void;
+      });
+      const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      store.dragStart(
+        { stopPropagation: vi.fn(), dataTransfer: { setDragImage: vi.fn() } } as any,
+        container,
+      );
+      dragendHandler?.();
+
+      expect(errSpy).toHaveBeenCalled();
+      vi.restoreAllMocks();
+    });
+
+    it('_collectMovePoints/_shouldIncludeElement/_createDragOverHandler 覆盖剩余拖拽分支', () => {
+      const container = document.createElement('div');
+      const parent = document.createElement('div');
+      parent.appendChild(container);
+      const el1 = document.createElement('div');
+      el1.setAttribute('data-be', 'paragraph');
+      const el2 = document.createElement('div');
+      el2.setAttribute('data-be', 'paragraph');
+      el2.setAttribute('data-frontmatter', '');
+      Object.defineProperty(el1, 'clientHeight', { value: 10 });
+      Object.defineProperty(el2, 'clientHeight', { value: 10 });
+
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([el1, el2] as any);
+      store.draggedElement = document.createElement('div') as any;
+      store.draggedElement.setAttribute('data-be', 'head');
+
+      const points = (store as any)._collectMovePoints(
+        container,
+        new Set(['paragraph']),
+      );
+      expect(points.length).toBeGreaterThan(0);
+
+      const notAllowedEl = document.createElement('div');
+      notAllowedEl.setAttribute('data-be', 'paragraph');
+      expect((store as any)._shouldIncludeElement(notAllowedEl, new Set())).toBe(
+        false,
+      );
+      expect((store as any)._shouldIncludeElement(el2, new Set(['paragraph']))).toBe(
+        false,
+      );
+      expect((store as any)._shouldIncludeElement(store.draggedElement, new Set(['head']))).toBe(
+        false,
+      );
+      const okEl = document.createElement('div');
+      okEl.setAttribute('data-be', 'paragraph');
+      expect((store as any)._shouldIncludeElement(okEl, new Set(['paragraph']))).toBe(
+        true,
+      );
+
+      const onPointFound = vi.fn();
+      const handler = (store as any)._createDragOverHandler(
+        container,
+        points,
+        onPointFound,
+      );
+      handler({ preventDefault: vi.fn(), clientY: 50 } as any);
+      expect(onPointFound).toHaveBeenCalled();
+    });
+
+    it('_handleDragEnd 在 targetPath=dragPath 时提前返回，_moveListItemToNonListItem 覆盖 2052/2055', () => {
+      const dragEl = document.createElement('div');
+      store.draggedElement = dragEl as any;
+      vi.spyOn(store as any, 'toPath')
+        .mockReturnValueOnce([[0], { type: 'paragraph' }])
+        .mockReturnValueOnce([[0], { type: 'paragraph' }]);
+      expect(() =>
+        (store as any)._handleDragEnd({
+          el: document.createElement('div'),
+          direction: 'top',
+          top: 0,
+          left: 0,
+        }),
+      ).not.toThrow();
+
+      const deleteSpy = vi
+        .spyOn(Transforms, 'delete')
+        .mockImplementation(() => {});
+      const insertSpy = vi
+        .spyOn(Transforms, 'insertNodes')
+        .mockImplementation(() => {});
+      const resultNull = (store as any)._moveListItemToNonListItem(
+        { type: 'list-item', children: [{ text: 'a' }] },
+        [0, 0],
+        [1],
+        { type: 'list', children: [{}, {}] },
+        [2],
+      );
+      expect(resultNull).toBeNull();
+
+      const resultNext = (store as any)._moveListItemToNonListItem(
+        { type: 'list-item', children: [{ text: 'a' }] },
+        [1, 0],
+        [1],
+        { type: 'list', children: [{}] },
+        [0],
+      );
+      expect(resultNext).toEqual([2]);
+      deleteSpy.mockRestore();
+      insertSpy.mockRestore();
+    });
+  });
 });

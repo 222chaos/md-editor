@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { createEditor, Editor, Node } from 'slate';
+import { createEditor, Editor, Node, Transforms } from 'slate';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ELEMENT_TAGS,
@@ -9,6 +9,12 @@ import {
   insertParsedHtmlNodes,
 } from '../src/MarkdownEditor/editor/plugins/insertParsedHtmlNodes';
 import * as docxDeserializerModule from '../src/MarkdownEditor/editor/utils/docx/docxDeserializer';
+
+vi.mock('../src/MarkdownEditor/editor/plugins/hotKeyCommands/backspace', () => ({
+  BackspaceKey: vi.fn().mockImplementation(() => ({
+    range: vi.fn(),
+  })),
+}));
 
 // Mock antd message
 vi.mock('antd', () => ({
@@ -621,6 +627,13 @@ describe('insertParsedHtmlNodes', () => {
       expect(out.type === 'media' || out.type === 'card').toBe(true);
     });
 
+    it('IMG 空 src 或非 http(s) 地址应回退 paragraph', () => {
+      const out1 = ELEMENT_TAGS.IMG({ src: '', alt: 'a' } as any) as any;
+      expect(out1.type).toBe('paragraph');
+      const out2 = ELEMENT_TAGS.IMG({ src: 'ftp://x/a.png', alt: 'a' } as any) as any;
+      expect(out2.type).toBe('paragraph');
+    });
+
     it('P 应支持 align', () => {
       const el = document.createElement('p');
       el.setAttribute('align', 'center');
@@ -650,6 +663,8 @@ describe('insertParsedHtmlNodes', () => {
       expect(TEXT_TAGS.KBD()).toEqual({ code: true });
       expect(TEXT_TAGS.DEL()).toEqual({ strikethrough: true });
       expect(TEXT_TAGS.EM()).toEqual({ italic: true });
+      expect(TEXT_TAGS.I()).toEqual({ italic: true });
+      expect(TEXT_TAGS.S()).toEqual({ strikethrough: true });
       expect(TEXT_TAGS.STRONG()).toEqual({ bold: true });
       expect(TEXT_TAGS.B()).toEqual({ bold: true });
     });
@@ -690,6 +705,83 @@ describe('insertParsedHtmlNodes', () => {
       const result = deserialize(div as any, '');
       expect(result).toBeDefined();
       expect(Array.isArray(result) || (result && typeof result === 'object')).toBe(true);
+    });
+
+    it('BLOCKQUOTE 标签应走 ELEMENT_TAGS.BLOCKQUOTE', () => {
+      const el = document.createElement('blockquote');
+      el.appendChild(document.createTextNode('quoted'));
+      const result = deserialize(el as any, '') as any;
+      expect(result?.type).toBe('blockquote');
+    });
+
+    it('PRE[data-bl-type=code] 应解析为 code 节点', () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML =
+        '<pre data-bl-type="code" data-bl-lang="ts"><code>let\\n\\tx=1;</code></pre>';
+      const pre = wrap.firstElementChild as HTMLElement;
+      const result = deserialize(pre as any, '') as any;
+      expect(result?.type).toBe('code');
+      expect(result?.language).toBe('ts');
+    });
+
+    it('PRE 普通 code 节点应走 parserCodeText 分支', () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = '<pre><code>a<br>b</code></pre>';
+      const pre = wrap.firstElementChild as HTMLElement;
+      const code = pre.firstElementChild as HTMLElement;
+      Object.defineProperty(code, 'innerText', { value: 'a\nb', configurable: true });
+      const result = deserialize(pre as any, '') as any;
+      expect(result?.type).toBe('code');
+      expect(result?.value).toBe('a\nb');
+    });
+
+    it('PRE 且 parserCodeText 为空时返回 null', () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = '<pre><code></code></pre>';
+      const pre = wrap.firstElementChild as HTMLElement;
+      const code = pre.firstElementChild as HTMLElement;
+      Object.defineProperty(code, 'innerText', { value: '', configurable: true });
+      const result = deserialize(pre as any, '') as any;
+      expect(result).toBeNull();
+    });
+
+    it('PRE 子节点索引错位时 parserCodeText(undefined) 返回空串', () => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = '<pre>x<code></code></pre>';
+      const pre = wrap.firstElementChild as HTMLElement;
+      const result = deserialize(pre as any, '') as any;
+      expect(result).toBeNull();
+    });
+
+    it('TEXT_TAGS 节点包含非文本子元素时返回 fragment', () => {
+      const span = document.createElement('span');
+      const p = document.createElement('p');
+      p.textContent = 'nested';
+      span.appendChild(p);
+      const result = deserialize(span as any, '');
+      expect(result).toBeDefined();
+    });
+
+    it('TEXT_TAGS 纯文本子节点应映射为 text 并过滤空值', () => {
+      const span = document.createElement('span');
+      span.appendChild(document.createTextNode('hello'));
+      const result = deserialize(span as any, '');
+      expect(Array.isArray(result)).toBe(true);
+      expect((result as any[]).length).toBeGreaterThan(0);
+    });
+
+    it('空元素 children 回退为 text 节点', () => {
+      const p = document.createElement('p');
+      const result = deserialize(p as any, '') as any;
+      const textNode = Array.isArray(result) ? result[0] : result?.children?.[0];
+      expect(textNode?.text).toBe('');
+    });
+
+    it('未知标签应走默认分支并返回 children', () => {
+      const section = document.createElement('section');
+      section.appendChild(document.createTextNode('fallback'));
+      const result = deserialize(section as any, '');
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
@@ -790,6 +882,89 @@ describe('insertParsedHtmlNodes', () => {
       const result = await insertParsedHtmlNodes(editor, '<p>raw</p>', {}, '');
       expect(result).toBe(true);
     });
+
+    it('非折叠选区延迟回调会删除首个空段落', async () => {
+      editor.children = [
+        { type: 'paragraph', children: [{ text: '' }] },
+        { type: 'paragraph', children: [{ text: 'keep' }] },
+      ] as any;
+      editor.selection = {
+        anchor: { path: [1, 0], offset: 0 },
+        focus: { path: [1, 0], offset: 2 },
+      };
+      const deleteSpy = vi.spyOn(Transforms, 'delete');
+      vi.useFakeTimers();
+      const p = insertParsedHtmlNodes(editor, '<p>x</p>', {}, '');
+      await vi.runAllTimersAsync();
+      await p;
+      vi.useRealTimers();
+      expect(deleteSpy).toHaveBeenCalledWith(editor, { at: [0] });
+      deleteSpy.mockRestore();
+    });
+
+    it('list-item 空段落且父节点 children>1 时触发 moveNodes', async () => {
+      editor.children = [
+        {
+          type: 'list',
+          children: [
+            {
+              type: 'list-item',
+              children: [
+                { type: 'paragraph', children: [{ text: '' }] },
+                { type: 'paragraph', children: [{ text: 'tail' }] },
+              ],
+            },
+          ],
+        },
+      ] as any;
+      editor.selection = {
+        anchor: { path: [0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'list',
+          children: [{ type: 'list-item', children: [{ text: 'a' }] }],
+        },
+      ] as any);
+      const moveSpy = vi.spyOn(Transforms, 'moveNodes');
+      const result = await insertParsedHtmlNodes(editor, '<ul><li>a</li></ul>', {}, '');
+      expect(result).toBe(true);
+      expect(moveSpy).toHaveBeenCalled();
+      moveSpy.mockRestore();
+    });
+
+    it('list-item 非空段落时走 776 与 782 分支', async () => {
+      editor.children = [
+        {
+          type: 'list',
+          children: [
+            {
+              type: 'list-item',
+              children: [{ type: 'paragraph', children: [{ text: 'seed' }] }],
+            },
+          ],
+        },
+      ] as any;
+      editor.selection = {
+        anchor: { path: [0, 0, 0, 0], offset: 0 },
+        focus: { path: [0, 0, 0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'list',
+          children: [{ type: 'list-item', children: [{ text: 'a' }] }],
+        },
+        { type: 'paragraph', children: [{ text: 'rest' }] },
+      ] as any);
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<ul><li>a</li></ul><p>rest</p>',
+        {},
+        '',
+      );
+      expect(result).toBe(true);
+    });
   });
 
   describe('shouldExcludeFromUpload 通过 insertParsedHtmlNodes', () => {
@@ -852,6 +1027,38 @@ describe('insertParsedHtmlNodes', () => {
       vi.useRealTimers();
       expect(result).toBe(true);
     });
+
+    it('requestIdleCallback 可用时应走 idle 分支', async () => {
+      const longHtml = '<p>' + 'x'.repeat(1200) + '</p>';
+      const idleSpy = vi.fn((cb: any) => cb());
+      Object.defineProperty(window, 'requestIdleCallback', {
+        value: idleSpy,
+        configurable: true,
+      });
+      (globalThis as any).requestIdleCallback = idleSpy;
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { type: 'paragraph', children: [{ text: 'idle' }] },
+      ] as any);
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      const result = await insertParsedHtmlNodes(editor, longHtml, {}, '');
+      expect(result).toBe(true);
+      expect(idleSpy).toHaveBeenCalled();
+      delete (window as any).requestIdleCallback;
+      delete (globalThis as any).requestIdleCallback;
+    });
+
+    it('大内容异步解析抛错时返回 false', async () => {
+      const longHtml = '<p>' + 'x'.repeat(1200) + '</p>';
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockImplementationOnce(() => {
+        throw new Error('idle parse failed');
+      });
+      const result = await insertParsedHtmlNodes(editor, longHtml, {}, '');
+      expect(result).toBe(false);
+    });
   });
 
   describe('insertParsedHtmlNodes 大批量与错误分支', () => {
@@ -903,6 +1110,94 @@ describe('insertParsedHtmlNodes', () => {
       expect(result).toBe(false);
     });
 
+    it('默认处理分支应命中 no-type/code/普通节点映射', async () => {
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { children: [{ text: 'raw' }] },
+        { type: 'code', children: [{ text: 'const n=1;' }] },
+        { type: 'paragraph', children: [{ text: 'p' }] },
+      ] as any);
+      const result = await insertParsedHtmlNodes(editor, '<div>mixed</div>', {}, '');
+      expect(result).toBe(true);
+    });
+
+    it('upload 非 blob URL 分支应调用 upload', async () => {
+      editor.selection = null;
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'media',
+              url: 'https://example.com/a.png',
+              children: [{ text: '' }],
+            },
+          ],
+        },
+      ] as any);
+      const upload = vi.fn().mockResolvedValue('https://cdn.example.com/a.png');
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<img src="https://example.com/a.png"/>',
+        { image: { upload } },
+        '',
+      );
+      expect(result).toBe(true);
+      expect(upload).toHaveBeenCalled();
+    });
+
+    it('upload 失败时应命中 upLoadFileBatch catch 并提示错误', async () => {
+      editor.selection = null;
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'media',
+              url: 'https://example.com/b.png',
+              children: [{ text: '' }],
+            },
+          ],
+        },
+      ] as any);
+      const upload = vi.fn().mockRejectedValue(new Error('upload failed'));
+      const result = await insertParsedHtmlNodes(
+        editor,
+        '<img src="https://example.com/b.png"/>',
+        { image: { upload } },
+        '',
+      );
+      expect(result).toBe(true);
+      expect(message.error).toHaveBeenCalledWith('Some files failed to upload');
+    });
+
+    it('upload 超过 BATCH_SIZE 时应命中批次延迟分支', async () => {
+      editor.selection = null;
+      editor.children = [{ type: 'paragraph', children: [{ text: '' }] }];
+      const mediaChildren = Array.from({ length: 12 }, (_, i) => ({
+        type: 'media',
+        url: `https://example.com/${i}.png`,
+        children: [{ text: '' }],
+      }));
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { type: 'paragraph', children: mediaChildren },
+      ] as any);
+      const upload = vi.fn().mockImplementation(async (arr: any[]) => arr[0]);
+      vi.useFakeTimers();
+      const p = insertParsedHtmlNodes(editor, '<p>bulk</p>', { image: { upload } }, '');
+      await vi.runAllTimersAsync();
+      const result = await p;
+      vi.useRealTimers();
+      expect(result).toBe(true);
+      expect(upload).toHaveBeenCalled();
+    });
+
     it('data-be 且 table-cell 时应直接返回 true', async () => {
       editor.children = [
         {
@@ -934,6 +1229,33 @@ describe('insertParsedHtmlNodes', () => {
         '',
       );
       expect(result).toBe(true);
+    });
+
+    it('标题节点且 fragment 无 type 且无 text 时返回 false（823）', async () => {
+      editor.children = [{ type: 'head', level: 1, children: [{ text: '' }] }];
+      editor.selection = {
+        anchor: { path: [0, 0], offset: 0 },
+        focus: { path: [0, 0], offset: 0 },
+      };
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        { children: [{ foo: 'bar' }] },
+      ] as any);
+      const result = await insertParsedHtmlNodes(editor, '<div>x</div>', {}, '');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('htmlToFragmentList 默认映射', () => {
+    it('非 table 与非 \"paragraph\" 类型应原样返回（576）', () => {
+      vi.mocked(docxDeserializerModule.docxDeserializer).mockReturnValueOnce([
+        {
+          type: 'paragraph',
+          children: [{ text: 'keep' }],
+        },
+      ] as any);
+      const result = htmlToFragmentList('<p>keep</p>', '');
+      expect(result[0].type).toBe('paragraph');
+      expect(result[0].children[0].text).toBe('keep');
     });
   });
 });
